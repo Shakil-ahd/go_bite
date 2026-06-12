@@ -28,6 +28,7 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
         barrierDismissible: false,
         builder: (dialogContext) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             title: const Row(
               children: [
                 Icon(Icons.notifications_active, color: Colors.orange, size: 28),
@@ -40,13 +41,28 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Customer: ${order.customerName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('Phone: ${order.customerPhone}', style: const TextStyle(color: Colors.blue)),
                 Text('Address: ${order.deliveryAddress}'),
                 const SizedBox(height: 12),
                 const Text('Items:', style: TextStyle(decoration: TextDecoration.underline)),
-                ...order.items.map((i) => Text('- ${i.foodItem.name} x${i.quantity}')),
+                ...order.items.map((i) => Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text(i.foodItem.category.emoji, style: const TextStyle(fontSize: 14)),
+                              const SizedBox(width: 4),
+                              Expanded(child: Text('${i.foodItem.name} x${i.quantity}', overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        Text('৳${i.totalPrice.toStringAsFixed(0)}'),
+                      ],
+                    )),
                 const Divider(),
                 Text(
-                  'Total Amount: \$${order.totalAmount.toStringAsFixed(2)}',
+                  'Total: ৳${order.totalAmount.toStringAsFixed(0)}',
                   style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary, fontSize: 16),
                 ),
               ],
@@ -64,7 +80,7 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
                   context.read<RestaurantBloc>().add(AcceptOrder(order.id));
                   Navigator.pop(dialogContext);
                 },
-                child: const Text('Accept & Cook'),
+                child: const Text('Accept & Prepare'),
               ),
             ],
           );
@@ -124,6 +140,7 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
                 final order = state.orders[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   child: ExpansionTile(
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -137,7 +154,17 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
                     ),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 6.0),
-                      child: Text('Customer: ${order.customerName}'),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Customer: ${order.customerName}'),
+                          if (order.customerPhone.isNotEmpty)
+                            Text(
+                              '📞 ${order.customerPhone}',
+                              style: const TextStyle(color: Colors.blue, fontSize: 12),
+                            ),
+                        ],
+                      ),
                     ),
                     children: [
                       Padding(
@@ -153,10 +180,24 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
                             ...order.items.map((item) => Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('${item.foodItem.name} x ${item.quantity}'),
-                                      Text('\$${item.totalPrice.toStringAsFixed(2)}'),
+                                      // Category badge
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(colors: item.foodItem.category.gradientColors),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          item.foodItem.category.emoji,
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text('${item.foodItem.name} x ${item.quantity}'),
+                                      ),
+                                      Text('৳${item.totalPrice.toStringAsFixed(0)}'),
                                     ],
                                   ),
                                 )),
@@ -166,7 +207,7 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
                               children: [
                                 const Text('Total Revenue:', style: TextStyle(fontWeight: FontWeight.bold)),
                                 Text(
-                                  '\$${order.totalAmount.toStringAsFixed(2)}',
+                                  '৳${order.totalAmount.toStringAsFixed(0)}',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold, color: AppTheme.primary, fontSize: 16),
                                 ),
@@ -181,7 +222,7 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
                                       .add(UpdateOrderStatus(order.id, OrderStatus.preparing));
                                 },
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                                child: const Text('Start Preparing (Cooking)'),
+                                child: const Text('Start Preparing'),
                               ),
                             if (order.status == OrderStatus.preparing)
                               ElevatedButton(

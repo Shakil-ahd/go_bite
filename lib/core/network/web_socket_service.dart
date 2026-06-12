@@ -16,7 +16,7 @@ class WebSocketService {
 
   // Stream exposing incoming messages
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
-  
+
   bool get isConnected => _isConnected;
 
   WebSocketService({required this.url}) {
@@ -35,11 +35,11 @@ class WebSocketService {
   void connect() {
     if (_isConnected || _isConnecting) return;
     _isConnecting = true;
-    
+
     print('🔌 Connecting to WebSocket server: $url ...');
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
-      
+
       // Since WebSocketChannel doesn't block on connection,
       // we monitor the stream to verify status.
       _channel!.stream.listen(

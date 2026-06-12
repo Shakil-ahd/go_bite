@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/network/web_socket_service.dart';
 import '../../../shared/models/models.dart';
 
-// --- Events ---
+// ─── Events ───
 abstract class CustomerEvent extends Equatable {
   const CustomerEvent();
 
@@ -14,6 +14,16 @@ abstract class CustomerEvent extends Equatable {
 }
 
 class LoadRestaurantMenu extends CustomerEvent {}
+
+class SelectCategory extends CustomerEvent {
+  final ProductCategory category;
+  const SelectCategory(this.category);
+
+  @override
+  List<Object?> get props => [category];
+}
+
+class GoBackToCategories extends CustomerEvent {}
 
 class AddToCart extends CustomerEvent {
   final FoodItem item;
@@ -35,15 +45,17 @@ class ClearCart extends CustomerEvent {}
 
 class PlaceOrder extends CustomerEvent {
   final String customerName;
+  final String customerPhone;
   final String deliveryAddress;
 
   const PlaceOrder({
     required this.customerName,
+    required this.customerPhone,
     required this.deliveryAddress,
   });
 
   @override
-  List<Object?> get props => [customerName, deliveryAddress];
+  List<Object?> get props => [customerName, customerPhone, deliveryAddress];
 }
 
 class WebSocketOrderUpdateReceived extends CustomerEvent {
@@ -65,47 +77,220 @@ class WebSocketRiderLocationReceived extends CustomerEvent {
 class ResetCustomerFlow extends CustomerEvent {}
 
 
-// --- State ---
+// ─── State ───
 class CustomerState extends Equatable {
+  final List<FoodItem> allProducts;
   final List<FoodItem> menuItems;
   final List<CartItem> cart;
   final Order? activeOrder;
   final bool isPlacingOrder;
   final String? errorMessage;
+  final ProductCategory? selectedCategory;
 
   const CustomerState({
+    this.allProducts = const [],
     this.menuItems = const [],
     this.cart = const [],
     this.activeOrder,
     this.isPlacingOrder = false,
     this.errorMessage,
+    this.selectedCategory,
   });
 
   double get cartTotal => cart.fold(0.0, (sum, item) => sum + item.totalPrice);
 
   CustomerState copyWith({
+    List<FoodItem>? allProducts,
     List<FoodItem>? menuItems,
     List<CartItem>? cart,
     Order? activeOrder,
     bool? isPlacingOrder,
     String? errorMessage,
+    ProductCategory? selectedCategory,
     bool clearActiveOrder = false,
+    bool clearCategory = false,
   }) {
     return CustomerState(
+      allProducts: allProducts ?? this.allProducts,
       menuItems: menuItems ?? this.menuItems,
       cart: cart ?? this.cart,
       activeOrder: clearActiveOrder ? null : (activeOrder ?? this.activeOrder),
       isPlacingOrder: isPlacingOrder ?? this.isPlacingOrder,
       errorMessage: errorMessage ?? this.errorMessage,
+      selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
     );
   }
 
   @override
-  List<Object?> get props => [menuItems, cart, activeOrder, isPlacingOrder, errorMessage];
+  List<Object?> get props => [allProducts, menuItems, cart, activeOrder, isPlacingOrder, errorMessage, selectedCategory];
 }
 
 
-// --- Bloc ---
+// ─── Bangladeshi Product Catalog ───
+const List<FoodItem> _bangladeshiCatalog = [
+  // ═══ FOOD (8 items) ═══
+  FoodItem(
+    id: 'food_01', name: 'Kacchi Biryani',
+    description: 'Authentic Dhaka-style Kacchi with tender goat meat, aromatic rice, potatoes & boiled eggs',
+    price: 350, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_02', name: 'Chicken Biryani',
+    description: 'Fragrant basmati rice with juicy chicken pieces, saffron & special spices',
+    price: 280, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_03', name: 'Morog Polao',
+    description: 'Classic Bengali chicken polao with ghee-flavored rice & whole spices',
+    price: 300, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_04', name: 'Beef Tehari',
+    description: 'Spicy beef tehari with fragrant rice, potatoes & traditional Puran Dhaka spices',
+    price: 220, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_05', name: 'Khichuri + Dim Bhaji',
+    description: 'Comfort food: Dal khichuri served with egg omelette & mixed vegetable bhaji',
+    price: 150, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_06', name: 'Ilish Bhuna',
+    description: 'Premium Hilsa fish slow-cooked in mustard paste & traditional Bengali spices',
+    price: 450, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_07', name: 'Beef Bhuna Khichuri',
+    description: 'Rich beef bhuna with aromatic khichuri, perfect for rainy days',
+    price: 250, imageUrl: '', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_08', name: 'Shutki Bhorta + Bhat',
+    description: 'Authentic dried fish bhorta served with steamed rice & dal',
+    price: 180, imageUrl: '', category: ProductCategory.food,
+  ),
+
+  // ═══ DRINKS (6 items) ═══
+  FoodItem(
+    id: 'drink_01', name: 'Borhani',
+    description: 'Traditional Bangladeshi spicy yogurt drink, perfect with biryani',
+    price: 40, imageUrl: '', category: ProductCategory.drinks,
+  ),
+  FoodItem(
+    id: 'drink_02', name: 'Mango Lassi',
+    description: 'Creamy mango yogurt smoothie made with fresh seasonal mangoes',
+    price: 60, imageUrl: '', category: ProductCategory.drinks,
+  ),
+  FoodItem(
+    id: 'drink_03', name: 'Doodh Cha',
+    description: 'Rich milk tea with ginger, cardamom & cinnamon — Bangladeshi special',
+    price: 25, imageUrl: '', category: ProductCategory.drinks,
+  ),
+  FoodItem(
+    id: 'drink_04', name: 'Lemon Soda',
+    description: 'Refreshing lemon soda with mint & a pinch of black salt',
+    price: 35, imageUrl: '', category: ProductCategory.drinks,
+  ),
+  FoodItem(
+    id: 'drink_05', name: 'Aam Panna',
+    description: 'Tangy raw mango drink with cumin, mint & sugar — summer favorite',
+    price: 45, imageUrl: '', category: ProductCategory.drinks,
+  ),
+  FoodItem(
+    id: 'drink_06', name: 'Faluda',
+    description: 'Colorful rose-flavored Faluda with vermicelli, basil seeds & ice cream',
+    price: 80, imageUrl: '', category: ProductCategory.drinks,
+  ),
+
+  // ═══ SNACKS (6 items) ═══
+  FoodItem(
+    id: 'snack_01', name: 'Fuchka (8 pcs)',
+    description: 'Crispy hollow shells filled with spicy tamarind water, chickpeas & potatoes',
+    price: 40, imageUrl: '', category: ProductCategory.snacks,
+  ),
+  FoodItem(
+    id: 'snack_02', name: 'Chotpoti',
+    description: 'Spicy chickpea curry topped with boiled egg, onion & tamarind sauce',
+    price: 50, imageUrl: '', category: ProductCategory.snacks,
+  ),
+  FoodItem(
+    id: 'snack_03', name: 'Jhalmuri',
+    description: 'Puffed rice mixed with mustard oil, green chili, onion & chanachur',
+    price: 30, imageUrl: '', category: ProductCategory.snacks,
+  ),
+  FoodItem(
+    id: 'snack_04', name: 'Singara (4 pcs)',
+    description: 'Crispy fried pastry filled with spiced potatoes & peas — classic Bengali snack',
+    price: 40, imageUrl: '', category: ProductCategory.snacks,
+  ),
+  FoodItem(
+    id: 'snack_05', name: 'Piyaju (6 pcs)',
+    description: 'Crunchy onion fritters made with lentil batter — iftar staple',
+    price: 30, imageUrl: '', category: ProductCategory.snacks,
+  ),
+  FoodItem(
+    id: 'snack_06', name: 'Beguni (6 pcs)',
+    description: 'Batter-fried eggplant slices — crispy outside, soft inside',
+    price: 35, imageUrl: '', category: ProductCategory.snacks,
+  ),
+
+  // ═══ MEDICINE (5 items) ═══
+  FoodItem(
+    id: 'med_01', name: 'Napa Extra',
+    description: 'Paracetamol 500mg + Caffeine 65mg — for headache, fever & body pain',
+    price: 12, imageUrl: '', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'med_02', name: 'Seclo 20mg',
+    description: 'Omeprazole capsule for acidity, heartburn & gastric problems',
+    price: 8, imageUrl: '', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'med_03', name: 'Ace Plus',
+    description: 'Paracetamol + Caffeine tablet — fast relief from pain & fever',
+    price: 10, imageUrl: '', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'med_04', name: 'Histacin',
+    description: 'Chlorpheniramine maleate — for cold, allergies & runny nose',
+    price: 6, imageUrl: '', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'med_05', name: 'Antacid Suspension',
+    description: 'Liquid antacid for quick relief from gas, bloating & acidity',
+    price: 65, imageUrl: '', category: ProductCategory.medicine,
+  ),
+
+  // ═══ OTHERS (5 items) ═══
+  FoodItem(
+    id: 'other_01', name: 'Miniket Rice 5kg',
+    description: 'Premium quality Miniket rice — best for daily cooking',
+    price: 450, imageUrl: '', category: ProductCategory.others,
+  ),
+  FoodItem(
+    id: 'other_02', name: 'Soybean Oil 5L',
+    description: 'Teer soybean oil — pure & healthy cooking oil',
+    price: 800, imageUrl: '', category: ProductCategory.others,
+  ),
+  FoodItem(
+    id: 'other_03', name: 'Sugar 1kg',
+    description: 'Refined white sugar for daily use',
+    price: 120, imageUrl: '', category: ProductCategory.others,
+  ),
+  FoodItem(
+    id: 'other_04', name: 'Eggs (12 pcs)',
+    description: 'Farm-fresh chicken eggs — protein-rich & nutritious',
+    price: 160, imageUrl: '', category: ProductCategory.others,
+  ),
+  FoodItem(
+    id: 'other_05', name: 'Fresh Milk 1L',
+    description: 'Pasteurized fresh cow milk — Farm Fresh brand',
+    price: 85, imageUrl: '', category: ProductCategory.others,
+  ),
+];
+
+
+// ─── Bloc ───
 class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   final WebSocketService _webSocketService;
   StreamSubscription? _wsSubscription;
@@ -126,38 +311,21 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     });
 
     on<LoadRestaurantMenu>((event, emit) {
-      // Load static dummy menu items
-      final menu = [
-        const FoodItem(
-          id: 'food_1',
-          name: 'Classic Cheeseburger',
-          description: 'Juicy beef patty, melted cheddar, lettuce, tomato & secret sauce',
-          price: 8.99,
-          imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500',
-        ),
-        const FoodItem(
-          id: 'food_2',
-          name: 'Pepperoni Pizza',
-          description: 'Spicy pepperoni, mozzarella, tomato sauce & fresh basil',
-          price: 12.49,
-          imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500',
-        ),
-        const FoodItem(
-          id: 'food_3',
-          name: 'Spicy Buffalo Wings',
-          description: 'Crispy chicken wings tossed in tangy buffalo hot sauce with ranch dip',
-          price: 9.99,
-          imageUrl: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=500',
-        ),
-        const FoodItem(
-          id: 'food_4',
-          name: 'Chocolate Fudge Shake',
-          description: 'Rich chocolate shake topped with whipped cream and chocolate drizzle',
-          price: 4.99,
-          imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500',
-        ),
-      ];
-      emit(state.copyWith(menuItems: menu));
+      emit(state.copyWith(allProducts: _bangladeshiCatalog));
+    });
+
+    on<SelectCategory>((event, emit) {
+      final filtered = state.allProducts
+          .where((item) => item.category == event.category)
+          .toList();
+      emit(state.copyWith(
+        selectedCategory: event.category,
+        menuItems: filtered,
+      ));
+    });
+
+    on<GoBackToCategories>((event, emit) {
+      emit(state.copyWith(clearCategory: true, menuItems: const []));
     });
 
     on<AddToCart>((event, emit) {
@@ -199,7 +367,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
     on<PlaceOrder>((event, emit) {
       if (state.cart.isEmpty) {
-        emit(state.copyWith(errorMessage: 'Cart is empty. cannot place order.'));
+        emit(state.copyWith(errorMessage: 'Cart is empty. Cannot place order.'));
         return;
       }
 
@@ -207,8 +375,9 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
       final newOrder = Order(
         id: const Uuid().v4(),
-        restaurantName: 'GoBite Kitchen',
+        restaurantName: 'GoBite Store',
         customerName: event.customerName,
+        customerPhone: event.customerPhone,
         items: state.cart,
         status: OrderStatus.pending,
         totalAmount: state.cartTotal,

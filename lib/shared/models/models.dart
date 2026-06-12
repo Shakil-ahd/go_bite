@@ -1,11 +1,85 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
+// ─── User Roles ───
 enum UserRole {
   customer,
   restaurant,
   rider,
 }
 
+// ─── Product Categories ───
+enum ProductCategory {
+  food,
+  drinks,
+  snacks,
+  medicine,
+  others,
+}
+
+extension ProductCategoryExtension on ProductCategory {
+  String get displayName {
+    switch (this) {
+      case ProductCategory.food:
+        return 'Food';
+      case ProductCategory.drinks:
+        return 'Drinks';
+      case ProductCategory.snacks:
+        return 'Snacks';
+      case ProductCategory.medicine:
+        return 'Medicine';
+      case ProductCategory.others:
+        return 'Others';
+    }
+  }
+
+  String get emoji {
+    switch (this) {
+      case ProductCategory.food:
+        return '🍛';
+      case ProductCategory.drinks:
+        return '🥤';
+      case ProductCategory.snacks:
+        return '🍢';
+      case ProductCategory.medicine:
+        return '💊';
+      case ProductCategory.others:
+        return '📦';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case ProductCategory.food:
+        return Icons.restaurant;
+      case ProductCategory.drinks:
+        return Icons.local_cafe;
+      case ProductCategory.snacks:
+        return Icons.fastfood;
+      case ProductCategory.medicine:
+        return Icons.medical_services;
+      case ProductCategory.others:
+        return Icons.shopping_basket;
+    }
+  }
+
+  List<Color> get gradientColors {
+    switch (this) {
+      case ProductCategory.food:
+        return [const Color(0xFFFF5722), const Color(0xFFFF9800)];
+      case ProductCategory.drinks:
+        return [const Color(0xFF2196F3), const Color(0xFF00BCD4)];
+      case ProductCategory.snacks:
+        return [const Color(0xFFFFC107), const Color(0xFFFF9800)];
+      case ProductCategory.medicine:
+        return [const Color(0xFF4CAF50), const Color(0xFF009688)];
+      case ProductCategory.others:
+        return [const Color(0xFF7C4DFF), const Color(0xFF536DFE)];
+    }
+  }
+}
+
+// ─── Order Status ───
 enum OrderStatus {
   pending,
   accepted,
@@ -24,7 +98,7 @@ extension OrderStatusExtension on OrderStatus {
       case OrderStatus.accepted:
         return 'Accepted';
       case OrderStatus.preparing:
-        return 'Preparing Food';
+        return 'Preparing';
       case OrderStatus.readyForPickup:
         return 'Ready for Pickup';
       case OrderStatus.outForDelivery:
@@ -37,6 +111,67 @@ extension OrderStatusExtension on OrderStatus {
   }
 }
 
+// ─── User Profile ───
+class UserProfile extends Equatable {
+  final String name;
+  final String phone;
+  final String? email;
+  final String deliveryAddress;
+  final double? latitude;
+  final double? longitude;
+
+  const UserProfile({
+    required this.name,
+    required this.phone,
+    this.email,
+    required this.deliveryAddress,
+    this.latitude,
+    this.longitude,
+  });
+
+  UserProfile copyWith({
+    String? name,
+    String? phone,
+    String? email,
+    String? deliveryAddress,
+    double? latitude,
+    double? longitude,
+  }) {
+    return UserProfile(
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'phone': phone,
+        'email': email,
+        'deliveryAddress': deliveryAddress,
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      email: json['email'] as String?,
+      deliveryAddress: json['deliveryAddress'] as String,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+    );
+  }
+
+  @override
+  List<Object?> get props => [name, phone, email, deliveryAddress, latitude, longitude];
+}
+
+// ─── User Location ───
 class UserLocation extends Equatable {
   final double latitude;
   final double longitude;
@@ -66,12 +201,14 @@ class UserLocation extends Equatable {
   List<Object?> get props => [latitude, longitude, timestamp];
 }
 
+// ─── Food / Product Item ───
 class FoodItem extends Equatable {
   final String id;
   final String name;
   final String description;
   final double price;
   final String imageUrl;
+  final ProductCategory category;
 
   const FoodItem({
     required this.id,
@@ -79,6 +216,7 @@ class FoodItem extends Equatable {
     required this.description,
     required this.price,
     required this.imageUrl,
+    required this.category,
   });
 
   Map<String, dynamic> toJson() => {
@@ -87,6 +225,7 @@ class FoodItem extends Equatable {
         'description': description,
         'price': price,
         'imageUrl': imageUrl,
+        'category': category.name,
       };
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
@@ -96,13 +235,18 @@ class FoodItem extends Equatable {
       description: json['description'] as String,
       price: (json['price'] as num).toDouble(),
       imageUrl: json['imageUrl'] as String,
+      category: ProductCategory.values.firstWhere(
+        (e) => e.name == json['category'],
+        orElse: () => ProductCategory.food,
+      ),
     );
   }
 
   @override
-  List<Object?> get props => [id, name, description, price, imageUrl];
+  List<Object?> get props => [id, name, description, price, imageUrl, category];
 }
 
+// ─── Cart Item ───
 class CartItem extends Equatable {
   final FoodItem foodItem;
   final int quantity;
@@ -130,10 +274,12 @@ class CartItem extends Equatable {
   List<Object?> get props => [foodItem, quantity];
 }
 
+// ─── Order ───
 class Order extends Equatable {
   final String id;
   final String restaurantName;
   final String customerName;
+  final String customerPhone;
   final List<CartItem> items;
   final OrderStatus status;
   final double totalAmount;
@@ -145,6 +291,7 @@ class Order extends Equatable {
     required this.id,
     required this.restaurantName,
     required this.customerName,
+    required this.customerPhone,
     required this.items,
     required this.status,
     required this.totalAmount,
@@ -157,6 +304,7 @@ class Order extends Equatable {
     String? id,
     String? restaurantName,
     String? customerName,
+    String? customerPhone,
     List<CartItem>? items,
     OrderStatus? status,
     double? totalAmount,
@@ -168,6 +316,7 @@ class Order extends Equatable {
       id: id ?? this.id,
       restaurantName: restaurantName ?? this.restaurantName,
       customerName: customerName ?? this.customerName,
+      customerPhone: customerPhone ?? this.customerPhone,
       items: items ?? this.items,
       status: status ?? this.status,
       totalAmount: totalAmount ?? this.totalAmount,
@@ -181,6 +330,7 @@ class Order extends Equatable {
         'id': id,
         'restaurantName': restaurantName,
         'customerName': customerName,
+        'customerPhone': customerPhone,
         'items': items.map((i) => i.toJson()).toList(),
         'status': status.name,
         'totalAmount': totalAmount,
@@ -194,6 +344,7 @@ class Order extends Equatable {
       id: json['id'] as String,
       restaurantName: json['restaurantName'] as String,
       customerName: json['customerName'] as String,
+      customerPhone: json['customerPhone'] as String? ?? '',
       items: (json['items'] as List<dynamic>)
           .map((i) => CartItem.fromJson(i as Map<String, dynamic>))
           .toList(),
@@ -215,6 +366,7 @@ class Order extends Equatable {
         id,
         restaurantName,
         customerName,
+        customerPhone,
         items,
         status,
         totalAmount,

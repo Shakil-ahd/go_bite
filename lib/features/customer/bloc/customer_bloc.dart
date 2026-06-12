@@ -132,160 +132,160 @@ const List<FoodItem> _bangladeshiCatalog = [
   FoodItem(
     id: 'food_01', name: 'Kacchi Biryani',
     description: 'Authentic Dhaka-style Kacchi with tender goat meat, aromatic rice, potatoes & boiled eggs',
-    price: 350, imageUrl: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=400&q=80', category: ProductCategory.food,
+    price: 350, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_02', name: 'Chicken Biryani',
     description: 'Fragrant basmati rice with juicy chicken pieces, saffron & special spices',
-    price: 280, imageUrl: 'https://images.unsplash.com/photo-1589302168068-964664d93cb0?w=400&q=80', category: ProductCategory.food,
+    price: 280, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_03', name: 'Morog Polao',
     description: 'Classic Bengali chicken polao with ghee-flavored rice & whole spices',
-    price: 300, imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80', category: ProductCategory.food,
+    price: 300, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_04', name: 'Beef Tehari',
     description: 'Spicy beef tehari with fragrant rice, potatoes & traditional Puran Dhaka spices',
-    price: 220, imageUrl: 'https://images.unsplash.com/photo-1626779836873-1002cebb7973?w=400&q=80', category: ProductCategory.food,
+    price: 220, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_05', name: 'Khichuri + Dim Bhaji',
     description: 'Comfort food: Dal khichuri served with egg omelette & mixed vegetable bhaji',
-    price: 150, imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&q=80', category: ProductCategory.food,
+    price: 150, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_06', name: 'Ilish Bhuna',
     description: 'Premium Hilsa fish slow-cooked in mustard paste & traditional Bengali spices',
-    price: 450, imageUrl: 'https://images.unsplash.com/photo-1513442542250-854d436a73f2?w=400&q=80', category: ProductCategory.food,
+    price: 450, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_07', name: 'Beef Bhuna Khichuri',
     description: 'Rich beef bhuna with aromatic khichuri, perfect for rainy days',
-    price: 250, imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&q=80', category: ProductCategory.food,
+    price: 250, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
   FoodItem(
     id: 'food_08', name: 'Shutki Bhorta + Bhat',
     description: 'Authentic dried fish bhorta served with steamed rice & dal',
-    price: 180, imageUrl: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400&q=80', category: ProductCategory.food,
+    price: 180, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
   ),
 
   // ═══ DRINKS (6 items) ═══
   FoodItem(
     id: 'drink_01', name: 'Borhani',
     description: 'Traditional Bangladeshi spicy yogurt drink, perfect with biryani',
-    price: 40, imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&q=80', category: ProductCategory.drinks,
+    price: 40, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.drinks,
   ),
   FoodItem(
     id: 'drink_02', name: 'Mango Lassi',
     description: 'Creamy mango yogurt smoothie made with fresh seasonal mangoes',
-    price: 60, imageUrl: 'https://images.unsplash.com/photo-1546857904-809ff027663f?w=400&q=80', category: ProductCategory.drinks,
+    price: 60, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.drinks,
   ),
   FoodItem(
     id: 'drink_03', name: 'Doodh Cha',
     description: 'Rich milk tea with ginger, cardamom & cinnamon — Bangladeshi special',
-    price: 25, imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&q=80', category: ProductCategory.drinks,
+    price: 25, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.drinks,
   ),
   FoodItem(
     id: 'drink_04', name: 'Lemon Soda',
     description: 'Refreshing lemon soda with mint & a pinch of black salt',
-    price: 35, imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&q=80', category: ProductCategory.drinks,
+    price: 35, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.drinks,
   ),
   FoodItem(
     id: 'drink_05', name: 'Aam Panna',
     description: 'Tangy raw mango drink with cumin, mint & sugar — summer favorite',
-    price: 45, imageUrl: 'https://images.unsplash.com/photo-1556881286-fc6915169721?w=400&q=80', category: ProductCategory.drinks,
+    price: 45, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.drinks,
   ),
   FoodItem(
     id: 'drink_06', name: 'Faluda',
     description: 'Colorful rose-flavored Faluda with vermicelli, basil seeds & ice cream',
-    price: 80, imageUrl: 'https://images.unsplash.com/photo-1563805042-7684c8e9e533?w=400&q=80', category: ProductCategory.drinks,
+    price: 80, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.drinks,
   ),
 
   // ═══ SNACKS (6 items) ═══
   FoodItem(
     id: 'snack_01', name: 'Fuchka (8 pcs)',
     description: 'Crispy hollow shells filled with spicy tamarind water, chickpeas & potatoes',
-    price: 40, imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&q=80', category: ProductCategory.snacks,
+    price: 40, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.snacks,
   ),
   FoodItem(
     id: 'snack_02', name: 'Chotpoti',
     description: 'Spicy chickpea curry topped with boiled egg, onion & tamarind sauce',
-    price: 50, imageUrl: 'https://images.unsplash.com/photo-1589301760014-d929f39ce9b1?w=400&q=80', category: ProductCategory.snacks,
+    price: 50, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.snacks,
   ),
   FoodItem(
     id: 'snack_03', name: 'Jhalmuri',
     description: 'Puffed rice mixed with mustard oil, green chili, onion & chanachur',
-    price: 30, imageUrl: 'https://images.unsplash.com/photo-1599487405270-8cd5c3746c05?w=400&q=80', category: ProductCategory.snacks,
+    price: 30, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.snacks,
   ),
   FoodItem(
     id: 'snack_04', name: 'Singara (4 pcs)',
     description: 'Crispy fried pastry filled with spiced potatoes & peas — classic Bengali snack',
-    price: 40, imageUrl: 'https://images.unsplash.com/photo-1626804475297-4160ebea0c56?w=400&q=80', category: ProductCategory.snacks,
+    price: 40, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.snacks,
   ),
   FoodItem(
     id: 'snack_05', name: 'Piyaju (6 pcs)',
     description: 'Crunchy onion fritters made with lentil batter — iftar staple',
-    price: 30, imageUrl: 'https://images.unsplash.com/photo-1626804475097-440f1029288f?w=400&q=80', category: ProductCategory.snacks,
+    price: 30, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.snacks,
   ),
   FoodItem(
     id: 'snack_06', name: 'Beguni (6 pcs)',
     description: 'Batter-fried eggplant slices — crispy outside, soft inside',
-    price: 35, imageUrl: 'https://images.unsplash.com/photo-1610338781035-773df45f4834?w=400&q=80', category: ProductCategory.snacks,
+    price: 35, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.snacks,
   ),
 
   // ═══ MEDICINE (5 items) ═══
   FoodItem(
     id: 'med_01', name: 'Napa Extra',
     description: 'Paracetamol 500mg + Caffeine 65mg — for headache, fever & body pain',
-    price: 12, imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5e4a8c9e1?w=400&q=80', category: ProductCategory.medicine,
+    price: 12, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.medicine,
   ),
   FoodItem(
     id: 'med_02', name: 'Seclo 20mg',
     description: 'Omeprazole capsule for acidity, heartburn & gastric problems',
-    price: 8, imageUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400&q=80', category: ProductCategory.medicine,
+    price: 8, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.medicine,
   ),
   FoodItem(
     id: 'med_03', name: 'Ace Plus',
     description: 'Paracetamol + Caffeine tablet — fast relief from pain & fever',
-    price: 10, imageUrl: 'https://images.unsplash.com/photo-1550572017-edb7021b3f9b?w=400&q=80', category: ProductCategory.medicine,
+    price: 10, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.medicine,
   ),
   FoodItem(
     id: 'med_04', name: 'Histacin',
     description: 'Chlorpheniramine maleate — for cold, allergies & runny nose',
-    price: 6, imageUrl: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&q=80', category: ProductCategory.medicine,
+    price: 6, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.medicine,
   ),
   FoodItem(
     id: 'med_05', name: 'Antacid Suspension',
     description: 'Liquid antacid for quick relief from gas, bloating & acidity',
-    price: 65, imageUrl: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&q=80', category: ProductCategory.medicine,
+    price: 65, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.medicine,
   ),
 
   // ═══ OTHERS (5 items) ═══
   FoodItem(
     id: 'other_01', name: 'Miniket Rice 5kg',
     description: 'Premium quality Miniket rice — best for daily cooking',
-    price: 450, imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80', category: ProductCategory.others,
+    price: 450, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.others,
   ),
   FoodItem(
     id: 'other_02', name: 'Soybean Oil 5L',
     description: 'Teer soybean oil — pure & healthy cooking oil',
-    price: 800, imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80', category: ProductCategory.others,
+    price: 800, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.others,
   ),
   FoodItem(
     id: 'other_03', name: 'Sugar 1kg',
     description: 'Refined white sugar for daily use',
-    price: 120, imageUrl: 'https://images.unsplash.com/photo-1581428982868-e410dd147b9d?w=400&q=80', category: ProductCategory.others,
+    price: 120, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.others,
   ),
   FoodItem(
     id: 'other_04', name: 'Eggs (12 pcs)',
     description: 'Farm-fresh chicken eggs — protein-rich & nutritious',
-    price: 160, imageUrl: 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=400&q=80', category: ProductCategory.others,
+    price: 160, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.others,
   ),
   FoodItem(
     id: 'other_05', name: 'Fresh Milk 1L',
     description: 'Pasteurized fresh cow milk — Farm Fresh brand',
-    price: 85, imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80', category: ProductCategory.others,
+    price: 85, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.others,
   ),
 ];
 

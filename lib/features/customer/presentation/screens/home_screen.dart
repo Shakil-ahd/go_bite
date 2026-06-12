@@ -60,30 +60,68 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hi, $userName 👋',
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.location_on, size: 14, color: Colors.white70),
-                                const SizedBox(width: 4),
-                                Text(
-                                  address,
-                                  style: const TextStyle(fontSize: 13, color: Colors.white70),
+                        if (authState is AuthAuthenticated)
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CustomerProfileScreen())),
+                                child: CircleAvatar(
+                                  radius: 22,
+                                  backgroundColor: Colors.white,
+                                  child: Text(
+                                    authState.profile.firstName.isNotEmpty ? authState.profile.firstName[0].toUpperCase() : 'C',
+                                    style: const TextStyle(color: AppTheme.primary, fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Hi, ${authState.profile.firstName} 👋',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on, size: 14, color: Colors.white70),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        authState.profile.deliveryAddress.length > 25 
+                                            ? '${authState.profile.deliveryAddress.substring(0, 25)}...' 
+                                            : authState.profile.deliveryAddress,
+                                        style: const TextStyle(fontSize: 13, color: Colors.white70),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        else
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Welcome to GoBite 🍔',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Sign in to set your location',
+                                style: TextStyle(fontSize: 13, color: Colors.white70),
+                              ),
+                            ],
+                          ),
                         Row(
                           children: [
                             // Cart badge
@@ -116,15 +154,6 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 );
                               },
                             ),
-                            if (authState is AuthAuthenticated)
-                              IconButton(
-                                icon: const Icon(Icons.person, color: Colors.white),
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => const CustomerProfileScreen()),
-                                  );
-                                },
-                              ),
                           ],
                         ),
                       ],
@@ -159,45 +188,31 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
 
               const SizedBox(height: 24),
 
-              // ─── Promo Banner ───
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
+              // ─── Promo Banner Carousel ───
+              SizedBox(
+                height: 130,
+                child: PageView(
+                  controller: PageController(viewportFraction: 0.9),
+                  children: [
+                    _buildPromoCard(
+                      title: '🔥 Free Delivery',
+                      subtitle: 'On your first 3 orders!\nOrder now & save ৳50',
+                      emoji: '🛵',
                       colors: [Colors.deepOrange.shade400, Colors.orange.shade300],
                     ),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 4)),
-                    ],
-                  ),
-                  child: const Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '🔥 Free Delivery',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              'On your first 3 orders!\nOrder now & save ৳50',
-                              style: TextStyle(fontSize: 13, color: Colors.white70, height: 1.4),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text('🛵', style: TextStyle(fontSize: 48)),
-                    ],
-                  ),
+                    _buildPromoCard(
+                      title: '🎉 20% Discount',
+                      subtitle: 'Use code GOBITE20\nValid on all food items',
+                      emoji: '🍔',
+                      colors: [Colors.purple.shade400, Colors.pink.shade300],
+                    ),
+                    _buildPromoCard(
+                      title: '🌙 Midnight Offer',
+                      subtitle: 'Craving at night?\nGet flat ৳100 off after 12 AM',
+                      emoji: '🦉',
+                      colors: [Colors.blue.shade800, Colors.indigo.shade400],
+                    ),
+                  ],
                 ),
               ),
 
@@ -300,6 +315,42 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
     );
   }
 
+  Widget _buildPromoCard({required String title, required String subtitle, required String emoji, required List<Color> colors}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: colors),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 13, color: Colors.white70, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+          Text(emoji, style: const TextStyle(fontSize: 48)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategoryCard(BuildContext context, ProductCategory cat) {
     return GestureDetector(
       onTap: () => context.read<CustomerBloc>().add(SelectCategory(cat)),
@@ -332,13 +383,13 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -346,7 +397,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
                       ],
                     ),
-                    child: Icon(cat.icon, color: cat.gradientColors.first, size: 24),
+                    child: Icon(cat.icon, color: cat.gradientColors.first, size: 20),
                   ),
                   const Spacer(),
                   Text(

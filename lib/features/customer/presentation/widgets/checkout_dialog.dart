@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/models.dart';
 import '../../bloc/customer_bloc.dart';
+import '../screens/tracking_screen.dart';
 
 // ═══════════════════════════════════════════
 // ──── Checkout Location Helper ────
@@ -59,6 +60,9 @@ void processCheckout(BuildContext context, UserProfile profile) {
                     customerPhone: profile.phone,
                     deliveryAddress: newAddress,
                   ));
+                  
+                  // Show Success Dialog
+                  _showSuccessDialog(context);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -68,6 +72,59 @@ void processCheckout(BuildContext context, UserProfile profile) {
               child: const Text('Confirm Order', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
+        );
+      },
+    );
+  });
+}
+
+void _showSuccessDialog(BuildContext context) {
+  Future.delayed(const Duration(milliseconds: 300), () {
+    if (!context.mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (successContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          contentPadding: const EdgeInsets.all(32),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: Colors.green.shade50, shape: BoxShape.circle),
+                child: const Icon(Icons.check_circle, color: Colors.green, size: 64),
+              ),
+              const SizedBox(height: 24),
+              const Text('Order Confirmed!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+              const SizedBox(height: 8),
+              const Text('Your delicious items are being prepared.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(successContext);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: const Text('Track Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.pop(successContext),
+                child: const Text('Back to Home', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
         );
       },
     );

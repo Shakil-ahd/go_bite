@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/models/models.dart';
+import '../customer/presentation/screens/customer_dashboard.dart';
 import 'bloc/auth_bloc.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -124,89 +125,99 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.orange.shade50, Colors.white, Colors.orange.shade50.withOpacity(0.3)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const CustomerDashboard()),
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.orange.shade50, Colors.white, Colors.orange.shade50.withOpacity(0.3)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Top bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    if (_currentStep > 0)
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, size: 20),
-                        onPressed: _prevStep,
-                      )
-                    else
-                      const SizedBox(width: 48),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          const Text(
-                            'GoBite',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: AppTheme.primary,
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Top bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      if (_currentStep > 0)
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios, size: 20),
+                          onPressed: _prevStep,
+                        )
+                      else
+                        const SizedBox(width: 48),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            const Text(
+                              'GoBite',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primary,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Step ${_currentStep + 1} of 3',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
-              ),
-
-              // Progress bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Row(
-                  children: List.generate(3, (i) {
-                    return Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: i <= _currentStep
-                              ? AppTheme.primary
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(2),
+                            Text(
+                              'Step ${_currentStep + 1} of 3',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  }),
+                      const SizedBox(width: 48),
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
-
-              // Pages
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    _buildStep1AuthMethod(),
-                    _buildStep2PersonalInfo(),
-                    _buildStep3Location(),
-                  ],
+                // Progress bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Row(
+                    children: List.generate(3, (i) {
+                      return Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: i <= _currentStep
+                                ? AppTheme.primary
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 16),
+
+                // Pages
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildStep1AuthMethod(),
+                      _buildStep2PersonalInfo(),
+                      _buildStep3Location(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -468,6 +479,7 @@ class _SignupScreenState extends State<SignupScreen> {
     required IconData icon,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    Widget? suffixIcon,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,6 +496,7 @@ class _SignupScreenState extends State<SignupScreen> {
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: Icon(icon, color: AppTheme.primary),
+            suffixIcon: suffixIcon,
             filled: true,
             fillColor: Colors.grey.shade50,
             border: OutlineInputBorder(
@@ -527,46 +540,28 @@ class _SignupScreenState extends State<SignupScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
 
-          // Current Location Button
-          SizedBox(
-            height: 56,
-            child: ElevatedButton.icon(
-              onPressed: _isFetchingLocation ? null : _getCurrentLocation,
-              icon: _isFetchingLocation 
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Icon(Icons.my_location, size: 22),
-              label: Text(
-                _isFetchingLocation ? 'Getting location...' : 'Use My Current Location',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade600,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(child: Divider(color: Colors.grey.shade300)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text('OR', style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
-              ),
-              Expanded(child: Divider(color: Colors.grey.shade300)),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Custom address field
+          // Custom address field with inline location button
           _buildInputField(
             controller: _addressController,
-            label: 'Detailed Address',
-            hint: 'House no, Road, Area, Dhaka',
+            label: 'Detailed Address *',
+            hint: 'House no, Road, Area...',
             icon: Icons.home,
+            suffixIcon: Container(
+              margin: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                onPressed: _isFetchingLocation ? null : _getCurrentLocation,
+                icon: _isFetchingLocation 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.my_location, color: Colors.blue),
+                tooltip: 'Use current GPS location',
+              ),
+            ),
           ),
 
           if (_latitude != null && _longitude != null) ...[
@@ -593,7 +588,7 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           ],
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 60),
 
           // Final signup button
           SizedBox(

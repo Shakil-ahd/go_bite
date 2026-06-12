@@ -18,12 +18,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Fast & Secure Delivery',
       'description': 'We prioritize your time. Get your essentials delivered at lightning speed with maximum security and trust.',
-      'image': 'https://images.unsplash.com/photo-1617347454431-f49cd7ea018c?w=1200&auto=format&fit=crop', 
+      'image': 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=1200&auto=format&fit=crop', 
     },
     {
-      'title': 'Delicious Food Anywhere',
+      'title': 'Delicious Biryani & More',
       'description': 'Craving Biryani or Pizza? Order from your favorite restaurants and enjoy hot meals delivered instantly.',
-      'image': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&auto=format&fit=crop', 
+      'image': 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=1200&auto=format&fit=crop', 
     },
     {
       'title': 'Emergency Medicine',

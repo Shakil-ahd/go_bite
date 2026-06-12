@@ -112,6 +112,22 @@ class CustomerProfileScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order history is empty.')));
+                          },
+                          icon: const Icon(Icons.history, color: Colors.white),
+                          label: const Text('Order History', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
                         child: OutlinedButton.icon(
                           onPressed: () {
                             context.read<AuthBloc>().add(LogoutRequested());

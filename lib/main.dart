@@ -6,6 +6,7 @@ import 'features/auth/bloc/auth_bloc.dart';
 import 'features/customer/presentation/screens/customer_dashboard.dart';
 import 'features/customer/bloc/customer_bloc.dart';
 import 'features/entry/onboarding_screen.dart';
+import 'features/entry/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +44,7 @@ class GoBiteApp extends StatelessWidget {
           title: 'GoBite',
           theme: AppTheme.lightTheme,
           debugShowCheckedModeBanner: false,
-          home: const MainRouter(),
+          home: const SplashScreen(),
         ),
       ),
     );

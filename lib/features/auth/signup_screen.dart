@@ -20,7 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   final _addressController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  
+
   bool _obscurePassword = true;
 
   @override
@@ -46,10 +46,9 @@ class _SignupScreenState extends State<SignupScreen> {
       deliveryAddress: _addressController.text.trim(),
     );
 
-    context.read<AuthBloc>().add(SignupRequested(
-          profile: profile,
-          method: AuthMethod.phone, 
-        ));
+    context.read<AuthBloc>().add(
+      SignupRequested(profile: profile, method: AuthMethod.email),
+    );
   }
 
   @override
@@ -58,7 +57,9 @@ class _SignupScreenState extends State<SignupScreen> {
       listener: (context, state) {
         if (state is AuthSignupSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Account created successfully! Please login.')),
+            const SnackBar(
+              content: Text('Account created successfully! Please login.'),
+            ),
           );
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -69,7 +70,11 @@ class _SignupScreenState extends State<SignupScreen> {
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.orange.shade50, Colors.white, Colors.orange.shade50.withOpacity(0.3)],
+              colors: [
+                Colors.orange.shade50,
+                Colors.white,
+                Colors.orange.shade50.withOpacity(0.3),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -82,7 +87,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   // App Bar / Header
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 24,
+                      ),
                       child: Column(
                         children: [
                           const Text(
@@ -96,12 +104,19 @@ class _SignupScreenState extends State<SignupScreen> {
                           const SizedBox(height: 8),
                           const Text(
                             'Create Your Account',
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Fast, secure, and ready to deliver',
-                            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ],
                       ),
@@ -124,7 +139,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                   label: 'First Name *',
                                   hint: 'John',
                                   icon: Icons.person,
-                                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                                  validator: (v) =>
+                                      (v == null || v.trim().isEmpty)
+                                      ? 'Required'
+                                      : null,
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -140,30 +158,34 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Phone (Mandatory)
+                          // Phone (Optional)
                           _buildInputField(
                             controller: _phoneController,
-                            label: 'Phone Number *',
+                            label: 'Phone Number (Optional)',
                             hint: '+880 1XXXXXXXXX',
                             icon: Icons.phone,
                             keyboardType: TextInputType.phone,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Email (Mandatory)
+                          _buildInputField(
+                            controller: _emailController,
+                            label: 'Email Address *',
+                            hint: 'example@email.com',
+                            icon: Icons.email,
+                            keyboardType: TextInputType.emailAddress,
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty || v.trim() == '+880') return 'Phone is required';
+                              if (v == null || v.trim().isEmpty) {
+                                return 'Email is required';
+                              }
+                              if (!v.contains('@'))
+                                return 'Enter a valid email';
                               return null;
                             },
                           ),
                           const SizedBox(height: 20),
 
-                          // Email (Optional but good to have)
-                          _buildInputField(
-                            controller: _emailController,
-                            label: 'Email Address (Optional)',
-                            hint: 'example@email.com',
-                            icon: Icons.email,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: 20),
-                          
                           // Password (Mandatory)
                           _buildInputField(
                             controller: _passwordController,
@@ -172,11 +194,20 @@ class _SignupScreenState extends State<SignupScreen> {
                             icon: Icons.lock,
                             obscureText: _obscurePassword,
                             suffixIcon: IconButton(
-                              icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
                             ),
                             validator: (v) {
-                              if (v == null || v.isEmpty) return 'Password is required';
+                              if (v == null || v.isEmpty) {
+                                return 'Password is required';
+                              }
                               if (v.length < 6) return 'At least 6 characters';
                               return null;
                             },
@@ -186,22 +217,31 @@ class _SignupScreenState extends State<SignupScreen> {
                           // Address Section
                           const Text(
                             'Delivery Location *',
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: AppTheme.textPrimary),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: AppTheme.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Enter your full delivery address manually',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                           const SizedBox(height: 12),
-                          
+
                           _buildInputField(
                             controller: _addressController,
                             label: 'Full Address',
                             hint: 'House No, Road, Area, City',
                             icon: Icons.home,
                             maxLines: 3,
-                            validator: (v) => (v == null || v.trim().isEmpty) ? 'Address is required' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Address is required'
+                                : null,
                           ),
 
                           const SizedBox(height: 40),
@@ -213,18 +253,23 @@ class _SignupScreenState extends State<SignupScreen> {
                               onPressed: _onSignup,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primary,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                                 elevation: 4,
                               ),
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.rocket_launch, size: 22, color: Colors.white),
                                   SizedBox(width: 10),
                                   Flexible(
                                     child: Text(
-                                      'Create Account 🚀',
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+                                      'Create Account',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -233,20 +278,28 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                           ),
-                          
+
                           // Login Redirect
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Already have an account? ', style: TextStyle(color: Colors.grey.shade700)),
+                              Text(
+                                'Already have an account? ',
+                                style: TextStyle(color: Colors.grey.shade700),
+                              ),
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                    MaterialPageRoute(
+                                      builder: (_) => const LoginScreen(),
+                                    ),
                                   );
                                 },
-                                child: const Text('Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ],
                           ),
@@ -280,7 +333,11 @@ class _SignupScreenState extends State<SignupScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppTheme.textPrimary),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: AppTheme.textPrimary,
+          ),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -291,13 +348,19 @@ class _SignupScreenState extends State<SignupScreen> {
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: maxLines > 1 
-                ? Padding(padding: const EdgeInsets.only(bottom: 40), child: Icon(icon, color: AppTheme.primary))
+            prefixIcon: maxLines > 1
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 40),
+                    child: Icon(icon, color: AppTheme.primary),
+                  )
                 : Icon(icon, color: AppTheme.primary),
             suffixIcon: suffixIcon,
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade300),

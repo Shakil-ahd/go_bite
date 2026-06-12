@@ -108,8 +108,8 @@ extension OrderStatusExtension on OrderStatus {
 class UserProfile extends Equatable {
   final String firstName;
   final String lastName;
-  final String phone;
-  final String? email;
+  final String? phone;
+  final String email;
   final String password;
   final String deliveryAddress;
   final double? latitude;
@@ -118,8 +118,8 @@ class UserProfile extends Equatable {
   const UserProfile({
     required this.firstName,
     required this.lastName,
-    required this.phone,
-    this.email,
+    this.phone,
+    required this.email,
     this.password = '',
     required this.deliveryAddress,
     this.latitude,
@@ -161,18 +161,16 @@ class UserProfile extends Equatable {
         'longitude': longitude,
       };
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
-      firstName: json['firstName'] as String? ?? json['name'] as String? ?? '',
-      lastName: json['lastName'] as String? ?? '',
-      phone: json['phone'] as String,
-      email: json['email'] as String?,
-      password: json['password'] as String? ?? '',
-      deliveryAddress: json['deliveryAddress'] as String,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
-    );
-  }
+  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+        firstName: json['firstName'] ?? '',
+        lastName: json['lastName'] ?? '',
+        phone: json['phone'],
+        email: json['email'] ?? '',
+        password: json['password'] ?? '',
+        deliveryAddress: json['deliveryAddress'] ?? '',
+        latitude: json['latitude']?.toDouble(),
+        longitude: json['longitude']?.toDouble(),
+      );
 
   @override
   List<Object?> get props => [firstName, lastName, phone, email, password, deliveryAddress, latitude, longitude];

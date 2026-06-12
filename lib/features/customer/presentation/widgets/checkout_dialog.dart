@@ -57,7 +57,7 @@ void processCheckout(BuildContext context, UserProfile profile) {
                   // Dispatch PlaceOrder using the root context
                   context.read<CustomerBloc>().add(PlaceOrder(
                     customerName: profile.fullName,
-                    customerPhone: profile.phone,
+                    customerPhone: profile.phone ?? 'N/A',
                     deliveryAddress: newAddress,
                   ));
                   

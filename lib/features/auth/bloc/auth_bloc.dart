@@ -83,9 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc() : super(AuthInitial()) {
     on<SignupRequested>((event, emit) {
-      final key = event.method == AuthMethod.phone 
-          ? event.profile.phone 
-          : (event.profile.email ?? event.profile.phone);
+      final key = event.profile.email;
           
       _users[key] = event.profile;
       emit(AuthSignupSuccess(event.profile));
@@ -97,16 +95,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null && user.password == event.password) {
         emit(AuthAuthenticated(user.fullName, user));
       } else {
-        // For development/mock purposes, if they enter "admin", log them in directly
-        if (event.username == 'admin' && event.password == 'admin') {
+        // For development/mock purposes, if they enter admin credentials
+        if (event.username == 'admin@admin.com' && event.password == 'admin') {
           final admin = UserProfile(
             firstName: 'Admin',
             lastName: 'User',
             phone: '01700000000',
+            email: 'admin@admin.com',
             password: 'admin',
             deliveryAddress: 'Admin HQ, Dhaka',
           );
-          _users['admin'] = admin;
+          _users['admin@admin.com'] = admin;
           emit(AuthAuthenticated('Admin User', admin));
         } else {
           // If login fails, emit unauthenticated
@@ -119,7 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final currentState = state;
       if (currentState is AuthAuthenticated) {
         // Update mock DB
-        final key = event.profile.email ?? event.profile.phone;
+        final key = event.profile.email;
         _users[key] = event.profile;
         emit(AuthAuthenticated(event.profile.fullName, event.profile));
       }

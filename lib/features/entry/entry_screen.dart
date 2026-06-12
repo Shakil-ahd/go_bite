@@ -9,7 +9,8 @@ class EntryScreen extends StatefulWidget {
   State<EntryScreen> createState() => _EntryScreenState();
 }
 
-class _EntryScreenState extends State<EntryScreen> with SingleTickerProviderStateMixin {
+class _EntryScreenState extends State<EntryScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
@@ -17,13 +18,18 @@ class _EntryScreenState extends State<EntryScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _animCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
     );
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
     _animCtrl.forward();
   }
 
@@ -99,24 +105,26 @@ class _EntryScreenState extends State<EntryScreen> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: Text(
-                        'Food, Medicine & Everything — Delivered',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
 
+                    // const SizedBox(height: 8),
+                    // Center(
+                    //   child: Text(
+                    //     'Food, Medicine & Everything — Delivered',
+                    //     textAlign: TextAlign.center,
+                    //     style: TextStyle(
+                    //       fontSize: 15,
+                    //       color: Colors.grey.shade600,
+                    //       fontWeight: FontWeight.w500,
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 16),
 
                     // Features row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 4,
+                      runSpacing: 8,
                       children: [
                         _buildFeatureChip('🍛 Food'),
                         _buildFeatureChip('💊 Medicine'),
@@ -133,12 +141,16 @@ class _EntryScreenState extends State<EntryScreen> with SingleTickerProviderStat
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const SignupScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const SignupScreen(),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           elevation: 4,
                         ),
                         child: const Row(
@@ -146,10 +158,17 @@ class _EntryScreenState extends State<EntryScreen> with SingleTickerProviderStat
                           children: [
                             Text(
                               'Get Started',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
                             ),
                             SizedBox(width: 8),
-                            Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -162,12 +181,17 @@ class _EntryScreenState extends State<EntryScreen> with SingleTickerProviderStat
                       child: TextButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const SignupScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const SignupScreen(),
+                            ),
                           );
                         },
                         child: Text(
                           'Already have an account? Login',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ),

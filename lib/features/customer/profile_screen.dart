@@ -137,9 +137,9 @@ class CustomerProfileScreen extends StatelessWidget {
                       
                       _buildProfileItem(Icons.person, 'First Name', profile.firstName),
                       _buildProfileItem(Icons.person_outline, 'Last Name', profile.lastName),
-                      _buildProfileItem(Icons.phone, 'Phone Number', profile.phone),
-                      if (profile.email != null && profile.email!.isNotEmpty)
-                        _buildProfileItem(Icons.email, 'Email Address', profile.email!),
+                      _buildProfileItem(Icons.phone, 'Phone Number', profile.phone ?? 'N/A'),
+                      if (profile.email.isNotEmpty)
+                        _buildProfileItem(Icons.email, 'Email Address', profile.email),
                       
                       const SizedBox(height: 24),
                       const Text('Delivery Default', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),

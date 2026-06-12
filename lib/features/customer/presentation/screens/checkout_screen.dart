@@ -23,23 +23,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (_paymentMethod == PaymentMethod.bkash) {
       // Navigate to bKash mock screen
       Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => PaymentScreen(profile: profile),
-        ),
+        MaterialPageRoute(builder: (_) => PaymentScreen(profile: profile)),
       );
     } else {
       // Cash on Delivery - Place order immediately
-      context.read<CustomerBloc>().add(PlaceOrder(
-            customerName: profile.fullName,
-            customerPhone: profile.phone,
-            deliveryAddress: profile.deliveryAddress,
-          ));
-          
+      context.read<CustomerBloc>().add(
+        PlaceOrder(
+          customerName: profile.fullName,
+          customerPhone: profile.phone ?? 'N/A',
+          deliveryAddress: profile.deliveryAddress,
+        ),
+      );
+
       // Ensure we pop everything except the dashboard, then push tracking
       Navigator.of(context).popUntil((route) => route.isFirst);
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()));
     }
   }
 
@@ -50,13 +50,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         return BlocBuilder<AuthBloc, AuthState>(
           builder: (context, authState) {
             if (authState is! AuthAuthenticated) {
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
             }
             final profile = authState.profile;
 
             return Scaffold(
               appBar: AppBar(
-                title: const Text('Checkout', style: TextStyle(fontWeight: FontWeight.bold)),
+                title: const Text(
+                  'Checkout',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 backgroundColor: Colors.white,
                 elevation: 0,
                 foregroundColor: AppTheme.textPrimary,
@@ -71,56 +76,109 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // User Details
-                          const Text('Delivery Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Delivery Details',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black12, blurRadius: 4),
+                              ],
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildDetailRow(Icons.person, 'Name', profile.fullName),
+                                _buildDetailRow(
+                                  Icons.person,
+                                  'Name',
+                                  profile.fullName,
+                                ),
                                 const Divider(height: 24),
-                                _buildDetailRow(Icons.phone, 'Phone', profile.phone),
+                                _buildDetailRow(
+                                  Icons.phone,
+                                  'Phone',
+                                  profile.phone ?? 'N/A',
+                                ),
                                 const Divider(height: 24),
-                                _buildDetailRow(Icons.location_on, 'Address', profile.deliveryAddress),
+                                _buildDetailRow(
+                                  Icons.location_on,
+                                  'Address',
+                                  profile.deliveryAddress,
+                                ),
                               ],
                             ),
                           ),
                           const SizedBox(height: 32),
 
                           // Order Summary
-                          const Text('Order Summary', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Order Summary',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black12, blurRadius: 4),
+                              ],
                             ),
                             child: Column(
                               children: [
-                                ...customerState.cart.map((item) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 8.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('${item.quantity}x ${item.foodItem.name}', style: const TextStyle(fontSize: 14)),
-                                          Text('৳${item.totalPrice.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                    )),
+                                ...customerState.cart.map(
+                                  (item) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '${item.quantity}x ${item.foodItem.name}',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        Text(
+                                          '৳${item.totalPrice.toStringAsFixed(0)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                                 const Divider(height: 24, thickness: 1),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('Total Amount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                    Text('৳${customerState.cartTotal.toStringAsFixed(0)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppTheme.primary)),
+                                    const Text(
+                                      'Total Amount',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '৳${customerState.cartTotal.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppTheme.primary,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
@@ -129,34 +187,64 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           const SizedBox(height: 32),
 
                           // Payment Options
-                          const Text('Payment Method', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Payment Method',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black12, blurRadius: 4),
+                              ],
                             ),
                             child: Column(
                               children: [
                                 RadioListTile<PaymentMethod>(
-                                  title: const Text('Cash on Delivery', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: const Text('Pay when you receive the order'),
+                                  title: const Text(
+                                    'Cash on Delivery',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: const Text(
+                                    'Pay when you receive the order',
+                                  ),
                                   value: PaymentMethod.cashOnDelivery,
                                   groupValue: _paymentMethod,
-                                  onChanged: (val) => setState(() => _paymentMethod = val!),
+                                  onChanged: (val) =>
+                                      setState(() => _paymentMethod = val!),
                                   activeColor: AppTheme.primary,
-                                  secondary: const Icon(Icons.money, color: Colors.green),
+                                  secondary: const Icon(
+                                    Icons.money,
+                                    color: Colors.green,
+                                  ),
                                 ),
                                 const Divider(height: 1),
                                 RadioListTile<PaymentMethod>(
-                                  title: const Text('bKash Payment', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: const Text('Pay securely via bKash'),
+                                  title: const Text(
+                                    'bKash Payment',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: const Text(
+                                    'Pay securely via bKash',
+                                  ),
                                   value: PaymentMethod.bkash,
                                   groupValue: _paymentMethod,
-                                  onChanged: (val) => setState(() => _paymentMethod = val!),
+                                  onChanged: (val) =>
+                                      setState(() => _paymentMethod = val!),
                                   activeColor: AppTheme.primary,
-                                  secondary: const Icon(Icons.account_balance_wallet, color: Colors.pink),
+                                  secondary: const Icon(
+                                    Icons.account_balance_wallet,
+                                    color: Colors.pink,
+                                  ),
                                 ),
                               ],
                             ),
@@ -165,13 +253,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                   ),
-                  
+
                   // Bottom Confirm Button
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -4))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, -4),
+                        ),
+                      ],
                     ),
                     child: SizedBox(
                       width: double.infinity,
@@ -180,17 +274,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         onPressed: () => _onConfirmOrder(profile),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _paymentMethod == PaymentMethod.bkash ? 'Proceed to Pay' : 'Confirm Order',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+                              _paymentMethod == PaymentMethod.bkash
+                                  ? 'Proceed to Pay'
+                                  : 'Confirm Order',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward, color: Colors.white),
+                            const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -214,9 +319,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+              Text(
+                title,
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),

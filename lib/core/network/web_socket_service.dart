@@ -23,9 +23,9 @@ class WebSocketService {
   }
 
   static String get defaultUrl {
-    // If running in android emulator, localhost is 10.0.2.2
+    // For physical device testing on the same Wi-Fi network
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'ws://10.0.2.2:8080';
+      return 'ws://192.168.0.241:8080';
     }
     return 'ws://localhost:8080';
   }

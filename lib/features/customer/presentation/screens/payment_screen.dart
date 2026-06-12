@@ -45,7 +45,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     context.read<CustomerBloc>().add(
       PlaceOrder(
         customerName: widget.profile.fullName,
-        customerPhone: widget.profile.phone,
+        customerPhone: widget.profile.phone ?? 'N/A',
         deliveryAddress: widget.profile.deliveryAddress,
       ),
     );

@@ -7,6 +7,7 @@ import '../../../auth/auth_interceptor.dart';
 import '../../bloc/customer_bloc.dart';
 import '../../profile_screen.dart';
 import 'checkout_screen.dart';
+import '../../../auth/login_screen.dart';
 
 // ═══════════════════════════════════════════
 // ──── Category Home Screen ────
@@ -594,6 +595,9 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               if (authState is AuthAuthenticated) {
                                 Navigator.pop(modalContext);
                                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                              } else {
+                                Navigator.pop(modalContext);
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
                               }
                             },
                             style: ElevatedButton.styleFrom(

@@ -75,8 +75,8 @@ class _MainRouterState extends State<MainRouter> {
           return const OnboardingScreen();
         }
         
-        // If they have seen onboarding but aren't logged in, they must Login or Signup
-        return const LoginScreen();
+        // If they have seen onboarding but aren't logged in, they can browse as Guest
+        return const CustomerDashboard();
       },
     );
   }

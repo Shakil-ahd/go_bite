@@ -36,7 +36,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _finishOnboarding() {
     MainRouter.hasSeenOnboarding = true;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const SignupScreen()),
+      MaterialPageRoute(builder: (_) => const CustomerDashboard()),
     );
   }
 

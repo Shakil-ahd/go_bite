@@ -1,13 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-// ─── User Roles ───
-enum UserRole {
-  customer,
-  restaurant,
-  rider,
-}
-
 // ─── Product Categories ───
 enum ProductCategory {
   food,
@@ -113,7 +106,8 @@ extension OrderStatusExtension on OrderStatus {
 
 // ─── User Profile ───
 class UserProfile extends Equatable {
-  final String name;
+  final String firstName;
+  final String lastName;
   final String phone;
   final String? email;
   final String deliveryAddress;
@@ -121,7 +115,8 @@ class UserProfile extends Equatable {
   final double? longitude;
 
   const UserProfile({
-    required this.name,
+    required this.firstName,
+    required this.lastName,
     required this.phone,
     this.email,
     required this.deliveryAddress,
@@ -129,8 +124,11 @@ class UserProfile extends Equatable {
     this.longitude,
   });
 
+  String get fullName => '$firstName $lastName';
+
   UserProfile copyWith({
-    String? name,
+    String? firstName,
+    String? lastName,
     String? phone,
     String? email,
     String? deliveryAddress,
@@ -138,7 +136,8 @@ class UserProfile extends Equatable {
     double? longitude,
   }) {
     return UserProfile(
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
@@ -148,7 +147,8 @@ class UserProfile extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
+        'firstName': firstName,
+        'lastName': lastName,
         'phone': phone,
         'email': email,
         'deliveryAddress': deliveryAddress,
@@ -158,7 +158,8 @@ class UserProfile extends Equatable {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      name: json['name'] as String,
+      firstName: json['firstName'] as String? ?? json['name'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
       phone: json['phone'] as String,
       email: json['email'] as String?,
       deliveryAddress: json['deliveryAddress'] as String,
@@ -168,7 +169,7 @@ class UserProfile extends Equatable {
   }
 
   @override
-  List<Object?> get props => [name, phone, email, deliveryAddress, latitude, longitude];
+  List<Object?> get props => [firstName, lastName, phone, email, deliveryAddress, latitude, longitude];
 }
 
 // ─── User Location ───

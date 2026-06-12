@@ -384,14 +384,16 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         deliveryAddress: event.deliveryAddress,
       );
 
-      // Send the place_order event to the server
-      _webSocketService.send('place_order', newOrder.toJson());
-
       emit(state.copyWith(
         activeOrder: newOrder,
         isPlacingOrder: false,
         cart: const [], // Clear cart after placing order
       ));
+
+      // ─── START MOCK SIMULATION ───
+      // Since Restaurant and Rider apps are separated, we simulate their responses here 
+      // so the Customer can see the live tracking UI working immediately.
+      _startMockOrderSimulation(newOrder);
     });
 
     on<WebSocketOrderUpdateReceived>((event, emit) {
@@ -437,6 +439,63 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     on<ResetCustomerFlow>((event, emit) {
       emit(state.copyWith(clearActiveOrder: true));
     });
+  }
+
+  void _startMockOrderSimulation(Order order) async {
+    // Wait 2s -> Accepted
+    await Future.delayed(const Duration(seconds: 2));
+    if (state.activeOrder?.id != order.id) return;
+    add(WebSocketOrderUpdateReceived(
+      state.activeOrder!.copyWith(status: OrderStatus.accepted).toJson(),
+    ));
+
+    // Wait 2s -> Preparing
+    await Future.delayed(const Duration(seconds: 2));
+    if (state.activeOrder?.id != order.id) return;
+    add(WebSocketOrderUpdateReceived(
+      state.activeOrder!.copyWith(status: OrderStatus.preparing).toJson(),
+    ));
+
+    // Wait 3s -> Ready
+    await Future.delayed(const Duration(seconds: 3));
+    if (state.activeOrder?.id != order.id) return;
+    add(WebSocketOrderUpdateReceived(
+      state.activeOrder!.copyWith(status: OrderStatus.readyForPickup).toJson(),
+    ));
+
+    // Wait 2s -> Out for Delivery
+    await Future.delayed(const Duration(seconds: 2));
+    if (state.activeOrder?.id != order.id) return;
+    
+    // Simulate rider picking it up. We assume customer location is from auth profile,
+    // but the Order doesn't store Lat/Lng directly right now (it's in UserProfile).
+    // Let's just create a mock route moving from 0.0 to 1.0 progress.
+    add(WebSocketOrderUpdateReceived(
+      state.activeOrder!.copyWith(
+        status: OrderStatus.outForDelivery,
+        riderName: 'Rahim (Mock Rider)',
+      ).toJson(),
+    ));
+
+    // Send location updates (progress 0.0 to 1.0)
+    for (int i = 0; i <= 100; i += 5) {
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (state.activeOrder?.id != order.id) return;
+      
+      add(WebSocketRiderLocationReceived({
+        'orderId': order.id,
+        'riderName': 'Rahim (Mock Rider)',
+        'latitude': i.toDouble(), // We use latitude as generic "progress" 0-100 for the UI to read
+        'longitude': 0.0,
+      }));
+    }
+
+    // Delivered
+    await Future.delayed(const Duration(seconds: 1));
+    if (state.activeOrder?.id != order.id) return;
+    add(WebSocketOrderUpdateReceived(
+      state.activeOrder!.copyWith(status: OrderStatus.delivered).toJson(),
+    ));
   }
 
   @override

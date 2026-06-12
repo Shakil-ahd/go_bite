@@ -5,7 +5,7 @@ import '../../../../shared/models/models.dart';
 import '../../../auth/bloc/auth_bloc.dart';
 import '../../../auth/auth_interceptor.dart';
 import '../../bloc/customer_bloc.dart';
-import '../widgets/checkout_dialog.dart';
+import 'checkout_screen.dart';
 
 // ═══════════════════════════════════════════
 // ──── Menu Screen (Category Filtered) ────
@@ -304,7 +304,7 @@ class CustomerMenuScreen extends StatelessWidget {
                               final authState = context.read<AuthBloc>().state;
                               if (authState is AuthAuthenticated) {
                                 Navigator.pop(modalContext);
-                                processCheckout(context, authState.profile);
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CheckoutScreen()));
                               }
                             },
                             style: ElevatedButton.styleFrom(

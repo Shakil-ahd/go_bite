@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../main.dart';
+import '../auth/signup_screen.dart';
 import '../customer/presentation/screens/customer_dashboard.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Fast & Secure Delivery',
       'description': 'We prioritize your time. Get your essentials delivered at lightning speed with maximum security and trust.',
-      'image': 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=1200&auto=format&fit=crop', 
+      'image': 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=1200&auto=format&fit=crop', 
     },
     {
       'title': 'Delicious Biryani & More',
@@ -28,14 +29,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Emergency Medicine',
       'description': 'Need urgent healthcare supplies? We deliver medicines directly from certified pharmacies to your door.',
-      'image': 'https://images.unsplash.com/photo-1584308666744-24d5e4a8c9e1?w=1200&auto=format&fit=crop', 
+      'image': 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&auto=format&fit=crop', 
     },
   ];
 
   void _finishOnboarding() {
     MainRouter.hasSeenOnboarding = true;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const CustomerDashboard()),
+      MaterialPageRoute(builder: (_) => const SignupScreen()),
     );
   }
 

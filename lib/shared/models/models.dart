@@ -110,6 +110,7 @@ class UserProfile extends Equatable {
   final String lastName;
   final String phone;
   final String? email;
+  final String password;
   final String deliveryAddress;
   final double? latitude;
   final double? longitude;
@@ -119,18 +120,20 @@ class UserProfile extends Equatable {
     required this.lastName,
     required this.phone,
     this.email,
+    this.password = '',
     required this.deliveryAddress,
     this.latitude,
     this.longitude,
   });
 
-  String get fullName => '$firstName $lastName';
+  String get fullName => '$firstName $lastName'.trim();
 
   UserProfile copyWith({
     String? firstName,
     String? lastName,
     String? phone,
     String? email,
+    String? password,
     String? deliveryAddress,
     double? latitude,
     double? longitude,
@@ -140,6 +143,7 @@ class UserProfile extends Equatable {
       lastName: lastName ?? this.lastName,
       phone: phone ?? this.phone,
       email: email ?? this.email,
+      password: password ?? this.password,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
@@ -151,6 +155,7 @@ class UserProfile extends Equatable {
         'lastName': lastName,
         'phone': phone,
         'email': email,
+        'password': password,
         'deliveryAddress': deliveryAddress,
         'latitude': latitude,
         'longitude': longitude,
@@ -162,6 +167,7 @@ class UserProfile extends Equatable {
       lastName: json['lastName'] as String? ?? '',
       phone: json['phone'] as String,
       email: json['email'] as String?,
+      password: json['password'] as String? ?? '',
       deliveryAddress: json['deliveryAddress'] as String,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
@@ -169,7 +175,7 @@ class UserProfile extends Equatable {
   }
 
   @override
-  List<Object?> get props => [firstName, lastName, phone, email, deliveryAddress, latitude, longitude];
+  List<Object?> get props => [firstName, lastName, phone, email, password, deliveryAddress, latitude, longitude];
 }
 
 // ─── User Location ───

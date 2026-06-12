@@ -83,6 +83,7 @@ class CustomerState extends Equatable {
   final List<FoodItem> menuItems;
   final List<CartItem> cart;
   final Order? activeOrder;
+  final List<Order> orderHistory;
   final bool isPlacingOrder;
   final String? errorMessage;
   final ProductCategory? selectedCategory;
@@ -92,6 +93,7 @@ class CustomerState extends Equatable {
     this.menuItems = const [],
     this.cart = const [],
     this.activeOrder,
+    this.orderHistory = const [],
     this.isPlacingOrder = false,
     this.errorMessage,
     this.selectedCategory,
@@ -104,6 +106,7 @@ class CustomerState extends Equatable {
     List<FoodItem>? menuItems,
     List<CartItem>? cart,
     Order? activeOrder,
+    List<Order>? orderHistory,
     bool? isPlacingOrder,
     String? errorMessage,
     ProductCategory? selectedCategory,
@@ -115,6 +118,7 @@ class CustomerState extends Equatable {
       menuItems: menuItems ?? this.menuItems,
       cart: cart ?? this.cart,
       activeOrder: clearActiveOrder ? null : (activeOrder ?? this.activeOrder),
+      orderHistory: orderHistory ?? this.orderHistory,
       isPlacingOrder: isPlacingOrder ?? this.isPlacingOrder,
       errorMessage: errorMessage ?? this.errorMessage,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
@@ -122,7 +126,7 @@ class CustomerState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [allProducts, menuItems, cart, activeOrder, isPlacingOrder, errorMessage, selectedCategory];
+  List<Object?> get props => [allProducts, menuItems, cart, activeOrder, orderHistory, isPlacingOrder, errorMessage, selectedCategory];
 }
 
 
@@ -287,6 +291,51 @@ const List<FoodItem> _bangladeshiCatalog = [
     description: 'Pasteurized fresh cow milk — Farm Fresh brand',
     price: 85, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.others,
   ),
+  FoodItem(
+    id: 'food_09', name: 'Mutton Kala Bhuna',
+    description: 'Famous Chittagong style slow-cooked dark mutton curry with aromatic spices',
+    price: 450, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_10', name: 'Rupchanda Fry',
+    description: 'Crispy fried pomfret fish served with onion and green chili salad',
+    price: 350, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'food_11', name: 'Fuchka (10 pcs)',
+    description: 'Crispy hollow puri filled with spicy tangy tamarind water and chickpeas',
+    price: 60, imageUrl: 'https://loremflickr.com/400/400/food', category: ProductCategory.food,
+  ),
+  FoodItem(
+    id: 'med_06', name: 'Alatrol 10mg',
+    description: 'Cetirizine tablet for rapid allergy and cold relief',
+    price: 5, imageUrl: 'https://loremflickr.com/400/400/medicine', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'med_07', name: 'Sergel 20mg',
+    description: 'Esomeprazole capsule for severe gastric and ulcer protection',
+    price: 10, imageUrl: 'https://loremflickr.com/400/400/medicine', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'med_08', name: 'Flexi 500mg',
+    description: 'Ibuprofen tablet for muscle pain and joint inflammation',
+    price: 8, imageUrl: 'https://loremflickr.com/400/400/medicine', category: ProductCategory.medicine,
+  ),
+  FoodItem(
+    id: 'other_06', name: 'Radhuni Halim Mix',
+    description: 'Ready to cook traditional halim mix powder',
+    price: 55, imageUrl: 'https://loremflickr.com/400/400/grocery', category: ProductCategory.others,
+  ),
+  FoodItem(
+    id: 'other_07', name: 'Rupchanda Soybean Oil 2L',
+    description: 'Premium fortified soybean oil',
+    price: 340, imageUrl: 'https://loremflickr.com/400/400/grocery', category: ProductCategory.others,
+  ),
+  FoodItem(
+    id: 'other_08', name: 'Aarong Dairy Butter 200g',
+    description: 'Fresh salted butter made from pure cow milk',
+    price: 210, imageUrl: 'https://loremflickr.com/400/400/grocery', category: ProductCategory.others,
+  ),
 ];
 
 
@@ -400,12 +449,20 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       final orderJson = event.payload;
       try {
         final updatedOrder = Order.fromJson(orderJson);
-        // Ensure this update corresponds to our active order
         if (state.activeOrder != null && state.activeOrder!.id == updatedOrder.id) {
-          emit(state.copyWith(activeOrder: updatedOrder));
+          if (updatedOrder.status == OrderStatus.delivered || updatedOrder.status == OrderStatus.rejected) {
+            // Order is finished, move to history
+            final updatedHistory = List<Order>.from(state.orderHistory)..add(updatedOrder);
+            emit(state.copyWith(
+              activeOrder: updatedOrder,
+              orderHistory: updatedHistory,
+            ));
+          } else {
+            emit(state.copyWith(activeOrder: updatedOrder));
+          }
         }
       } catch (e) {
-        print('Error parsing order update in CustomerBloc: $e');
+        // print('Error parsing order update in CustomerBloc: $e');
       }
     });
 

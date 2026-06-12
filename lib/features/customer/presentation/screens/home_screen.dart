@@ -6,7 +6,7 @@ import '../../../auth/bloc/auth_bloc.dart';
 import '../../../auth/auth_interceptor.dart';
 import '../../bloc/customer_bloc.dart';
 import '../../profile_screen.dart';
-import '../widgets/checkout_dialog.dart';
+import 'checkout_screen.dart';
 
 // ═══════════════════════════════════════════
 // ──── Category Home Screen ────
@@ -211,6 +211,18 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                       subtitle: 'Craving at night?\nGet flat ৳100 off after 12 AM',
                       emoji: '🦉',
                       colors: [Colors.blue.shade800, Colors.indigo.shade400],
+                    ),
+                    _buildPromoCard(
+                      title: '💊 Stay Healthy',
+                      subtitle: '10% off on all medicines\nFree delivery on prescriptions',
+                      emoji: '🏥',
+                      colors: [Colors.teal.shade500, Colors.green.shade300],
+                    ),
+                    _buildPromoCard(
+                      title: '🥦 Fresh Grocery',
+                      subtitle: 'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
+                      emoji: '🛒',
+                      colors: [Colors.red.shade400, Colors.deepOrange.shade300],
                     ),
                   ],
                 ),
@@ -581,7 +593,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               final authState = context.read<AuthBloc>().state;
                               if (authState is AuthAuthenticated) {
                                 Navigator.pop(modalContext);
-                                processCheckout(context, authState.profile);
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CheckoutScreen()));
                               }
                             },
                             style: ElevatedButton.styleFrom(

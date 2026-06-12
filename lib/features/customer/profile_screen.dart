@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/bloc/auth_bloc.dart';
+import 'presentation/screens/order_history_screen.dart';
 
 class CustomerProfileScreen extends StatelessWidget {
   const CustomerProfileScreen({super.key});
@@ -114,7 +115,9 @@ class CustomerProfileScreen extends StatelessWidget {
                         height: 52,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order history is empty.')));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const OrderHistoryScreen()),
+                            );
                           },
                           icon: const Icon(Icons.history, color: Colors.white),
                           label: const Text('Order History', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),

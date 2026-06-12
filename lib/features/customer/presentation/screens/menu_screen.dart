@@ -119,44 +119,76 @@ class CustomerMenuScreen extends StatelessWidget {
   }
 
   Widget _buildMenuItem(BuildContext context, FoodItem food) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      elevation: 2,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Image Thumbnail
             Container(
-              width: 64,
-              height: 64,
+              width: 84,
+              height: 84,
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: food.category.gradientColors),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
+                ],
               ),
-              child: Icon(food.category.icon, color: Colors.white, size: 30),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: food.imageUrl.isNotEmpty
+                    ? Image.network(
+                        food.imageUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(color: Colors.grey.shade100, child: const Center(child: CircularProgressIndicator(strokeWidth: 2)));
+                        },
+                        errorBuilder: (_, __, ___) => Container(
+                          decoration: BoxDecoration(gradient: LinearGradient(colors: food.category.gradientColors)),
+                          child: Icon(food.category.icon, color: Colors.white, size: 30),
+                        ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(gradient: LinearGradient(colors: food.category.gradientColors)),
+                        child: Icon(food.category.icon, color: Colors.white, size: 30),
+                      ),
+              ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     food.name,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     food.description,
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600, height: 1.3),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600, height: 1.4),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     '৳${food.price.toStringAsFixed(0)}',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.primary,
                     ),
@@ -168,15 +200,19 @@ class CustomerMenuScreen extends StatelessWidget {
             GestureDetector(
               onTap: () => requireLogin(context, () => context.read<CustomerBloc>().add(AddToCart(food))),
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 8),
+                  gradient: const LinearGradient(
+                    colors: [AppTheme.primary, Colors.deepOrange],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
                   ],
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 22),
+                child: const Icon(Icons.add, color: Colors.white, size: 24),
               ),
             ),
           ],

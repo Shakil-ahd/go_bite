@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -23,10 +22,9 @@ class WebSocketService {
     print('WebSocketService initialized for url: $url');
   }
 
-  // Helper to resolve localhost address based on platform
   static String get defaultUrl {
     // If running in android emulator, localhost is 10.0.2.2
-    if (!kIsWeb && Platform.isAndroid) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       return 'ws://10.0.2.2:8080';
     }
     return 'ws://localhost:8080';

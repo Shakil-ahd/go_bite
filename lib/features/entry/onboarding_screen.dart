@@ -18,17 +18,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Fast & Secure Delivery',
       'description': 'We prioritize your time. Get your essentials delivered at lightning speed with maximum security and trust.',
-      'image': 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=600&auto=format&fit=crop', // Analytics/Speed/Success
+      'image': 'https://images.unsplash.com/photo-1617347454431-f49cd7ea018c?w=1200&auto=format&fit=crop', 
     },
     {
       'title': 'Delicious Food Anywhere',
       'description': 'Craving Biryani or Pizza? Order from your favorite restaurants and enjoy hot meals delivered instantly.',
-      'image': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop', // Food
+      'image': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&auto=format&fit=crop', 
     },
     {
       'title': 'Emergency Medicine',
       'description': 'Need urgent healthcare supplies? We deliver medicines directly from certified pharmacies to your door.',
-      'image': 'https://images.unsplash.com/photo-1584308666744-24d5e4a8c9e1?w=600&auto=format&fit=crop', // Medicine
+      'image': 'https://images.unsplash.com/photo-1584308666744-24d5e4a8c9e1?w=1200&auto=format&fit=crop', 
     },
   ];
 
@@ -42,144 +42,174 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top Right Skip Button
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _finishOnboarding,
-                child: const Text('Skip', style: TextStyle(color: Colors.grey, fontSize: 16)),
-              ),
-            ),
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // 1. Full Screen PageView
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: _onboardingData.length,
+            itemBuilder: (context, index) {
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  // HD Background Image
+                  Image.network(
+                    _onboardingData[index]['image']!,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                    },
+                    errorBuilder: (context, error, stackTrace) => 
+                        const Center(child: Icon(Icons.image_not_supported, size: 80, color: Colors.grey)),
+                  ),
+                  
+                  // Smooth Dark Gradient Overlay
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: [0.0, 0.5, 0.8, 1.0],
+                        colors: [
+                          Colors.transparent,
+                          Colors.black26,
+                          Colors.black87,
+                          Colors.black,
+                        ],
+                      ),
+                    ),
+                  ),
 
-            // Page View
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _onboardingData.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(40.0),
+                  // Text Content
+                  Positioned(
+                    bottom: 160,
+                    left: 32,
+                    right: 32,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Online Image
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: Image.network(
-                              _onboardingData[index]['image']!,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return const Center(child: CircularProgressIndicator());
-                              },
-                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 100, color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-                        // Title
                         Text(
                           _onboardingData[index]['title']!,
-                          textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 26,
+                            fontSize: 36,
                             fontWeight: FontWeight.w900,
-                            color: AppTheme.textPrimary,
+                            color: Colors.white,
+                            height: 1.2,
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // Description
                         Text(
                           _onboardingData[index]['description']!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white.withOpacity(0.85),
                             height: 1.5,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-
-            // Dots & Button
-            Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Indicators
-                  Row(
-                    children: List.generate(
-                      _onboardingData.length,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.only(right: 8),
-                        height: 8,
-                        width: _currentPage == index ? 24 : 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index ? AppTheme.primary : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Next/Start Button
-                  GestureDetector(
-                    onTap: () {
-                      if (_currentPage == _onboardingData.length - 1) {
-                        _finishOnboarding();
-                      } else {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeIn,
-                        );
-                      }
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: _currentPage == _onboardingData.length - 1 ? 24 : 16,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5)),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_currentPage == _onboardingData.length - 1)
-                            const Text('Get Started', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                          if (_currentPage == _onboardingData.length - 1)
-                            const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward, color: Colors.white),
-                        ],
-                      ),
-                    ),
                   ),
                 ],
+              );
+            },
+          ),
+
+          // 2. Top Right Skip Button
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0, right: 16.0),
+                child: TextButton(
+                  onPressed: _finishOnboarding,
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.black45,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                  child: const Text('Skip', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+
+          // 3. Bottom Controls (Dots & Next Button)
+          Positioned(
+            bottom: 40,
+            left: 32,
+            right: 32,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Indicators
+                Row(
+                  children: List.generate(
+                    _onboardingData.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.only(right: 8),
+                      height: 8,
+                      width: _currentPage == index ? 32 : 8,
+                      decoration: BoxDecoration(
+                        color: _currentPage == index ? AppTheme.primary : Colors.white38,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Next/Start Button
+                GestureDetector(
+                  onTap: () {
+                    if (_currentPage == _onboardingData.length - 1) {
+                      _finishOnboarding();
+                    } else {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: _currentPage == _onboardingData.length - 1 ? 28 : 20,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.primary, Colors.deepOrange],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 5)),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_currentPage == _onboardingData.length - 1)
+                          const Text('Get Started', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        if (_currentPage == _onboardingData.length - 1)
+                          const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

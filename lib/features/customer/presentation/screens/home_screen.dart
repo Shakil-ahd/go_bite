@@ -310,12 +310,13 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+          boxShadow: [
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 12,
-              offset: Offset(0, 5),
+              color: cat.gradientColors.last.withOpacity(0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -323,11 +324,11 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
           children: [
             // Background emoji
             Positioned(
-              right: -8,
-              bottom: -8,
+              right: -12,
+              bottom: -12,
               child: Text(
                 cat.emoji,
-                style: const TextStyle(fontSize: 56, color: Colors.white24),
+                style: const TextStyle(fontSize: 70, color: Colors.white24),
               ),
             ),
             Padding(
@@ -339,25 +340,31 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
+                      ],
                     ),
-                    child: Icon(cat.icon, color: Colors.white, size: 26),
+                    child: Icon(cat.icon, color: cat.gradientColors.first, size: 24),
                   ),
                   const Spacer(),
                   Text(
                     cat.displayName,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     _getCategorySubtitle(cat),
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 11,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

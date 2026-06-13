@@ -12,6 +12,7 @@ class WebSocketService {
   bool _isConnecting = false;
   bool _isConnected = false;
   Timer? _reconnectTimer;
+  int _retryCount = 0;
 
   // Stream exposing incoming messages
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
@@ -25,7 +26,9 @@ class WebSocketService {
   static String get defaultUrl {
     // For physical device testing on the same Wi-Fi network
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'ws://192.168.0.241:8080';
+      // 10.0.2.2 is the emulator's host loopback. On a physical device, this will fail fast.
+      // If you run a local server, change this to your PC's IP address (e.g., 192.168.x.x).
+      return 'ws://10.0.2.2:8080';
     }
     return 'ws://localhost:8080';
   }
@@ -45,6 +48,7 @@ class WebSocketService {
           if (!_isConnected) {
             _isConnected = true;
             _isConnecting = false;
+            _retryCount = 0;
             print('🟢 WebSocket connected successfully!');
           }
           try {
@@ -76,10 +80,16 @@ class WebSocketService {
     _isConnecting = false;
     _channel = null;
 
-    // Retry connection after 3 seconds
+    if (_retryCount >= 3) {
+      print('⏹️ Max reconnection attempts reached. Stopping WebSocket retries to prevent app freezing.');
+      return;
+    }
+    _retryCount++;
+
+    // Retry connection after 5 seconds instead of 3 to avoid rapid blocking
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 3), () {
-      print('🔄 Attempting reconnection...');
+    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+      print('🔄 Attempting reconnection ($_retryCount/3)...');
       connect();
     });
   }

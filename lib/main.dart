@@ -21,25 +21,22 @@ class GoBiteApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ws = webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
-    
+    final ws =
+        webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
+
     // Only connect if initializing the default service
     if (webSocketService == null) {
       ws.connect();
     }
 
     return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<WebSocketService>.value(value: ws),
-      ],
+      providers: [RepositoryProvider<WebSocketService>.value(value: ws)],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(),
+            create: (context) => AuthBloc()..add(AuthCheckRequested()),
           ),
-          BlocProvider<CustomerBloc>(
-            create: (context) => CustomerBloc(ws),
-          ),
+          BlocProvider<CustomerBloc>(create: (context) => CustomerBloc(ws)),
         ],
         child: MaterialApp(
           title: 'GoBite',
@@ -70,11 +67,11 @@ class _MainRouterState extends State<MainRouter> {
           MainRouter.hasSeenOnboarding = true; // Auto-skip if logged in
           return const CustomerDashboard();
         }
-        
+
         if (!MainRouter.hasSeenOnboarding) {
           return const OnboardingScreen();
         }
-        
+
         // If they have seen onboarding but aren't logged in, they can browse as Guest
         return const CustomerDashboard();
       },

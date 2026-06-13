@@ -52,7 +52,9 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(28),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,13 +67,25 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CustomerProfileScreen())),
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const CustomerProfileScreen(),
+                                  ),
+                                ),
                                 child: CircleAvatar(
                                   radius: 22,
                                   backgroundColor: Colors.white,
                                   child: Text(
-                                    authState.profile.firstName.isNotEmpty ? authState.profile.firstName[0].toUpperCase() : 'C',
-                                    style: const TextStyle(color: AppTheme.primary, fontSize: 20, fontWeight: FontWeight.bold),
+                                    authState.profile.firstName.isNotEmpty
+                                        ? authState.profile.firstName[0]
+                                              .toUpperCase()
+                                        : 'C',
+                                    style: const TextStyle(
+                                      color: AppTheme.primary,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -90,13 +104,24 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.location_on, size: 14, color: Colors.white70),
+                                      const Icon(
+                                        Icons.location_on,
+                                        size: 14,
+                                        color: Colors.white70,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        authState.profile.deliveryAddress.length > 25 
-                                            ? '${authState.profile.deliveryAddress.substring(0, 25)}...' 
+                                        authState
+                                                    .profile
+                                                    .deliveryAddress
+                                                    .length >
+                                                25
+                                            ? '${authState.profile.deliveryAddress.substring(0, 25)}...'
                                             : authState.profile.deliveryAddress,
-                                        style: const TextStyle(fontSize: 13, color: Colors.white70),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.white70,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -119,7 +144,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               SizedBox(height: 4),
                               Text(
                                 'Sign in to set your location',
-                                style: TextStyle(fontSize: 13, color: Colors.white70),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white70,
+                                ),
                               ),
                             ],
                           ),
@@ -128,11 +156,18 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                             // Cart badge
                             BlocBuilder<CustomerBloc, CustomerState>(
                               builder: (context, state) {
-                                final itemCount = state.cart.fold(0, (sum, i) => sum + i.quantity);
+                                final itemCount = state.cart.fold(
+                                  0,
+                                  (sum, i) => sum + i.quantity,
+                                );
                                 return Stack(
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.shopping_cart, color: Colors.white, size: 26),
+                                      icon: const Icon(
+                                        Icons.shopping_cart,
+                                        color: Colors.white,
+                                        size: 26,
+                                      ),
                                       onPressed: () => _showCartSheet(context),
                                     ),
                                     if (itemCount > 0)
@@ -147,7 +182,11 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                           ),
                                           child: Text(
                                             '$itemCount',
-                                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -164,7 +203,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
 
                     // Search bar (visual only)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
@@ -178,7 +220,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           const SizedBox(width: 12),
                           Text(
                             'Search for food, medicine, snacks...',
-                            style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
@@ -199,7 +244,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                       title: '🔥 Free Delivery',
                       subtitle: 'On your first 3 orders!\nOrder now & save ৳50',
                       emoji: '🛵',
-                      colors: [Colors.deepOrange.shade400, Colors.orange.shade300],
+                      colors: [
+                        Colors.deepOrange.shade400,
+                        Colors.orange.shade300,
+                      ],
                     ),
                     _buildPromoCard(
                       title: '🎉 20% Discount',
@@ -209,19 +257,22 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                     ),
                     _buildPromoCard(
                       title: '🌙 Midnight Offer',
-                      subtitle: 'Craving at night?\nGet flat ৳100 off after 12 AM',
+                      subtitle:
+                          'Craving at night?\nGet flat ৳100 off after 12 AM',
                       emoji: '🦉',
                       colors: [Colors.blue.shade800, Colors.indigo.shade400],
                     ),
                     _buildPromoCard(
                       title: '💊 Stay Healthy',
-                      subtitle: '10% off on all medicines\nFree delivery on prescriptions',
+                      subtitle:
+                          '10% off on all medicines\nFree delivery on prescriptions',
                       emoji: '🏥',
                       colors: [Colors.teal.shade500, Colors.green.shade300],
                     ),
                     _buildPromoCard(
                       title: '🥦 Fresh Grocery',
-                      subtitle: 'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
+                      subtitle:
+                          'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
                       emoji: '🛒',
                       colors: [Colors.red.shade400, Colors.deepOrange.shade300],
                     ),
@@ -236,7 +287,11 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'What do you need?',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.textPrimary),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
               ),
               const SizedBox(height: 4),
@@ -272,10 +327,16 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
               BlocBuilder<CustomerBloc, CustomerState>(
                 builder: (context, state) {
                   if (state.cart.isEmpty) return const SizedBox.shrink();
-                  final itemCount = state.cart.fold(0, (sum, i) => sum + i.quantity);
+                  final itemCount = state.cart.fold(
+                    0,
+                    (sum, i) => sum + i.quantity,
+                  );
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.secondary,
                       borderRadius: BorderRadius.circular(16),
@@ -292,7 +353,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           children: [
                             Text(
                               '$itemCount items in cart',
-                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
                             ),
                             Text(
                               '৳${state.cartTotal.toStringAsFixed(0)}',
@@ -305,14 +369,22 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           ],
                         ),
                         ElevatedButton.icon(
-                          onPressed: () => requireLogin(context, () => _showCartSheet(context)),
+                          onPressed: () => requireLogin(
+                            context,
+                            () => _showCartSheet(context),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: AppTheme.primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           icon: const Icon(Icons.shopping_cart, size: 18),
-                          label: const Text('View Cart', style: TextStyle(fontWeight: FontWeight.bold)),
+                          label: const Text(
+                            'View Cart',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),
@@ -328,7 +400,12 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
     );
   }
 
-  Widget _buildPromoCard({required String title, required String subtitle, required String emoji, required List<Color> colors}) {
+  Widget _buildPromoCard({
+    required String title,
+    required String subtitle,
+    required String emoji,
+    required List<Color> colors,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       padding: const EdgeInsets.all(20),
@@ -336,7 +413,11 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
         gradient: LinearGradient(colors: colors),
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
@@ -348,12 +429,20 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 13, color: Colors.white70, height: 1.4),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.white70,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -407,10 +496,18 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
                       ],
                     ),
-                    child: Icon(cat.icon, color: cat.gradientColors.first, size: 20),
+                    child: Icon(
+                      cat.icon,
+                      color: cat.gradientColors.first,
+                      size: 20,
+                    ),
                   ),
                   const Spacer(),
                   Text(
@@ -481,9 +578,19 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+                            Icon(
+                              Icons.shopping_cart_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
                             SizedBox(height: 16),
-                            Text('Your cart is empty', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                            Text(
+                              'Your cart is empty',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       );
@@ -496,11 +603,18 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           children: [
                             const Text(
                               'Your Order',
-                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             TextButton(
-                              onPressed: () => context.read<CustomerBloc>().add(ClearCart()),
-                              child: const Text('Clear All', style: TextStyle(color: Colors.red)),
+                              onPressed: () =>
+                                  context.read<CustomerBloc>().add(ClearCart()),
+                              child: const Text(
+                                'Clear All',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ),
                           ],
                         ),
@@ -524,23 +638,39 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                     Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(colors: item.foodItem.category.gradientColors),
+                                        gradient: LinearGradient(
+                                          colors: item
+                                              .foodItem
+                                              .category
+                                              .gradientColors,
+                                        ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      child: Icon(item.foodItem.category.icon, color: Colors.white, size: 22),
+                                      child: Icon(
+                                        item.foodItem.category.icon,
+                                        color: Colors.white,
+                                        size: 22,
+                                      ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             item.foodItem.name,
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
                                           ),
                                           Text(
                                             '৳${item.foodItem.price.toStringAsFixed(0)} x ${item.quantity}',
-                                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade600,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -550,18 +680,28 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                       children: [
                                         _cartButton(
                                           Icons.remove,
-                                          () => context.read<CustomerBloc>().add(RemoveFromCart(item.foodItem)),
+                                          () =>
+                                              context.read<CustomerBloc>().add(
+                                                RemoveFromCart(item.foodItem),
+                                              ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
                                           child: Text(
                                             '${item.quantity}',
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
                                           ),
                                         ),
                                         _cartButton(
                                           Icons.add,
-                                          () => context.read<CustomerBloc>().add(AddToCart(item.foodItem)),
+                                          () => context
+                                              .read<CustomerBloc>()
+                                              .add(AddToCart(item.foodItem)),
                                         ),
                                       ],
                                     ),
@@ -575,7 +715,13 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Total:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Total:',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text(
                               '৳${state.cartTotal.toStringAsFixed(0)}',
                               style: const TextStyle(
@@ -594,18 +740,31 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               final authState = context.read<AuthBloc>().state;
                               if (authState is AuthAuthenticated) {
                                 Navigator.pop(modalContext);
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const CheckoutScreen(),
+                                  ),
+                                );
                               } else {
                                 Navigator.pop(modalContext);
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginScreen(),
+                                  ),
+                                );
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
                             child: const Text(
                               'Confirm & Place Order',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),

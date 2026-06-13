@@ -31,7 +31,11 @@ void requireLogin(BuildContext context, VoidCallback onSuccess) {
                   color: AppTheme.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.lock_outline, color: AppTheme.primary, size: 32),
+                child: const Icon(
+                  Icons.lock_outline,
+                  color: AppTheme.primary,
+                  size: 32,
+                ),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -58,15 +62,23 @@ void requireLogin(BuildContext context, VoidCallback onSuccess) {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('Login / Create Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Login / Create Account',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pop(modalContext),
-                child: const Text('Maybe Later', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                child: const Text(
+                  'Maybe Later',
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
               ),
             ],
           ),

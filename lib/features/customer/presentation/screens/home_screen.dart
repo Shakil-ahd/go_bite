@@ -24,15 +24,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
   final _searchController = TextEditingController();
   bool _isSearching = false;
 
-  @override
-  void initState() {
-    super.initState();
-    context.read<CustomerBloc>().add(LoadRestaurantMenu());
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated) {
-      context.read<CustomerBloc>().add(InitializeUser(authState.profile.email));
-    }
-  }
+
 
   @override
   void dispose() {
@@ -54,12 +46,6 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
   @override
   Widget build(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
-    String userName = 'Customer';
-    String address = 'Dhaka';
-    if (authState is AuthAuthenticated) {
-      userName = authState.profile.fullName;
-      address = authState.profile.deliveryAddress;
-    }
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,

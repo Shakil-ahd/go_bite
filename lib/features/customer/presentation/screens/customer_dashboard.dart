@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../auth/bloc/auth_bloc.dart';
 import '../../bloc/customer_bloc.dart';
 import 'home_screen.dart';
 import 'menu_screen.dart';
@@ -17,27 +18,48 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
   final Set<String> _ratedOrderIds = {};
 
   @override
+  void initState() {
+    super.initState();
+    context.read<CustomerBloc>().add(LoadRestaurantMenu());
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      context.read<CustomerBloc>().add(InitializeUser(authState.profile.email));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<CustomerBloc, CustomerState>(
-      listenWhen: (previous, current) {
-        if (current.orderHistory.length > previous.orderHistory.length &&
-            current.orderHistory.isNotEmpty) {
-          final lastOrder = current.orderHistory.last;
-          return lastOrder.status == OrderStatus.delivered &&
-              lastOrder.riderName != null &&
-              !_ratedOrderIds.contains(lastOrder.id);
-        }
-        return false;
-      },
-      listener: (context, state) {
-        final lastOrder = state.orderHistory.last;
-        if (lastOrder.status == OrderStatus.delivered &&
-            lastOrder.riderName != null &&
-            !_ratedOrderIds.contains(lastOrder.id)) {
-          _ratedOrderIds.add(lastOrder.id);
-          _showRatingDialog(context, lastOrder.riderName!);
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, authState) {
+            if (authState is AuthAuthenticated) {
+              context.read<CustomerBloc>().add(InitializeUser(authState.profile.email));
+            }
+          },
+        ),
+        BlocListener<CustomerBloc, CustomerState>(
+          listenWhen: (previous, current) {
+            if (current.orderHistory.length > previous.orderHistory.length &&
+                current.orderHistory.isNotEmpty) {
+              final lastOrder = current.orderHistory.last;
+              return lastOrder.status == OrderStatus.delivered &&
+                  lastOrder.riderName != null &&
+                  !_ratedOrderIds.contains(lastOrder.id);
+            }
+            return false;
+          },
+          listener: (context, state) {
+            final lastOrder = state.orderHistory.last;
+            if (lastOrder.status == OrderStatus.delivered &&
+                lastOrder.riderName != null &&
+                !_ratedOrderIds.contains(lastOrder.id)) {
+              _ratedOrderIds.add(lastOrder.id);
+              _showRatingDialog(context, lastOrder.riderName!);
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<CustomerBloc, CustomerState>(
         builder: (context, state) {
           if (state.selectedCategory != null) {

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/network/web_socket_service.dart';
 import '../../../shared/models/models.dart';
 
@@ -84,28 +86,46 @@ class SearchProducts extends CustomerEvent {
   List<Object?> get props => [query];
 }
 
+class InitializeUser extends CustomerEvent {
+  final String email;
+  const InitializeUser(this.email);
+
+  @override
+  List<Object?> get props => [email];
+}
+
+class DeleteOrderHistory extends CustomerEvent {
+  final String orderId;
+  const DeleteOrderHistory(this.orderId);
+
+  @override
+  List<Object?> get props => [orderId];
+}
+
 // ─── State ───
 class CustomerState extends Equatable {
   final List<FoodItem> allProducts;
   final List<FoodItem> menuItems;
   final List<CartItem> cart;
-  final Order? activeOrder;
+  final List<Order> activeOrders;
   final List<Order> orderHistory;
   final bool isPlacingOrder;
   final String? errorMessage;
   final ProductCategory? selectedCategory;
   final String searchQuery;
+  final String? userEmail;
 
   const CustomerState({
     this.allProducts = const [],
     this.menuItems = const [],
     this.cart = const [],
-    this.activeOrder,
+    this.activeOrders = const [],
     this.orderHistory = const [],
     this.isPlacingOrder = false,
     this.errorMessage,
     this.selectedCategory,
     this.searchQuery = '',
+    this.userEmail,
   });
 
   double get cartTotal => cart.fold(0.0, (sum, item) => sum + item.totalPrice);
@@ -114,30 +134,31 @@ class CustomerState extends Equatable {
     List<FoodItem>? allProducts,
     List<FoodItem>? menuItems,
     List<CartItem>? cart,
-    Order? activeOrder,
+    List<Order>? activeOrders,
     List<Order>? orderHistory,
     bool? isPlacingOrder,
     String? errorMessage,
     ProductCategory? selectedCategory,
-    bool clearActiveOrder = false,
     bool clearCategory = false,
     String? searchQuery,
+    String? userEmail,
   }) {
     return CustomerState(
       allProducts: allProducts ?? this.allProducts,
       menuItems: menuItems ?? this.menuItems,
       cart: cart ?? this.cart,
-      activeOrder: clearActiveOrder ? null : (activeOrder ?? this.activeOrder),
+      activeOrders: activeOrders ?? this.activeOrders,
       orderHistory: orderHistory ?? this.orderHistory,
       isPlacingOrder: isPlacingOrder ?? this.isPlacingOrder,
       errorMessage: errorMessage ?? this.errorMessage,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       searchQuery: searchQuery ?? this.searchQuery,
+      userEmail: userEmail ?? this.userEmail,
     );
   }
 
   @override
-  List<Object?> get props => [allProducts, menuItems, cart, activeOrder, orderHistory, isPlacingOrder, errorMessage, selectedCategory, searchQuery];
+  List<Object?> get props => [allProducts, menuItems, cart, activeOrders, orderHistory, isPlacingOrder, errorMessage, selectedCategory, searchQuery, userEmail];
 }
 
 
@@ -525,29 +546,59 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         deliveryAddress: event.deliveryAddress,
       );
 
+      final updatedActiveOrders = List<Order>.from(state.activeOrders)..add(newOrder);
+
       emit(state.copyWith(
-        activeOrder: newOrder,
+        activeOrders: updatedActiveOrders,
         isPlacingOrder: false,
         cart: const [],
       ));
+
+      if (state.userEmail != null) {
+        _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+      }
 
       // Send new order to Restaurant App via WebSocket
       _webSocketService.send('new_order', newOrder.toJson());
     });
 
-    on<WebSocketOrderUpdateReceived>((event, emit) {
+    on<InitializeUser>((event, emit) async {
+      emit(state.copyWith(userEmail: event.email));
+      await _loadOrderHistory(event.email, emit);
+    });
+
+    on<DeleteOrderHistory>((event, emit) async {
+      final updatedHistory = state.orderHistory.where((o) => o.id != event.orderId).toList();
+      emit(state.copyWith(orderHistory: updatedHistory));
+      if (state.userEmail != null) {
+        await _saveOrderHistory(state.userEmail!, updatedHistory);
+      }
+    });
+
+    on<WebSocketOrderUpdateReceived>((event, emit) async {
       final orderJson = event.payload;
       try {
         final updatedOrder = Order.fromJson(orderJson);
-        if (state.activeOrder != null && state.activeOrder!.id == updatedOrder.id) {
+        final index = state.activeOrders.indexWhere((o) => o.id == updatedOrder.id);
+        
+        if (index >= 0) {
           if (updatedOrder.status == OrderStatus.delivered || updatedOrder.status == OrderStatus.rejected) {
             final updatedHistory = List<Order>.from(state.orderHistory)..add(updatedOrder);
+            final updatedActiveOrders = List<Order>.from(state.activeOrders)..removeAt(index);
             emit(state.copyWith(
-              activeOrder: updatedOrder,
+              activeOrders: updatedActiveOrders,
               orderHistory: updatedHistory,
             ));
+            if (state.userEmail != null) {
+              await _saveOrderHistory(state.userEmail!, updatedHistory);
+              await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+            }
           } else {
-            emit(state.copyWith(activeOrder: updatedOrder));
+            final updatedActiveOrders = List<Order>.from(state.activeOrders)..[index] = updatedOrder;
+            emit(state.copyWith(activeOrders: updatedActiveOrders));
+            if (state.userEmail != null) {
+              await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+            }
           }
         }
       } catch (e) {
@@ -555,35 +606,41 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       }
     });
 
-    on<WebSocketRiderLocationReceived>((event, emit) {
+    on<WebSocketRiderLocationReceived>((event, emit) async {
       final locationData = event.payload;
       final orderId = locationData['orderId'] as String?;
       final riderName = locationData['riderName'] as String?;
       final latitude = (locationData['latitude'] as num?)?.toDouble();
       final longitude = (locationData['longitude'] as num?)?.toDouble();
 
-      if (state.activeOrder != null &&
-          state.activeOrder!.id == orderId &&
-          latitude != null &&
-          longitude != null) {
-        
+      final index = state.activeOrders.indexWhere((o) => o.id == orderId);
+
+      if (index >= 0 && latitude != null && longitude != null) {
         final updatedLocation = UserLocation(
           latitude: latitude,
           longitude: longitude,
           timestamp: DateTime.now().toIso8601String(),
         );
 
-        final updatedOrder = state.activeOrder!.copyWith(
-          riderName: riderName ?? state.activeOrder!.riderName,
+        final updatedOrder = state.activeOrders[index].copyWith(
+          riderName: riderName ?? state.activeOrders[index].riderName,
           riderLocation: updatedLocation,
         );
 
-        emit(state.copyWith(activeOrder: updatedOrder));
+        final updatedActiveOrders = List<Order>.from(state.activeOrders)..[index] = updatedOrder;
+
+        emit(state.copyWith(activeOrders: updatedActiveOrders));
+        if (state.userEmail != null) {
+          await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+        }
       }
     });
 
-    on<ResetCustomerFlow>((event, emit) {
-      emit(state.copyWith(clearActiveOrder: true));
+    on<ResetCustomerFlow>((event, emit) async {
+      emit(state.copyWith(activeOrders: const []));
+      if (state.userEmail != null) {
+        await _saveActiveOrders(state.userEmail!, const []);
+      }
     });
   }
 
@@ -591,5 +648,68 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   Future<void> close() {
     _wsSubscription?.cancel();
     return super.close();
+  }
+
+  Future<void> _loadOrderHistory(String email, Emitter<CustomerState> emit) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Load History
+      final key = 'orderHistory_$email';
+      final jsonList = prefs.getStringList(key);
+      if (jsonList != null) {
+        final history = jsonList.map((jsonStr) {
+          return Order.fromJson(jsonDecode(jsonStr));
+        }).toList();
+        emit(state.copyWith(orderHistory: history));
+      }
+
+      // Load Active Orders
+      final activeOrdersJson = prefs.getStringList('activeOrders_$email');
+      if (activeOrdersJson != null) {
+        final activeList = activeOrdersJson.map((jsonStr) => Order.fromJson(jsonDecode(jsonStr))).toList();
+        // Filter out completed ones just in case
+        final validActive = activeList.where((o) => o.status != OrderStatus.delivered && o.status != OrderStatus.rejected).toList();
+        emit(state.copyWith(activeOrders: validActive));
+      } else {
+        // Fallback for previous single activeOrder
+        final singleActiveJson = prefs.getString('activeOrder_$email');
+        if (singleActiveJson != null) {
+           final o = Order.fromJson(jsonDecode(singleActiveJson));
+           if (o.status != OrderStatus.delivered && o.status != OrderStatus.rejected) {
+             emit(state.copyWith(activeOrders: [o]));
+           }
+           prefs.remove('activeOrder_$email');
+        }
+      }
+    } catch (e) {
+      print('Error loading order history: $e');
+    }
+  }
+
+  Future<void> _saveOrderHistory(String email, List<Order> history) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'orderHistory_$email';
+      final jsonList = history.map((o) => jsonEncode(o.toJson())).toList();
+      await prefs.setStringList(key, jsonList);
+    } catch (e) {
+      print('Error saving order history: $e');
+    }
+  }
+
+  Future<void> _saveActiveOrders(String email, List<Order> orders) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'activeOrders_$email';
+      if (orders.isEmpty) {
+        await prefs.remove(key);
+      } else {
+        final jsonList = orders.map((o) => jsonEncode(o.toJson())).toList();
+        await prefs.setStringList(key, jsonList);
+      }
+    } catch (e) {
+      print('Error saving active orders: $e');
+    }
   }
 }

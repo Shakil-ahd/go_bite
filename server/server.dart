@@ -93,10 +93,10 @@ void main() async {
                   orders[orderId] = msgData; // Update stored order
                   print('   🔄 Order $orderId → $newStatus');
 
-                  // Notify customer
-                  _broadcastToType(clients, ClientType.customer, 'order_status_updated', msgData, exclude: ws);
+                  // Broadcast to everyone (excluding sender) so all apps stay in sync
+                  _broadcastAll(clients, 'order_status_updated', msgData, exclude: ws);
 
-                  // If ready for pickup, notify riders
+                  // If ready for pickup, also notify riders with a specific event
                   if (newStatus == 'readyForPickup') {
                     _broadcastToType(clients, ClientType.rider, 'order_ready_for_pickup', msgData);
                   }
@@ -123,10 +123,12 @@ void main() async {
                   client.orderId = orderId;
                   final order = orders[orderId];
                   if (order != null) {
-                    final updated = {...order, 'riderName': msgData['riderName'], 'status': 'outForDelivery'};
+                    final updated = {...order, 'riderName': msgData['riderName']};
+                    // Do NOT change status yet. Restaurant must confirm hand-over.
                     orders[orderId] = updated;
                     _broadcastToType(clients, ClientType.customer, 'order_status_updated', updated, exclude: ws);
                     _broadcastToType(clients, ClientType.restaurant, 'order_status_updated', updated, exclude: ws);
+                    _broadcastToType(clients, ClientType.rider, 'order_status_updated', updated, exclude: ws);
                   }
                 }
                 break;
@@ -156,7 +158,8 @@ void main() async {
     } else {
       request.response
         ..statusCode = HttpStatus.ok
-        ..headers.add('Content-Type', 'text/html')
+        ..headers.contentType = ContentType.html
+        ..headers.add('Content-Type', 'text/html; charset=utf-8')
         ..write('''
           <html><body style="font-family:sans-serif;padding:40px;background:#1a1a2e;color:#eee">
           <h1>🍔 GoBite WebSocket Server</h1>

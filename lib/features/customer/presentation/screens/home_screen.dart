@@ -8,6 +8,7 @@ import '../../bloc/customer_bloc.dart';
 import '../../profile_screen.dart';
 import 'checkout_screen.dart';
 import '../../../auth/login_screen.dart';
+import 'tracking_screen.dart';
 
 // ═══════════════════════════════════════════
 // ──── Category Home Screen ────
@@ -27,6 +28,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
   void initState() {
     super.initState();
     context.read<CustomerBloc>().add(LoadRestaurantMenu());
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      context.read<CustomerBloc>().add(InitializeUser(authState.profile.email));
+    }
   }
 
   @override
@@ -173,6 +178,45 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           ),
                         Row(
                           children: [
+                            // Active Orders badge
+                            BlocBuilder<CustomerBloc, CustomerState>(
+                              builder: (context, state) {
+                                final activeCount = state.activeOrders.length;
+                                if (activeCount == 0) return const SizedBox.shrink();
+                                return Stack(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delivery_dining,
+                                        color: Colors.white,
+                                        size: 28,
+                                      ),
+                                      onPressed: () => _showActiveOrdersSheet(context, state.activeOrders),
+                                    ),
+                                    Positioned(
+                                      right: 4,
+                                      top: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.green,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          '$activeCount',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 4),
                             // Cart badge
                             BlocBuilder<CustomerBloc, CustomerState>(
                               builder: (context, state) {
@@ -960,6 +1004,100 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
         ),
         child: Icon(icon, size: 18, color: AppTheme.primary),
       ),
+    );
+  }
+
+  void _showActiveOrdersSheet(BuildContext context, List<Order> activeOrders) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.7,
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Active Orders',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: activeOrders.length,
+                  itemBuilder: (context, index) {
+                    final order = activeOrders[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(modalContext);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CustomerTrackingScreen(orderId: order.id),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.motorcycle, color: Colors.white),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Order #${order.id.substring(0, 6)}',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    order.status == OrderStatus.outForDelivery ? 'Out for Delivery' : 'Preparing...',
+                                    style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${order.items.length} items • ৳${order.totalAmount.toStringAsFixed(0)}',
+                                    style: TextStyle(color: Colors.grey.shade600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right, color: Colors.blue),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

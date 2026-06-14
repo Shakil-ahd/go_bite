@@ -107,11 +107,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final userJson = prefs.getString(_kCurrentUser);
       if (userJson != null) {
         try {
-          final user = UserProfile.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+          final userMap = Map<String, dynamic>.from(jsonDecode(userJson) as Map);
+          final user = UserProfile.fromJson(userMap);
           // Ensure user exists in mock db
-          _users[user.email] = user;
+          _users[user.email.toLowerCase().trim()] = user;
           emit(AuthAuthenticated(user.fullName, user));
         } catch (e) {
+          print('AuthCheckRequested Error: $e');
           await prefs.remove(_kCurrentUser);
           emit(const AuthUnauthenticated());
         }
@@ -209,14 +211,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final prefs = await SharedPreferences.getInstance();
       final allUsersJson = prefs.getString(_kAllUsers);
       if (allUsersJson != null) {
-        final Map<String, dynamic> allUsers = jsonDecode(allUsersJson) as Map<String, dynamic>;
-        for (final entry in allUsers.entries) {
+        final Map<dynamic, dynamic> decoded = jsonDecode(allUsersJson) as Map;
+        for (final entry in decoded.entries) {
           try {
-            _users[entry.key] = UserProfile.fromJson(entry.value as Map<String, dynamic>);
-          } catch (_) {}
+            final userMap = Map<String, dynamic>.from(entry.value as Map);
+            _users[entry.key.toString()] = UserProfile.fromJson(userMap);
+          } catch (e) {
+            print('Error parsing user ${entry.key}: $e');
+          }
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      print('Error loading all users: $e');
+    }
   }
 
   // Ensure users are loaded (call before operations that need the user map)
@@ -235,6 +242,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         allUsers[entry.key] = entry.value.toJson();
       }
       await prefs.setString(_kAllUsers, jsonEncode(allUsers));
-    } catch (_) {}
+    } catch (e) {
+      print('Error saving all users: $e');
+    }
   }
 }

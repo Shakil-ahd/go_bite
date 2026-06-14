@@ -12,9 +12,6 @@ class CustomerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CustomerBloc, CustomerState>(
       builder: (context, state) {
-        if (state.activeOrder != null) {
-          return const CustomerTrackingScreen();
-        }
         if (state.selectedCategory != null) {
           return const CustomerMenuScreen();
         }

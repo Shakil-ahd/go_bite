@@ -41,20 +41,16 @@ class WebSocketService {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
 
+      // Consider it connected and register immediately
+      _isConnected = true;
+      _isConnecting = false;
+      _retryCount = 0;
+      debugPrint('🟢 WebSocket connected! Registering as ${clientType.name}...');
+      _registerClientType();
+      _startPingTimer();
+
       _channel!.stream.listen(
         (message) {
-          if (!_isConnected) {
-            _isConnected = true;
-            _isConnecting = false;
-            _retryCount = 0;
-            debugPrint('🟢 WebSocket connected! Registering as ${clientType.name}...');
-            
-            // Register client type with server
-            _registerClientType();
-            
-            // Start ping timer to keep connection alive
-            _startPingTimer();
-          }
           try {
             final data = jsonDecode(message as String);
             if (data is Map<String, dynamic>) {

@@ -18,28 +18,67 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   PaymentMethod _paymentMethod = PaymentMethod.cashOnDelivery;
+  String? _customPhone;
+  String? _customAddress;
+
+  void _showEditDialog(String title, String initialValue, Function(String) onSave) {
+    final controller = TextEditingController(text: initialValue);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit $title'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Enter $title',
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              onSave(controller.text);
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _onConfirmOrder(UserProfile profile) {
+    final phoneToUse = _customPhone ?? profile.phone ?? 'N/A';
+    final addressToUse = _customAddress ?? profile.deliveryAddress;
+
     if (_paymentMethod == PaymentMethod.bkash) {
       // Navigate to bKash mock screen
+      // We also need to pass the custom phone and address if they changed it!
+      // But PaymentScreen takes profile. Let's create a temporary modified profile.
+      final modifiedProfile = profile.copyWith(
+        phone: phoneToUse,
+        deliveryAddress: addressToUse,
+      );
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => PaymentScreen(profile: profile)),
+        MaterialPageRoute(builder: (_) => PaymentScreen(profile: modifiedProfile)),
       );
     } else {
       // Cash on Delivery - Place order immediately
       context.read<CustomerBloc>().add(
         PlaceOrder(
           customerName: profile.fullName,
-          customerPhone: profile.phone ?? 'N/A',
-          deliveryAddress: profile.deliveryAddress,
+          customerPhone: phoneToUse,
+          deliveryAddress: addressToUse,
         ),
       );
 
       // Ensure we pop everything except the dashboard, then push tracking
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()));
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
+        (route) => route.isFirst,
+      );
     }
   }
 
@@ -105,13 +144,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 _buildDetailRow(
                                   Icons.phone,
                                   'Phone',
-                                  profile.phone ?? 'N/A',
+                                  _customPhone ?? profile.phone ?? 'N/A',
+                                  onEdit: () {
+                                    _showEditDialog(
+                                      'Phone Number',
+                                      _customPhone ?? profile.phone ?? '',
+                                      (newVal) => setState(() => _customPhone = newVal),
+                                    );
+                                  },
                                 ),
                                 const Divider(height: 24),
                                 _buildDetailRow(
                                   Icons.location_on,
                                   'Address',
-                                  profile.deliveryAddress,
+                                  _customAddress ?? profile.deliveryAddress,
+                                  onEdit: () {
+                                    _showEditDialog(
+                                      'Delivery Address',
+                                      _customAddress ?? profile.deliveryAddress,
+                                      (newVal) => setState(() => _customAddress = newVal),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -310,7 +363,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String title, String value) {
+  Widget _buildDetailRow(IconData icon, String title, String value, {VoidCallback? onEdit}) {
     return Row(
       children: [
         Icon(icon, color: Colors.grey.shade400, size: 24),
@@ -334,6 +387,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ],
           ),
         ),
+        if (onEdit != null)
+          IconButton(
+            icon: const Icon(Icons.edit, size: 20, color: AppTheme.primary),
+            onPressed: onEdit,
+            tooltip: 'Edit $title',
+          ),
       ],
     );
   }

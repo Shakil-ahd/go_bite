@@ -51,10 +51,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
 
     // Navigate to tracking
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()));
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
+      (route) => route.isFirst,
+    );
   }
 
   @override

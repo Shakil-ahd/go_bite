@@ -7,7 +7,7 @@ WORKDIR /app
 COPY server/ ./server/
 
 # Compile the server directly (no pubspec needed since it uses only dart:io and dart:convert)
-RUN dart compile exe server/server.dart -o bin/server
+RUN mkdir -p bin && dart compile exe server/server.dart -o bin/server
 
 # Build minimal serving image
 FROM debian:bookworm-slim

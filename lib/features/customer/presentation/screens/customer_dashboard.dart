@@ -5,8 +5,8 @@ import 'home_screen.dart';
 import 'menu_screen.dart';
 import 'tracking_screen.dart';
 
-import '../../core/models.dart';
-import '../../../../core/theme.dart';
+import '../../../../shared/models/models.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class CustomerDashboard extends StatefulWidget {
   const CustomerDashboard({super.key});

@@ -1124,6 +1124,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                   itemCount: activeOrders.length,
                   itemBuilder: (context, index) {
                     final order = activeOrders[index];
+                    final isPending = order.status == OrderStatus.pending;
                     return GestureDetector(
                       onTap: () {
                         Navigator.pop(modalContext);
@@ -1139,56 +1140,125 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: isPending ? Colors.orange.shade50 : Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.blue.shade200),
+                          border: Border.all(
+                            color: isPending ? Colors.orange.shade200 : Colors.blue.shade200,
+                          ),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.motorcycle,
-                                color: Colors.white,
-                              ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isPending ? Colors.orange : Colors.blue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isPending ? Icons.hourglass_top : Icons.motorcycle,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Order #${order.id.substring(0, 6)}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        isPending
+                                            ? 'Waiting for restaurant...'
+                                            : order.status == OrderStatus.outForDelivery
+                                                ? 'Out for Delivery'
+                                                : 'Preparing...',
+                                        style: TextStyle(
+                                          color: isPending
+                                              ? Colors.orange.shade700
+                                              : Colors.blue.shade700,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '${order.items.length} items • ৳${order.totalAmount.toStringAsFixed(0)}',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(Icons.chevron_right),
+                              ],
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Order #${order.id.substring(0, 6)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                            if (isPending) ...[
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('Cancel Order?'),
+                                        content: const Text(
+                                          'Are you sure you want to cancel this order? This cannot be undone.',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(ctx),
+                                            child: const Text('No'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              context.read<CustomerBloc>().add(
+                                                CancelOrder(order.id),
+                                              );
+                                              Navigator.pop(ctx);
+                                              Navigator.pop(modalContext);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Order cancelled.'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red,
+                                            ),
+                                            child: const Text(
+                                              'Yes, Cancel',
+                                              style: TextStyle(color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.cancel, color: Colors.red, size: 18),
+                                  label: const Text(
+                                    'Cancel Order',
+                                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Colors.red),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    order.status == OrderStatus.outForDelivery
-                                        ? 'Out for Delivery'
-                                        : 'Preparing...',
-                                    style: TextStyle(
-                                      color: Colors.blue.shade700,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${order.items.length} items • ৳${order.totalAmount.toStringAsFixed(0)}',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                            const Icon(Icons.chevron_right, color: Colors.blue),
+                            ],
                           ],
                         ),
                       ),

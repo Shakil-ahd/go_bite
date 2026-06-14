@@ -110,6 +110,14 @@ class DeleteOrderHistory extends CustomerEvent {
   List<Object?> get props => [orderId];
 }
 
+class CancelOrder extends CustomerEvent {
+  final String orderId;
+  const CancelOrder(this.orderId);
+
+  @override
+  List<Object?> get props => [orderId];
+}
+
 // ─── State ───
 class RateRider extends CustomerEvent {
   final String riderName;
@@ -590,6 +598,32 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         'riderName': event.riderName,
         'rating': event.rating,
       });
+    });
+
+    on<CancelOrder>((event, emit) async {
+      final index = state.activeOrders.indexWhere((o) => o.id == event.orderId);
+      if (index < 0) return;
+
+      final order = state.activeOrders[index];
+      // Only allow cancel if not yet accepted by restaurant
+      if (order.status != OrderStatus.pending) return;
+
+      final cancelledOrder = order.copyWith(status: OrderStatus.rejected);
+      final updatedHistory = List<Order>.from(state.orderHistory)..add(cancelledOrder);
+      final updatedActiveOrders = List<Order>.from(state.activeOrders)..removeAt(index);
+
+      emit(state.copyWith(
+        activeOrders: updatedActiveOrders,
+        orderHistory: updatedHistory,
+      ));
+
+      if (state.userEmail != null) {
+        await _saveOrderHistory(state.userEmail!, updatedHistory);
+        await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+      }
+
+      // Notify restaurant that order was cancelled
+      _webSocketService.send('order_status_updated', cancelledOrder.toJson());
     });
 
     on<InitializeUser>((event, emit) async {

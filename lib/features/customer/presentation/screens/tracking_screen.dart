@@ -32,7 +32,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     _riderBounceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
+    ); // Don't auto-start — controlled by order status
 
     _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
@@ -65,6 +65,15 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
             order = state.activeOrders.isNotEmpty
                 ? state.activeOrders.last
                 : null;
+          }
+
+          // Control rider bounce animation based on order status
+          final isOutForDelivery = order?.status == OrderStatus.outForDelivery;
+          if (isOutForDelivery && !_riderBounceController.isAnimating) {
+            _riderBounceController.repeat(reverse: true);
+          } else if (!isOutForDelivery && _riderBounceController.isAnimating) {
+            _riderBounceController.stop();
+            _riderBounceController.reset();
           }
 
           if (order == null) {

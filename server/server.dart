@@ -35,8 +35,16 @@ void main() async {
       final ws = await WebSocketTransformer.upgrade(request);
       final client = ConnectedClient(ws);
       clients.add(client);
+    } else {
+      // Respond to regular HTTP requests (Render health checks)
+      request.response
+        ..statusCode = HttpStatus.ok
+        ..write('GoBite Server is Running!')
+        ..close();
+      continue;
+    }
 
-      print('🟢 New connection. Total: ${clients.length}');
+    print('🟢 New connection. Total: ${clients.length}');
 
       ws.listen(
         (data) {

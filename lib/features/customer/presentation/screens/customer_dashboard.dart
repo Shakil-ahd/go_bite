@@ -3,10 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/customer_bloc.dart';
 import 'home_screen.dart';
 import 'menu_screen.dart';
-import 'tracking_screen.dart';
-
 import '../../../../shared/models/models.dart';
-import '../../../../core/theme/app_theme.dart';
 
 class CustomerDashboard extends StatefulWidget {
   const CustomerDashboard({super.key});
@@ -16,16 +13,28 @@ class CustomerDashboard extends StatefulWidget {
 }
 
 class _CustomerDashboardState extends State<CustomerDashboard> {
+  // Track orders that have already been rated to prevent duplicates
+  final Set<String> _ratedOrderIds = {};
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<CustomerBloc, CustomerState>(
       listenWhen: (previous, current) {
-        return current.orderHistory.length > previous.orderHistory.length &&
-               current.orderHistory.isNotEmpty;
+        if (current.orderHistory.length > previous.orderHistory.length &&
+            current.orderHistory.isNotEmpty) {
+          final lastOrder = current.orderHistory.last;
+          return lastOrder.status == OrderStatus.delivered &&
+              lastOrder.riderName != null &&
+              !_ratedOrderIds.contains(lastOrder.id);
+        }
+        return false;
       },
       listener: (context, state) {
         final lastOrder = state.orderHistory.last;
-        if (lastOrder.status == OrderStatus.delivered && lastOrder.riderName != null) {
+        if (lastOrder.status == OrderStatus.delivered &&
+            lastOrder.riderName != null &&
+            !_ratedOrderIds.contains(lastOrder.id)) {
+          _ratedOrderIds.add(lastOrder.id);
           _showRatingDialog(context, lastOrder.riderName!);
         }
       },
@@ -41,7 +50,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
   }
 
   void _showRatingDialog(BuildContext context, String riderName) {
-    int _rating = 5;
+    int rating = 5;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -66,11 +75,11 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                       children: List.generate(5, (index) {
                         return IconButton(
                           icon: Icon(
-                            index < _rating ? Icons.star : Icons.star_border,
+                            index < rating ? Icons.star : Icons.star_border,
                             color: Colors.orange,
                             size: 36,
                           ),
-                          onPressed: () => setState(() => _rating = index + 1),
+                          onPressed: () => setState(() => rating = index + 1),
                         );
                       }),
                     ),
@@ -84,7 +93,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            context.read<CustomerBloc>().add(RateRider(riderName, _rating));
+                            context.read<CustomerBloc>().add(RateRider(riderName, rating));
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Thank you for rating $riderName!'), backgroundColor: Colors.green),

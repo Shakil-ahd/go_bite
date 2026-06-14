@@ -185,6 +185,35 @@ void main() async {
                 _sendToClient(ws, 'pong', {'time': DateTime.now().toIso8601String()});
                 break;
 
+              // ─── Client requests missed/pending orders on reconnect ───
+              case 'get_pending_orders':
+                final requestingType = msgData['clientType'] as String?;
+                if (requestingType == 'restaurant') {
+                  int sent = 0;
+                  for (final order in orders.values) {
+                    final status = order['status'] as String?;
+                    // Send all non-completed orders to restaurant
+                    if (status != null &&
+                        status != 'delivered' &&
+                        status != 'rejected') {
+                      _sendToClient(ws, 'new_order', order);
+                      sent++;
+                    }
+                  }
+                  print('   📦 Sent $sent pending orders to reconnected restaurant');
+                } else if (requestingType == 'rider') {
+                  int sent = 0;
+                  for (final order in orders.values) {
+                    final status = order['status'] as String?;
+                    if (status == 'readyForPickup') {
+                      _sendToClient(ws, 'order_ready_for_pickup', order);
+                      sent++;
+                    }
+                  }
+                  print('   🛵 Sent $sent ready-for-pickup orders to reconnected rider');
+                }
+                break;
+
               default:
                 // Generic broadcast (fallback for unknown events)
                 _broadcastAll(clients, event, msgData, timestamp: timestamp, exclude: ws);

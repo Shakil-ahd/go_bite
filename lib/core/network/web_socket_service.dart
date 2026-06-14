@@ -17,6 +17,11 @@ class WebSocketService {
   Timer? _reconnectTimer;
   Timer? _pingTimer;
   int _retryCount = 0;
+  bool _disposed = false;
+
+  /// Called every time a successful connection is established.
+  /// Use this to re-request any missed data (e.g. pending orders).
+  VoidCallback? onConnected;
 
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
   bool get isConnected => _isConnected;
@@ -24,6 +29,7 @@ class WebSocketService {
   WebSocketService({
     required this.url,
     this.clientType = AppClientType.customer,
+    this.onConnected,
   });
 
   static String get defaultUrl {
@@ -31,14 +37,13 @@ class WebSocketService {
   }
 
   void connect() {
-    if (_isConnected || _isConnecting) return;
+    if (_disposed || _isConnected || _isConnecting) return;
     _isConnecting = true;
 
     debugPrint('🔌 Connecting to WebSocket: $url (as ${clientType.name})');
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
 
-      // Consider it connected and register immediately
       _isConnected = true;
       _isConnecting = false;
       _retryCount = 0;
@@ -46,13 +51,16 @@ class WebSocketService {
       _registerClientType();
       _startPingTimer();
 
+      // Notify listener so blocs can re-request pending data
+      onConnected?.call();
+
       _channel!.stream.listen(
         (message) {
           try {
             final data = jsonDecode(message as String);
             if (data is Map<String, dynamic>) {
               final event = data['event'] as String?;
-              if (event == 'pong') return; // ignore pings
+              if (event == 'pong') return;
               _messageController.add(data);
             }
           } catch (e) {
@@ -88,22 +96,22 @@ class WebSocketService {
   }
 
   void _handleDisconnect() {
+    if (_disposed) return;
     _isConnected = false;
     _isConnecting = false;
     _channel = null;
     _pingTimer?.cancel();
 
-    if (_retryCount >= 5) {
-      debugPrint('⏹️ Max reconnection attempts reached.');
-      return;
-    }
+    // Exponential backoff: 3s, 6s, 12s, 24s, 48s … max 60s, then keeps retrying
     _retryCount++;
-
-    final delay = Duration(seconds: 3 * _retryCount);
+    final delaySeconds = (_retryCount <= 5)
+        ? (3 * _retryCount)
+        : 60; // cap at 60 seconds, keep retrying indefinitely
+    final delay = Duration(seconds: delaySeconds);
     _reconnectTimer?.cancel();
+    debugPrint('🔄 Reconnecting in ${delay.inSeconds}s (attempt $_retryCount)...');
     _reconnectTimer = Timer(delay, () {
-      debugPrint('🔄 Reconnecting ($_retryCount/5)...');
-      connect();
+      if (!_disposed) connect();
     });
   }
 
@@ -131,7 +139,18 @@ class WebSocketService {
     }
   }
 
+  /// Call this when the app resumes from background to force a reconnect check
+  void forceReconnect() {
+    if (!_isConnected && !_isConnecting && !_disposed) {
+      _reconnectTimer?.cancel();
+      _retryCount = 0;
+      debugPrint('🔁 Force reconnecting on app resume...');
+      connect();
+    }
+  }
+
   void dispose() {
+    _disposed = true;
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
     _channel?.sink.close();

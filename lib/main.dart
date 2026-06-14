@@ -7,6 +7,7 @@ import 'features/customer/presentation/screens/customer_dashboard.dart';
 import 'features/customer/bloc/customer_bloc.dart';
 import 'features/entry/onboarding_screen.dart';
 import 'features/entry/splash_screen.dart';
+import 'shared/widgets/connectivity_wrapper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,10 +42,49 @@ class GoBiteApp extends StatelessWidget {
           title: 'GoBite',
           theme: AppTheme.lightTheme,
           debugShowCheckedModeBanner: false,
-          home: const SplashScreen(),
+          builder: (context, child) => ConnectivityWrapper(child: child!),
+          home: const _LifecycleWrapper(),
         ),
       ),
     );
+  }
+}
+
+/// Wraps the SplashScreen and listens for app lifecycle changes.
+/// When the app comes back to the foreground, it forces a WebSocket reconnect.
+class _LifecycleWrapper extends StatefulWidget {
+  const _LifecycleWrapper();
+
+  @override
+  State<_LifecycleWrapper> createState() => _LifecycleWrapperState();
+}
+
+class _LifecycleWrapperState extends State<_LifecycleWrapper>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // App came back to foreground — force WebSocket reconnect if needed
+      final ws = context.read<WebSocketService>();
+      ws.forceReconnect();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SplashScreen();
   }
 }
 

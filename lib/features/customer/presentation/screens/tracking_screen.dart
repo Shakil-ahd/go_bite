@@ -49,11 +49,47 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     super.dispose();
   }
 
+  // Track if rating has been shown for this delivery session
+  String? _lastRatedOrderId;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: BlocBuilder<CustomerBloc, CustomerState>(
+      body: BlocListener<CustomerBloc, CustomerState>(
+        listenWhen: (previous, current) {
+          // Trigger when a new order moves to history as delivered
+          if (current.orderHistory.length > previous.orderHistory.length) {
+            final newHistoryOrder = current.orderHistory.isNotEmpty
+                ? current.orderHistory.last
+                : null;
+            if (newHistoryOrder != null &&
+                newHistoryOrder.status == OrderStatus.delivered &&
+                newHistoryOrder.riderName != null &&
+                _lastRatedOrderId != newHistoryOrder.id) {
+              return true;
+            }
+          }
+          return false;
+        },
+        listener: (context, state) {
+          final deliveredOrder = state.orderHistory.isNotEmpty
+              ? state.orderHistory.last
+              : null;
+          if (deliveredOrder != null &&
+              deliveredOrder.status == OrderStatus.delivered &&
+              deliveredOrder.riderName != null &&
+              _lastRatedOrderId != deliveredOrder.id) {
+            _lastRatedOrderId = deliveredOrder.id;
+            // Short delay so the "delivered" UI updates first
+            Future.delayed(const Duration(milliseconds: 600), () {
+              if (context.mounted) {
+                _showRatingDialog(context, deliveredOrder.riderName!);
+              }
+            });
+          }
+        },
+        child: BlocBuilder<CustomerBloc, CustomerState>(
         builder: (context, state) {
           Order? order;
           if (widget.orderId != null) {
@@ -109,6 +145,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
             ],
           );
         },
+      ),
       ),
     );
   }

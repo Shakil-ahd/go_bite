@@ -27,10 +27,7 @@ class WebSocketService {
   });
 
   static String get defaultUrl {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'ws://10.0.2.2:8080';
-    }
-    return 'ws://localhost:8080';
+    return 'wss://go-bite.onrender.com';
   }
 
   void connect() {

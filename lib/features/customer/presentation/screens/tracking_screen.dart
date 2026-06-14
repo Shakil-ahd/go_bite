@@ -95,7 +95,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               // ─── Info Panel ───
               Expanded(
                 flex: 5,
-                child: _buildInfoPanel(context, order),
+                child: _buildInfoPanel(context, order, state),
               ),
             ],
           );
@@ -237,7 +237,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     );
   }
 
-  Widget _buildInfoPanel(BuildContext context, Order order) {
+  Widget _buildInfoPanel(BuildContext context, Order order, CustomerState state) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -290,9 +290,24 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Your Rider',
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        Builder(
+                          builder: (context) {
+                            final stats = state.riderStats[order.riderName];
+                            if (stats != null) {
+                              final double avg = stats['averageRating'] ?? 0.0;
+                              final int total = stats['totalDeliveries'] ?? 0;
+                              return Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.orange, size: 14),
+                                  const SizedBox(width: 4),
+                                  Text('${avg.toStringAsFixed(1)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  const SizedBox(width: 8),
+                                  Text('($total deliveries)', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                ],
+                              );
+                            }
+                            return const Text('Your Rider', style: TextStyle(color: Colors.grey, fontSize: 12));
+                          }
                         ),
                       ],
                     ),
@@ -313,9 +328,89 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                   ),
                 ],
               ),
+            
+            if (order.status == OrderStatus.delivered && order.riderName != null) ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showRatingDialog(context, order.riderName!),
+                  icon: const Icon(Icons.star, color: Colors.orange),
+                  label: const Text('Rate Rider', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  void _showRatingDialog(BuildContext context, String riderName) {
+    int _rating = 5;
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text('Rate $riderName', textAlign: TextAlign.center),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('How was your delivery?'),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < _rating ? Icons.star : Icons.star_border,
+                          color: Colors.orange,
+                          size: 36,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _rating = index + 1;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<CustomerBloc>().add(RateRider(riderName, _rating));
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Thank you for rating $riderName!'), backgroundColor: Colors.green),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Submit', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          }
+        );
+      },
     );
   }
 

@@ -24,6 +24,10 @@ void main() async {
   // In-memory order store
   final Map<String, Map<String, dynamic>> orders = {};
 
+  // In-memory rider ratings store
+  // Format: { 'riderName': { 'totalRatings': 0, 'totalScore': 0.0, 'totalDeliveries': 0 } }
+  final Map<String, Map<String, dynamic>> riderRatings = {};
+
   await for (HttpRequest request in server) {
     if (WebSocketTransformer.isUpgradeRequest(request)) {
       final ws = await WebSocketTransformer.upgrade(request);
@@ -103,6 +107,25 @@ void main() async {
 
                   // If delivered/rejected, clean up after delay
                   if (newStatus == 'delivered' || newStatus == 'rejected') {
+                    if (newStatus == 'delivered') {
+                      final riderName = msgData['riderName'] as String?;
+                      if (riderName != null) {
+                        riderRatings.putIfAbsent(riderName, () => {'totalRatings': 0, 'totalScore': 0.0, 'totalDeliveries': 0});
+                        riderRatings[riderName]!['totalDeliveries'] = (riderRatings[riderName]!['totalDeliveries'] as int) + 1;
+                        
+                        // Broadcast updated stats
+                        final statsData = {
+                          'riderName': riderName,
+                          'totalDeliveries': riderRatings[riderName]!['totalDeliveries'],
+                          'averageRating': (riderRatings[riderName]!['totalRatings'] as int) > 0 
+                              ? (riderRatings[riderName]!['totalScore'] as double) / (riderRatings[riderName]!['totalRatings'] as int)
+                              : 0.0,
+                          'totalRatings': riderRatings[riderName]!['totalRatings']
+                        };
+                        _broadcastAll(clients, 'rider_stats_updated', statsData, exclude: ws);
+                      }
+                    }
+
                     Future.delayed(const Duration(seconds: 30), () {
                       orders.remove(orderId);
                     });
@@ -130,6 +153,29 @@ void main() async {
                     _broadcastToType(clients, ClientType.restaurant, 'order_status_updated', updated, exclude: ws);
                     _broadcastToType(clients, ClientType.rider, 'order_status_updated', updated, exclude: ws);
                   }
+                }
+                break;
+
+              // ─── Rate Rider ───
+              case 'rate_rider':
+                final riderName = msgData['riderName'] as String?;
+                final rating = msgData['rating'] as num?;
+                if (riderName != null && rating != null) {
+                  riderRatings.putIfAbsent(riderName, () => {'totalRatings': 0, 'totalScore': 0.0, 'totalDeliveries': 0});
+                  
+                  riderRatings[riderName]!['totalRatings'] = (riderRatings[riderName]!['totalRatings'] as int) + 1;
+                  riderRatings[riderName]!['totalScore'] = (riderRatings[riderName]!['totalScore'] as double) + rating.toDouble();
+                  
+                  final avg = (riderRatings[riderName]!['totalScore'] as double) / (riderRatings[riderName]!['totalRatings'] as int);
+                  
+                  final statsData = {
+                    'riderName': riderName,
+                    'averageRating': avg,
+                    'totalRatings': riderRatings[riderName]!['totalRatings'],
+                    'totalDeliveries': riderRatings[riderName]!['totalDeliveries']
+                  };
+                  print('   ⭐ Rider $riderName rated $rating. New avg: $avg');
+                  _broadcastAll(clients, 'rider_stats_updated', statsData, exclude: ws);
                 }
                 break;
 

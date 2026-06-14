@@ -76,6 +76,14 @@ class WebSocketRiderLocationReceived extends CustomerEvent {
   List<Object?> get props => [payload];
 }
 
+class WebSocketRiderStatsReceived extends CustomerEvent {
+  final Map<String, dynamic> payload;
+  const WebSocketRiderStatsReceived(this.payload);
+
+  @override
+  List<Object?> get props => [payload];
+}
+
 class ResetCustomerFlow extends CustomerEvent {}
 
 class SearchProducts extends CustomerEvent {
@@ -103,6 +111,15 @@ class DeleteOrderHistory extends CustomerEvent {
 }
 
 // ─── State ───
+class RateRider extends CustomerEvent {
+  final String riderName;
+  final int rating;
+  const RateRider(this.riderName, this.rating);
+
+  @override
+  List<Object?> get props => [riderName, rating];
+}
+
 class CustomerState extends Equatable {
   final List<FoodItem> allProducts;
   final List<FoodItem> menuItems;
@@ -112,23 +129,25 @@ class CustomerState extends Equatable {
   final bool isPlacingOrder;
   final String? errorMessage;
   final ProductCategory? selectedCategory;
-  final String searchQuery;
+  final String? searchQuery;
   final String? userEmail;
+  final Map<String, dynamic> riderStats;
 
   const CustomerState({
-    this.allProducts = const [],
-    this.menuItems = const [],
+    this.allProducts = _bangladeshiCatalog,
+    this.menuItems = _bangladeshiCatalog,
     this.cart = const [],
     this.activeOrders = const [],
     this.orderHistory = const [],
     this.isPlacingOrder = false,
     this.errorMessage,
     this.selectedCategory,
-    this.searchQuery = '',
+    this.searchQuery,
     this.userEmail,
+    this.riderStats = const {},
   });
 
-  double get cartTotal => cart.fold(0.0, (sum, item) => sum + item.totalPrice);
+  double get cartTotal => cart.fold(0, (total, item) => total + item.totalPrice);
 
   CustomerState copyWith({
     List<FoodItem>? allProducts,
@@ -142,6 +161,7 @@ class CustomerState extends Equatable {
     bool clearCategory = false,
     String? searchQuery,
     String? userEmail,
+    Map<String, dynamic>? riderStats,
   }) {
     return CustomerState(
       allProducts: allProducts ?? this.allProducts,
@@ -154,11 +174,12 @@ class CustomerState extends Equatable {
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       searchQuery: searchQuery ?? this.searchQuery,
       userEmail: userEmail ?? this.userEmail,
+      riderStats: riderStats ?? this.riderStats,
     );
   }
 
   @override
-  List<Object?> get props => [allProducts, menuItems, cart, activeOrders, orderHistory, isPlacingOrder, errorMessage, selectedCategory, searchQuery, userEmail];
+  List<Object?> get props => [allProducts, menuItems, cart, activeOrders, orderHistory, isPlacingOrder, errorMessage, selectedCategory, searchQuery, userEmail, riderStats];
 }
 
 
@@ -458,6 +479,8 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           add(WebSocketOrderUpdateReceived(data));
         } else if (event == 'rider_location_updated') {
           add(WebSocketRiderLocationReceived(data));
+        } else if (event == 'rider_stats_updated') {
+          add(WebSocketRiderStatsReceived(data));
         }
       }
     });
@@ -562,6 +585,13 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       _webSocketService.send('new_order', newOrder.toJson());
     });
 
+    on<RateRider>((event, emit) {
+      _webSocketService.send('rate_rider', {
+        'riderName': event.riderName,
+        'rating': event.rating,
+      });
+    });
+
     on<InitializeUser>((event, emit) async {
       emit(state.copyWith(userEmail: event.email));
       await _loadOrderHistory(event.email, emit);
@@ -633,6 +663,16 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         if (state.userEmail != null) {
           await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
         }
+      }
+    });
+
+    on<WebSocketRiderStatsReceived>((event, emit) {
+      final stats = event.payload;
+      final riderName = stats['riderName'] as String?;
+      if (riderName != null) {
+        final newStats = Map<String, dynamic>.from(state.riderStats);
+        newStats[riderName] = stats;
+        emit(state.copyWith(riderStats: newStats));
       }
     });
 

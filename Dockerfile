@@ -1,15 +1,12 @@
 # Use the official Dart image
 FROM dart:stable AS build
 
-# Resolve app dependencies
 WORKDIR /app
-COPY pubspec.* ./
-RUN dart pub get
 
-# Copy app source code and AOT compile it
-COPY . .
-# Ensure packages are still up-to-date if anything has changed
-RUN dart pub get --offline
+# Copy the server directory specifically
+COPY server/ ./server/
+
+# Compile the server directly (no pubspec needed since it uses only dart:io and dart:convert)
 RUN dart compile exe server/server.dart -o bin/server
 
 # Build minimal serving image

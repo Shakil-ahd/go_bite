@@ -745,7 +745,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
 
   Widget _buildCategoryCard(BuildContext context, ProductCategory cat) {
     return GestureDetector(
-      onTap: () => context.read<CustomerBloc>().add(SelectCategory(cat)),
+      onTap: () {
+        debugPrint('Category card tapped: ${cat.name}');
+        context.read<CustomerBloc>().add(SelectCategory(cat));
+      },
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

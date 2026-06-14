@@ -517,9 +517,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     });
 
     on<SelectCategory>((event, emit) {
+      print('SelectCategory event received: ${event.category}');
       final filtered = state.allProducts
           .where((item) => item.category == event.category)
           .toList();
+      print('Filtered items count: ${filtered.length}');
       emit(state.copyWith(
         selectedCategory: event.category,
         menuItems: filtered,

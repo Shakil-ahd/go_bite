@@ -98,7 +98,7 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.9, end: 1.1).animate(
+    _pulseAnim = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
   }
@@ -111,16 +111,16 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFF0D1117),
-      child: SafeArea(
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F172A), // Slate 900
+      body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Animated wifi-off icon
+                // Animated Wifi Off Icon
                 AnimatedBuilder(
                   animation: _pulseAnim,
                   builder: (context, child) {
@@ -130,96 +130,100 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
                     );
                   },
                   child: Container(
-                    width: 120,
-                    height: 120,
+                    width: 140,
+                    height: 140,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          const Color(0xFFE53935).withOpacity(0.3),
-                          const Color(0xFFE53935).withOpacity(0.05),
+                          const Color(0xFFF43F5E).withOpacity(0.25),
+                          const Color(0xFFF43F5E).withOpacity(0.0),
                         ],
                       ),
                       border: Border.all(
-                        color: const Color(0xFFE53935).withOpacity(0.4),
+                        color: const Color(0xFFF43F5E).withOpacity(0.3),
                         width: 2,
                       ),
                     ),
-                    child: const Icon(
-                      Icons.wifi_off_rounded,
-                      size: 60,
-                      color: Color(0xFFE53935),
+                    child: Center(
+                      child: Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFFF43F5E).withOpacity(0.1),
+                        ),
+                        child: const Icon(
+                          Icons.wifi_off_rounded,
+                          size: 48,
+                          color: Color(0xFFF43F5E),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 40),
-
-                // Title
+                const SizedBox(height: 48),
+                // Connection Lost Title
                 const Text(
-                  'ইন্টারনেট সংযোগ নেই',
+                  'Connection Lost',
                   style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
                     color: Colors.white,
-                    letterSpacing: 0.5,
+                    letterSpacing: -0.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
-
-                const SizedBox(height: 12),
-
+                const SizedBox(height: 16),
                 // Subtitle
-                Text(
-                  'আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।\nসংযোগ পুনরুদ্ধার হলে স্বয়ংক্রিয়ভাবে চালু হবে।',
+                const Text(
+                  'Your device is currently offline.\nPlease check your network connection. We will automatically reconnect you once the network is restored.',
                   style: TextStyle(
                     fontSize: 15,
-                    color: Colors.white.withOpacity(0.6),
+                    color: Color(0xFF94A3B8), // Slate 400
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
                 ),
-
-                const SizedBox(height: 12),
-
-                // English subtitle
-                Text(
-                  'Please connect to the internet.\nApp will resume automatically.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white.withOpacity(0.35),
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 48),
-
-                // Status dots
+                const SizedBox(height: 40),
+                // Reconnecting message & Status dots
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (i) {
-                    return AnimatedBuilder(
-                      animation: _pulseController,
-                      builder: (context, _) {
-                        final delay = i * 0.33;
-                        final val = (_pulseController.value - delay).clamp(0.0, 1.0);
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 6),
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color.lerp(
-                              Colors.white.withOpacity(0.15),
-                              const Color(0xFFE53935),
-                              val,
-                            ),
-                          ),
+                  children: [
+                    const Text(
+                      'Waiting for connection',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B), // Slate 500
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      children: List.generate(3, (i) {
+                        return AnimatedBuilder(
+                          animation: _pulseController,
+                          builder: (context, _) {
+                            final delay = i * 0.33;
+                            final val = (_pulseController.value - delay).clamp(0.0, 1.0);
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.lerp(
+                                  const Color(0xFF64748B).withOpacity(0.2),
+                                  const Color(0xFFF43F5E),
+                                  val,
+                                ),
+                              ),
+                            );
+                          },
                         );
-                      },
-                    );
-                  }),
+                      }),
+                    ),
+                  ],
                 ),
               ],
             ),

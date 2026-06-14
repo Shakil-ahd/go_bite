@@ -18,7 +18,14 @@ class CustomerMenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CustomerBloc, CustomerState>(
       builder: (context, state) {
-        final cat = state.selectedCategory!;
+        final cat = state.selectedCategory;
+        if (cat == null) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
           appBar: AppBar(

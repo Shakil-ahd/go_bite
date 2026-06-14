@@ -61,7 +61,9 @@ class _SignupScreenState extends State<SignupScreen> {
               content: const Text('✅ Account created! Please login.'),
               backgroundColor: Colors.green.shade600,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
           Navigator.of(context).pushReplacement(
@@ -73,7 +75,9 @@ class _SignupScreenState extends State<SignupScreen> {
               content: Text(state.error!),
               backgroundColor: Colors.red.shade600,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
@@ -191,8 +195,9 @@ class _SignupScreenState extends State<SignupScreen> {
                               if (v == null || v.trim().isEmpty) {
                                 return 'Email is required';
                               }
-                              if (!v.contains('@'))
+                              if (!v.contains('@')) {
                                 return 'Enter a valid email';
+                              }
                               return null;
                             },
                           ),

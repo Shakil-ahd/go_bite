@@ -182,7 +182,8 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                             BlocBuilder<CustomerBloc, CustomerState>(
                               builder: (context, state) {
                                 final activeCount = state.activeOrders.length;
-                                if (activeCount == 0) return const SizedBox.shrink();
+                                if (activeCount == 0)
+                                  return const SizedBox.shrink();
                                 return Stack(
                                   children: [
                                     IconButton(
@@ -191,7 +192,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                         color: Colors.white,
                                         size: 28,
                                       ),
-                                      onPressed: () => _showActiveOrdersSheet(context, state.activeOrders),
+                                      onPressed: () => _showActiveOrdersSheet(
+                                        context,
+                                        state.activeOrders,
+                                      ),
                                     ),
                                     Positioned(
                                       right: 4,
@@ -277,19 +281,33 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                       child: TextField(
                         controller: _searchController,
                         onChanged: _onSearchChanged,
-                        style: const TextStyle(fontSize: 14, color: Colors.black87),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Search food, medicine, snacks...',
-                          hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey.shade500,
+                          ),
                           suffixIcon: _isSearching
                               ? IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.grey),
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.grey,
+                                  ),
                                   onPressed: _clearSearch,
                                 )
                               : null,
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -310,11 +328,18 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         padding: const EdgeInsets.all(40),
                         child: Column(
                           children: [
-                            Icon(Icons.search_off, size: 64, color: Colors.grey.shade300),
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: Colors.grey.shade300,
+                            ),
                             const SizedBox(height: 16),
                             Text(
                               'No results for "${_searchController.text}"',
-                              style: const TextStyle(color: Colors.grey, fontSize: 16),
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -337,7 +362,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               ),
                             ),
                           ),
-                          ...results.map((item) => _buildSearchResultItem(context, item, state)),
+                          ...results.map(
+                            (item) =>
+                                _buildSearchResultItem(context, item, state),
+                          ),
                         ],
                       ),
                     );
@@ -355,33 +383,53 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           children: [
                             _buildPromoCard(
                               title: '🔥 Free Delivery',
-                              subtitle: 'On your first 3 orders!\nOrder now & save ৳50',
+                              subtitle:
+                                  'On your first 3 orders!\nOrder now & save ৳50',
                               emoji: '🛵',
-                              colors: [Colors.deepOrange.shade400, Colors.orange.shade300],
+                              colors: [
+                                Colors.deepOrange.shade400,
+                                Colors.orange.shade300,
+                              ],
                             ),
                             _buildPromoCard(
                               title: '🎉 20% Discount',
-                              subtitle: 'Use code GOBITE20\nValid on all food items',
+                              subtitle:
+                                  'Use code GOBITE20\nValid on all food items',
                               emoji: '🍔',
-                              colors: [Colors.purple.shade400, Colors.pink.shade300],
+                              colors: [
+                                Colors.purple.shade400,
+                                Colors.pink.shade300,
+                              ],
                             ),
                             _buildPromoCard(
                               title: '🌙 Midnight Offer',
-                              subtitle: 'Craving at night?\nGet flat ৳100 off after 12 AM',
+                              subtitle:
+                                  'Craving at night?\nGet flat ৳100 off after 12 AM',
                               emoji: '🦉',
-                              colors: [Colors.blue.shade800, Colors.indigo.shade400],
+                              colors: [
+                                Colors.blue.shade800,
+                                Colors.indigo.shade400,
+                              ],
                             ),
                             _buildPromoCard(
                               title: '💊 Stay Healthy',
-                              subtitle: '10% off on all medicines\nFree delivery on prescriptions',
+                              subtitle:
+                                  '10% off on all medicines\nFree delivery on prescriptions',
                               emoji: '🏥',
-                              colors: [Colors.teal.shade500, Colors.green.shade300],
+                              colors: [
+                                Colors.teal.shade500,
+                                Colors.green.shade300,
+                              ],
                             ),
                             _buildPromoCard(
                               title: '🥦 Fresh Grocery',
-                              subtitle: 'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
+                              subtitle:
+                                  'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
                               emoji: '🛒',
-                              colors: [Colors.red.shade400, Colors.deepOrange.shade300],
+                              colors: [
+                                Colors.red.shade400,
+                                Colors.deepOrange.shade300,
+                              ],
                             ),
                           ],
                         ),
@@ -406,7 +454,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
                           'Select a category to browse products',
-                          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -430,8 +481,6 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                   );
                 },
               ),
-
-
 
               // ─── Cart Summary Bar ───
               BlocBuilder<CustomerBloc, CustomerState>(
@@ -563,8 +612,14 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
     );
   }
 
-  Widget _buildSearchResultItem(BuildContext context, FoodItem item, CustomerState state) {
-    final cartItem = state.cart.where((c) => c.foodItem.id == item.id).firstOrNull;
+  Widget _buildSearchResultItem(
+    BuildContext context,
+    FoodItem item,
+    CustomerState state,
+  ) {
+    final cartItem = state.cart
+        .where((c) => c.foodItem.id == item.id)
+        .firstOrNull;
     final qty = cartItem?.quantity ?? 0;
 
     return Container(
@@ -572,23 +627,31 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
+        ],
       ),
       child: Row(
         children: [
           // Product image
           ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+            borderRadius: const BorderRadius.horizontal(
+              left: Radius.circular(16),
+            ),
             child: Image.network(
               item.imageUrl,
               width: 90,
               height: 90,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 90,
                 height: 90,
                 color: Colors.grey.shade100,
-                child: Icon(item.category.icon, color: Colors.grey.shade400, size: 32),
+                child: Icon(
+                  item.category.icon,
+                  color: Colors.grey.shade400,
+                  size: 32,
+                ),
               ),
             ),
           ),
@@ -598,7 +661,13 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(
+                  item.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   item.description,
@@ -609,7 +678,11 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                 const SizedBox(height: 6),
                 Text(
                   '৳${item.price.toStringAsFixed(0)}',
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppTheme.primary),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15,
+                    color: AppTheme.primary,
+                  ),
                 ),
               ],
             ),
@@ -619,21 +692,28 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: qty == 0
                 ? GestureDetector(
-                    onTap: () => context.read<CustomerBloc>().add(AddToCart(item)),
+                    onTap: () =>
+                        context.read<CustomerBloc>().add(AddToCart(item)),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
                         color: AppTheme.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       GestureDetector(
-                        onTap: () => context.read<CustomerBloc>().add(RemoveFromCart(item)),
+                        onTap: () => context.read<CustomerBloc>().add(
+                          RemoveFromCart(item),
+                        ),
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
@@ -645,17 +725,28 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        child: Text(
+                          '$qty',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
                       ),
                       GestureDetector(
-                        onTap: () => context.read<CustomerBloc>().add(AddToCart(item)),
+                        onTap: () =>
+                            context.read<CustomerBloc>().add(AddToCart(item)),
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: const BoxDecoration(
                             color: AppTheme.primary,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.add, color: Colors.white, size: 16),
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
                       ),
                     ],
@@ -1025,10 +1116,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
             children: [
               const Text(
                 'Active Orders',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -1042,7 +1130,8 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => CustomerTrackingScreen(orderId: order.id),
+                            builder: (_) =>
+                                CustomerTrackingScreen(orderId: order.id),
                           ),
                         );
                       },
@@ -1062,7 +1151,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 color: Colors.blue,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.motorcycle, color: Colors.white),
+                              child: const Icon(
+                                Icons.motorcycle,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -1071,17 +1163,27 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 children: [
                                   Text(
                                     'Order #${order.id.substring(0, 6)}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    order.status == OrderStatus.outForDelivery ? 'Out for Delivery' : 'Preparing...',
-                                    style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold),
+                                    order.status == OrderStatus.outForDelivery
+                                        ? 'Out for Delivery'
+                                        : 'Preparing...',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade700,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     '${order.items.length} items • ৳${order.totalAmount.toStringAsFixed(0)}',
-                                    style: TextStyle(color: Colors.grey.shade600),
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                    ),
                                   ),
                                 ],
                               ),

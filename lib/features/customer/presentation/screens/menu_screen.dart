@@ -24,7 +24,8 @@ class CustomerMenuScreen extends StatelessWidget {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios),
-              onPressed: () => context.read<CustomerBloc>().add(GoBackToCategories()),
+              onPressed: () =>
+                  context.read<CustomerBloc>().add(GoBackToCategories()),
             ),
             title: Row(
               children: [
@@ -49,10 +50,17 @@ class CustomerMenuScreen extends StatelessWidget {
                           top: 6,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
                             child: Text(
                               '$count',
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -75,13 +83,20 @@ class CustomerMenuScreen extends StatelessWidget {
           bottomNavigationBar: BlocBuilder<CustomerBloc, CustomerState>(
             builder: (context, state) {
               if (state.cart.isEmpty) return const SizedBox.shrink();
-              final itemCount = state.cart.fold(0, (sum, i) => sum + i.quantity);
+              final itemCount = state.cart.fold(
+                0,
+                (sum, i) => sum + i.quantity,
+              );
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, -5)),
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
                   ],
                 ),
                 child: Row(
@@ -93,20 +108,32 @@ class CustomerMenuScreen extends StatelessWidget {
                       children: [
                         Text(
                           '$itemCount items',
-                          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                          ),
                         ),
                         Text(
                           '৳${state.cartTotal.toStringAsFixed(0)}',
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.primary),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.primary,
+                          ),
                         ),
                       ],
                     ),
                     ElevatedButton.icon(
-                      onPressed: () => requireLogin(context, () => _showCartFromMenu(context)),
+                      onPressed: () => requireLogin(
+                        context,
+                        () => _showCartFromMenu(context),
+                      ),
                       icon: const Icon(Icons.shopping_cart, size: 18),
                       label: const Text('View Cart'),
                       style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],
@@ -145,7 +172,11 @@ class CustomerMenuScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
                 ],
               ),
               child: ClipRRect(
@@ -156,16 +187,37 @@ class CustomerMenuScreen extends StatelessWidget {
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, progress) {
                           if (progress == null) return child;
-                          return Container(color: Colors.grey.shade100, child: const Center(child: CircularProgressIndicator(strokeWidth: 2)));
+                          return Container(
+                            color: Colors.grey.shade100,
+                            child: const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          );
                         },
-                        errorBuilder: (_, __, ___) => Container(
-                          decoration: BoxDecoration(gradient: LinearGradient(colors: food.category.gradientColors)),
-                          child: Icon(food.category.icon, color: Colors.white, size: 30),
+                        errorBuilder: (_, _, _) => Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: food.category.gradientColors,
+                            ),
+                          ),
+                          child: Icon(
+                            food.category.icon,
+                            color: Colors.white,
+                            size: 30,
+                          ),
                         ),
                       )
                     : Container(
-                        decoration: BoxDecoration(gradient: LinearGradient(colors: food.category.gradientColors)),
-                        child: Icon(food.category.icon, color: Colors.white, size: 30),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: food.category.gradientColors,
+                          ),
+                        ),
+                        child: Icon(
+                          food.category.icon,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                       ),
               ),
             ),
@@ -176,12 +228,20 @@ class CustomerMenuScreen extends StatelessWidget {
                 children: [
                   Text(
                     food.name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     food.description,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600, height: 1.4),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      height: 1.4,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -199,7 +259,10 @@ class CustomerMenuScreen extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () => requireLogin(context, () => context.read<CustomerBloc>().add(AddToCart(food))),
+              onTap: () => requireLogin(
+                context,
+                () => context.read<CustomerBloc>().add(AddToCart(food)),
+              ),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -210,7 +273,11 @@ class CustomerMenuScreen extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
-                    BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
+                    BoxShadow(
+                      color: AppTheme.primary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
                 child: const Icon(Icons.add, color: Colors.white, size: 24),
@@ -249,7 +316,13 @@ class CustomerMenuScreen extends StatelessWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('Your Order', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Your Order',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         Expanded(
                           child: ListView.builder(
@@ -261,24 +334,54 @@ class CustomerMenuScreen extends StatelessWidget {
                                 leading: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(colors: item.foodItem.category.gradientColors),
+                                    gradient: LinearGradient(
+                                      colors:
+                                          item.foodItem.category.gradientColors,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(item.foodItem.category.icon, color: Colors.white, size: 20),
+                                  child: Icon(
+                                    item.foodItem.category.icon,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
                                 ),
-                                title: Text(item.foodItem.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                subtitle: Text('৳${item.foodItem.price.toStringAsFixed(0)} x ${item.quantity}'),
+                                title: Text(
+                                  item.foodItem.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '৳${item.foodItem.price.toStringAsFixed(0)} x ${item.quantity}',
+                                ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.remove_circle_outline, color: AppTheme.primary),
-                                      onPressed: () => context.read<CustomerBloc>().add(RemoveFromCart(item.foodItem)),
+                                      icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                        color: AppTheme.primary,
+                                      ),
+                                      onPressed: () => context
+                                          .read<CustomerBloc>()
+                                          .add(RemoveFromCart(item.foodItem)),
                                     ),
-                                    Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text(
+                                      '${item.quantity}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     IconButton(
-                                      icon: const Icon(Icons.add_circle_outline, color: AppTheme.primary),
-                                      onPressed: () => context.read<CustomerBloc>().add(AddToCart(item.foodItem)),
+                                      icon: const Icon(
+                                        Icons.add_circle_outline,
+                                        color: AppTheme.primary,
+                                      ),
+                                      onPressed: () => context
+                                          .read<CustomerBloc>()
+                                          .add(AddToCart(item.foodItem)),
                                     ),
                                   ],
                                 ),
@@ -290,10 +393,20 @@ class CustomerMenuScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Total:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Total:',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text(
                               '৳${state.cartTotal.toStringAsFixed(0)}',
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppTheme.primary),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primary,
+                              ),
                             ),
                           ],
                         ),
@@ -305,16 +418,32 @@ class CustomerMenuScreen extends StatelessWidget {
                               final authState = context.read<AuthBloc>().state;
                               if (authState is AuthAuthenticated) {
                                 Navigator.pop(modalContext);
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const CheckoutScreen(),
+                                  ),
+                                );
                               } else {
                                 Navigator.pop(modalContext);
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginScreen(),
+                                  ),
+                                );
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
-                            child: const Text('Confirm & Place Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              'Confirm & Place Order',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ],

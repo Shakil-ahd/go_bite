@@ -13,8 +13,10 @@ class ConnectedClient {
 }
 
 void main() async {
-  final server = await HttpServer.bind(InternetAddress.anyIPv4, 8080);
-  print('🚀 GoBite Smart Server running on ws://localhost:8080');
+  final portStr = Platform.environment['PORT'] ?? '8080';
+  final port = int.tryParse(portStr) ?? 8080;
+  final server = await HttpServer.bind(InternetAddress.anyIPv4, port);
+  print('🚀 GoBite Smart Server running on port $port');
   print('   ├── Customer App:    ws://localhost:8080');
   print('   ├── Restaurant App:  ws://localhost:8080');
   print('   └── Rider App:       ws://localhost:8080');

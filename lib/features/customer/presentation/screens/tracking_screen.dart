@@ -57,12 +57,16 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
         builder: (context, state) {
           Order? order;
           if (widget.orderId != null) {
-            final idx = state.activeOrders.indexWhere((o) => o.id == widget.orderId);
+            final idx = state.activeOrders.indexWhere(
+              (o) => o.id == widget.orderId,
+            );
             order = idx >= 0 ? state.activeOrders[idx] : null;
           } else {
-            order = state.activeOrders.isNotEmpty ? state.activeOrders.last : null;
+            order = state.activeOrders.isNotEmpty
+                ? state.activeOrders.last
+                : null;
           }
-          
+
           if (order == null) {
             return Center(
               child: Column(
@@ -73,12 +77,14 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const CustomerCategoryHome()),
+                        MaterialPageRoute(
+                          builder: (_) => const CustomerCategoryHome(),
+                        ),
                         (route) => false,
                       );
                     },
                     child: const Text('Back to Home'),
-                  )
+                  ),
                 ],
               ),
             );
@@ -87,16 +93,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           return Column(
             children: [
               // ─── Map Section ───
-              Expanded(
-                flex: 6,
-                child: _buildMapSection(order),
-              ),
+              Expanded(flex: 6, child: _buildMapSection(order)),
 
               // ─── Info Panel ───
-              Expanded(
-                flex: 5,
-                child: _buildInfoPanel(context, order, state),
-              ),
+              Expanded(flex: 5, child: _buildInfoPanel(context, order, state)),
             ],
           );
         },
@@ -138,7 +138,9 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 10),
+                ],
               ),
               child: const Row(
                 children: [
@@ -168,7 +170,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                 );
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: _getStatusColor(order.status),
                   borderRadius: BorderRadius.circular(30),
@@ -183,7 +188,11 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(_getStatusIcon(order.status), color: Colors.white, size: 18),
+                    Icon(
+                      _getStatusIcon(order.status),
+                      color: Colors.white,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       order.status.displayValue,
@@ -220,7 +229,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('ETA', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                  const Text(
+                    'ETA',
+                    style: TextStyle(color: Colors.grey, fontSize: 10),
+                  ),
                   Text(
                     _getETA(order),
                     style: const TextStyle(
@@ -237,12 +249,22 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     );
   }
 
-  Widget _buildInfoPanel(BuildContext context, Order order, CustomerState state) {
+  Widget _buildInfoPanel(
+    BuildContext context,
+    Order order,
+    CustomerState state,
+  ) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 20,
+            offset: Offset(0, -4),
+          ),
+        ],
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -287,7 +309,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                       children: [
                         Text(
                           order.riderName!,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Builder(
@@ -298,16 +323,38 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                               final int total = stats['totalDeliveries'] ?? 0;
                               return Row(
                                 children: [
-                                  const Icon(Icons.star, color: Colors.orange, size: 14),
+                                  const Icon(
+                                    Icons.star,
+                                    color: Colors.orange,
+                                    size: 14,
+                                  ),
                                   const SizedBox(width: 4),
-                                  Text('${avg.toStringAsFixed(1)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  Text(
+                                    avg.toStringAsFixed(1),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                   const SizedBox(width: 8),
-                                  Text('($total deliveries)', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                  Text(
+                                    '($total deliveries)',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ],
                               );
                             }
-                            return const Text('Your Rider', style: TextStyle(color: Colors.grey, fontSize: 12));
-                          }
+                            return const Text(
+                              'Your Rider',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -328,21 +375,27 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                   ),
                 ],
               ),
-            
-            if (order.status == OrderStatus.delivered && order.riderName != null) ...[
+
+            if (order.status == OrderStatus.delivered &&
+                order.riderName != null) ...[
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => _showRatingDialog(context, order.riderName!),
                   icon: const Icon(Icons.star, color: Colors.orange),
-                  label: const Text('Rate Rider', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text(
+                    'Rate Rider',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.orange,
                     side: const BorderSide(color: Colors.orange),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -354,14 +407,16 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
   }
 
   void _showRatingDialog(BuildContext context, String riderName) {
-    int _rating = 5;
+    int rating = 5;
     showDialog(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               title: Text('Rate $riderName', textAlign: TextAlign.center),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -373,13 +428,13 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                     children: List.generate(5, (index) {
                       return IconButton(
                         icon: Icon(
-                          index < _rating ? Icons.star : Icons.star_border,
+                          index < rating ? Icons.star : Icons.star_border,
                           color: Colors.orange,
                           size: 36,
                         ),
                         onPressed: () {
                           setState(() {
-                            _rating = index + 1;
+                            rating = index + 1;
                           });
                         },
                       );
@@ -390,25 +445,38 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    context.read<CustomerBloc>().add(RateRider(riderName, _rating));
+                    context.read<CustomerBloc>().add(
+                      RateRider(riderName, rating),
+                    );
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Thank you for rating $riderName!'), backgroundColor: Colors.green),
+                      SnackBar(
+                        content: Text('Thank you for rating $riderName!'),
+                        backgroundColor: Colors.green,
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  child: const Text('Submit', style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             );
-          }
+          },
         );
       },
     );
@@ -416,10 +484,26 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
 
   Widget _buildSteps(Order order) {
     final steps = [
-      const _StepInfo(OrderStatus.accepted, 'Order Confirmed', Icons.check_circle),
-      const _StepInfo(OrderStatus.preparing, 'Preparing your food', Icons.restaurant),
-      const _StepInfo(OrderStatus.readyForPickup, 'Ready for Pickup', Icons.shopping_bag),
-      const _StepInfo(OrderStatus.outForDelivery, 'Out for Delivery', Icons.motorcycle),
+      const _StepInfo(
+        OrderStatus.accepted,
+        'Order Confirmed',
+        Icons.check_circle,
+      ),
+      const _StepInfo(
+        OrderStatus.preparing,
+        'Preparing your food',
+        Icons.restaurant,
+      ),
+      const _StepInfo(
+        OrderStatus.readyForPickup,
+        'Ready for Pickup',
+        Icons.shopping_bag,
+      ),
+      const _StepInfo(
+        OrderStatus.outForDelivery,
+        'Out for Delivery',
+        Icons.motorcycle,
+      ),
       const _StepInfo(OrderStatus.delivered, 'Delivered', Icons.home),
     ];
 
@@ -447,10 +531,17 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: isCompleted ? _getStatusColor(step.status) : Colors.grey.shade200,
+                    color: isCompleted
+                        ? _getStatusColor(step.status)
+                        : Colors.grey.shade200,
                     shape: BoxShape.circle,
                     border: isCurrent
-                        ? Border.all(color: _getStatusColor(step.status).withOpacity(0.3), width: 4)
+                        ? Border.all(
+                            color: _getStatusColor(
+                              step.status,
+                            ).withOpacity(0.3),
+                            width: 4,
+                          )
                         : null,
                   ),
                   child: isCompleted
@@ -461,7 +552,9 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                   Container(
                     width: 2,
                     height: 30,
-                    color: isCompleted ? _getStatusColor(step.status) : Colors.grey.shade200,
+                    color: isCompleted
+                        ? _getStatusColor(step.status)
+                        : Colors.grey.shade200,
                   ),
               ],
             ),
@@ -498,13 +591,21 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     return '~$minutes min';
   }
 
-  double _haversineDistance(double lat1, double lng1, double lat2, double lng2) {
+  double _haversineDistance(
+    double lat1,
+    double lng1,
+    double lat2,
+    double lng2,
+  ) {
     const r = 6371.0;
     final dLat = _toRad(lat2 - lat1);
     final dLng = _toRad(lng2 - lng1);
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_toRad(lat1)) * math.cos(_toRad(lat2)) *
-        math.sin(dLng / 2) * math.sin(dLng / 2);
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_toRad(lat1)) *
+            math.cos(_toRad(lat2)) *
+            math.sin(dLng / 2) *
+            math.sin(dLng / 2);
     return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
   }
 
@@ -512,25 +613,39 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
 
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending: return Colors.orange;
-      case OrderStatus.accepted: return Colors.blue;
-      case OrderStatus.preparing: return Colors.amber.shade700;
-      case OrderStatus.readyForPickup: return Colors.teal;
-      case OrderStatus.outForDelivery: return Colors.indigo;
-      case OrderStatus.delivered: return Colors.green;
-      case OrderStatus.rejected: return Colors.red;
+      case OrderStatus.pending:
+        return Colors.orange;
+      case OrderStatus.accepted:
+        return Colors.blue;
+      case OrderStatus.preparing:
+        return Colors.amber.shade700;
+      case OrderStatus.readyForPickup:
+        return Colors.teal;
+      case OrderStatus.outForDelivery:
+        return Colors.indigo;
+      case OrderStatus.delivered:
+        return Colors.green;
+      case OrderStatus.rejected:
+        return Colors.red;
     }
   }
 
   IconData _getStatusIcon(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending: return Icons.hourglass_top;
-      case OrderStatus.accepted: return Icons.check_circle;
-      case OrderStatus.preparing: return Icons.restaurant;
-      case OrderStatus.readyForPickup: return Icons.shopping_bag;
-      case OrderStatus.outForDelivery: return Icons.motorcycle;
-      case OrderStatus.delivered: return Icons.home;
-      case OrderStatus.rejected: return Icons.cancel;
+      case OrderStatus.pending:
+        return Icons.hourglass_top;
+      case OrderStatus.accepted:
+        return Icons.check_circle;
+      case OrderStatus.preparing:
+        return Icons.restaurant;
+      case OrderStatus.readyForPickup:
+        return Icons.shopping_bag;
+      case OrderStatus.outForDelivery:
+        return Icons.motorcycle;
+      case OrderStatus.delivered:
+        return Icons.home;
+      case OrderStatus.rejected:
+        return Icons.cancel;
     }
   }
 }
@@ -558,33 +673,50 @@ class _DhakaMapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _drawMap(canvas, size);
-    
+
     final restaurantPt = _toScreen(size, _restaurantLat, _restaurantLng);
     final customerPt = _toScreen(size, _customerLat, _customerLng);
-    
+
     // Control points for bezier curve
-    final cp1 = Offset(restaurantPt.dx + (customerPt.dx - restaurantPt.dx) * 0.25,
-                       restaurantPt.dy + 40);
-    final cp2 = Offset(restaurantPt.dx + (customerPt.dx - restaurantPt.dx) * 0.75,
-                       customerPt.dy - 40);
+    final cp1 = Offset(
+      restaurantPt.dx + (customerPt.dx - restaurantPt.dx) * 0.25,
+      restaurantPt.dy + 40,
+    );
+    final cp2 = Offset(
+      restaurantPt.dx + (customerPt.dx - restaurantPt.dx) * 0.75,
+      customerPt.dy - 40,
+    );
 
     _drawRoute(canvas, restaurantPt, cp1, cp2, customerPt, size);
-    
+
     // Draw markers
-    _drawMarker(canvas, restaurantPt, const Color(0xFFE53935), Icons.storefront, 'Restaurant');
+    _drawMarker(
+      canvas,
+      restaurantPt,
+      const Color(0xFFE53935),
+      Icons.storefront,
+      'Restaurant',
+    );
     _drawMarker(canvas, customerPt, const Color(0xFF43A047), Icons.home, 'You');
 
     // Draw rider
     if (order.riderLocation != null) {
       final riderLat = order.riderLocation!.latitude;
       final riderLng = order.riderLocation!.longitude;
-      
+
       // Clamp rider position between restaurant and customer
-      final riderPt = _toScreen(size, 
-        riderLat.clamp(math.min(_restaurantLat, _customerLat), math.max(_restaurantLat, _customerLat)),
-        riderLng.clamp(math.min(_restaurantLng, _customerLng), math.max(_restaurantLng, _customerLng)),
+      final riderPt = _toScreen(
+        size,
+        riderLat.clamp(
+          math.min(_restaurantLat, _customerLat),
+          math.max(_restaurantLat, _customerLat),
+        ),
+        riderLng.clamp(
+          math.min(_restaurantLng, _customerLng),
+          math.max(_restaurantLng, _customerLng),
+        ),
       );
-      
+
       final bouncedRider = Offset(riderPt.dx, riderPt.dy + bounceOffset);
       _drawRiderMarker(canvas, bouncedRider);
     }
@@ -596,7 +728,7 @@ class _DhakaMapPainter extends CustomPainter {
     const maxLat = 23.85;
     const minLng = 90.35;
     const maxLng = 90.45;
-    
+
     final x = (lng - minLng) / (maxLng - minLng) * size.width;
     final y = (1 - (lat - minLat) / (maxLat - minLat)) * size.height;
     return Offset(x, y);
@@ -631,32 +763,52 @@ class _DhakaMapPainter extends CustomPainter {
 
     // Minor roads (diagonal lines to make it look city-like)
     for (double i = -size.width; i < size.width * 2; i += size.width / 8) {
-      canvas.drawLine(Offset(i, 0), Offset(i + size.height, size.height), minorRoadPaint);
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        minorRoadPaint,
+      );
     }
-    
+
     // Add some "parks"
     final parkPaint = Paint()..color = const Color(0xFFDDF0E1);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromLTWH(size.width * 0.1, size.height * 0.2, 100, 80), const Radius.circular(20)),
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(size.width * 0.1, size.height * 0.2, 100, 80),
+        const Radius.circular(20),
+      ),
       parkPaint,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromLTWH(size.width * 0.6, size.height * 0.7, 120, 100), const Radius.circular(20)),
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(size.width * 0.6, size.height * 0.7, 120, 100),
+        const Radius.circular(20),
+      ),
       parkPaint,
     );
   }
 
-  void _drawRoute(Canvas canvas, Offset start, Offset cp1, Offset cp2, Offset end, Size size) {
+  void _drawRoute(
+    Canvas canvas,
+    Offset start,
+    Offset cp1,
+    Offset cp2,
+    Offset end,
+    Size size,
+  ) {
     final path = Path()
       ..moveTo(start.dx, start.dy)
       ..cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, end.dx, end.dy);
 
     // Outline
-    canvas.drawPath(path, Paint()
-      ..color = Colors.teal.shade100
-      ..strokeWidth = 10
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.teal.shade100
+        ..strokeWidth = 10
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round,
+    );
 
     // Inner line
     final innerPaint = Paint()
@@ -670,7 +822,8 @@ class _DhakaMapPainter extends CustomPainter {
     canvas.drawPath(dashedPath, innerPaint);
 
     // Draw progressed route if rider is out for delivery
-    if (order.status == OrderStatus.outForDelivery && order.riderLocation != null) {
+    if (order.status == OrderStatus.outForDelivery &&
+        order.riderLocation != null) {
       final progress = _getProgress();
       if (progress > 0) {
         final metrics = path.computeMetrics().first;
@@ -689,7 +842,12 @@ class _DhakaMapPainter extends CustomPainter {
     if (order.riderLocation == null) return 0;
     final rLat = order.riderLocation!.latitude;
     final rLng = order.riderLocation!.longitude;
-    final totalDist = _dist(_restaurantLat, _restaurantLng, _customerLat, _customerLng);
+    final totalDist = _dist(
+      _restaurantLat,
+      _restaurantLng,
+      _customerLat,
+      _customerLng,
+    );
     final remaining = _dist(rLat, rLng, _customerLat, _customerLng);
     return ((totalDist - remaining) / totalDist).clamp(0.0, 1.0);
   }
@@ -711,16 +869,33 @@ class _DhakaMapPainter extends CustomPainter {
     return result;
   }
 
-  void _drawMarker(Canvas canvas, Offset pos, Color color, IconData icon, String label) {
+  void _drawMarker(
+    Canvas canvas,
+    Offset pos,
+    Color color,
+    IconData icon,
+    String label,
+  ) {
     // Shadow
-    canvas.drawCircle(pos, 26, Paint()..color = Colors.black.withOpacity(0.15)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
+    canvas.drawCircle(
+      pos,
+      26,
+      Paint()
+        ..color = Colors.black.withOpacity(0.15)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+    );
 
     // Pin body
-    final pinPath = Path()
-      ..addOval(Rect.fromCircle(center: pos, radius: 20));
+    final pinPath = Path()..addOval(Rect.fromCircle(center: pos, radius: 20));
     canvas.drawPath(pinPath, Paint()..color = color);
-    canvas.drawCircle(pos, 20, Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 3);
+    canvas.drawCircle(
+      pos,
+      20,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
 
     // Inner circle
     canvas.drawCircle(pos, 14, Paint()..color = Colors.white);
@@ -747,12 +922,14 @@ class _DhakaMapPainter extends CustomPainter {
       style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold),
     );
     lp.layout();
-    
+
     // Label background
     canvas.drawRRect(
       RRect.fromLTRBR(
-        pos.dx - lp.width / 2 - 6, pos.dy + 24,
-        pos.dx + lp.width / 2 + 6, pos.dy + 38,
+        pos.dx - lp.width / 2 - 6,
+        pos.dy + 24,
+        pos.dx + lp.width / 2 + 6,
+        pos.dy + 38,
         const Radius.circular(4),
       ),
       Paint()..color = Colors.white,
@@ -762,15 +939,23 @@ class _DhakaMapPainter extends CustomPainter {
 
   void _drawRiderMarker(Canvas canvas, Offset pos) {
     // Glow
-    canvas.drawCircle(pos, 28, Paint()
-      ..color = Colors.blue.shade400.withOpacity(0.3)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10));
+    canvas.drawCircle(
+      pos,
+      28,
+      Paint()
+        ..color = Colors.blue.shade400.withOpacity(0.3)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+    );
 
     canvas.drawCircle(pos, 22, Paint()..color = Colors.blue.shade600);
-    canvas.drawCircle(pos, 22, Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3);
+    canvas.drawCircle(
+      pos,
+      22,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
     canvas.drawCircle(pos, 16, Paint()..color = Colors.white);
 
     final tp = TextPainter(textDirection: TextDirection.ltr);
@@ -792,13 +977,19 @@ class _DhakaMapPainter extends CustomPainter {
     final lp = TextPainter(textDirection: TextDirection.ltr);
     lp.text = TextSpan(
       text: label,
-      style: TextStyle(fontSize: 10, color: Colors.blue.shade700, fontWeight: FontWeight.bold),
+      style: TextStyle(
+        fontSize: 10,
+        color: Colors.blue.shade700,
+        fontWeight: FontWeight.bold,
+      ),
     );
     lp.layout();
     canvas.drawRRect(
       RRect.fromLTRBR(
-        pos.dx - lp.width / 2 - 6, pos.dy + 26,
-        pos.dx + lp.width / 2 + 6, pos.dy + 40,
+        pos.dx - lp.width / 2 - 6,
+        pos.dy + 26,
+        pos.dx + lp.width / 2 + 6,
+        pos.dy + 40,
         const Radius.circular(4),
       ),
       Paint()..color = Colors.white,

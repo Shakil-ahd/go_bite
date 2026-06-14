@@ -43,7 +43,9 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             if (current.orderHistory.length > previous.orderHistory.length &&
                 current.orderHistory.isNotEmpty) {
               final lastOrder = current.orderHistory.last;
-              return lastOrder.status == OrderStatus.delivered &&
+              final wasActive = previous.activeOrders.any((o) => o.id == lastOrder.id);
+              return wasActive &&
+                  lastOrder.status == OrderStatus.delivered &&
                   lastOrder.riderName != null &&
                   !_ratedOrderIds.contains(lastOrder.id);
             }

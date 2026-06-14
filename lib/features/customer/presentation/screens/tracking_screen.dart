@@ -63,11 +63,14 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
             final newHistoryOrder = current.orderHistory.isNotEmpty
                 ? current.orderHistory.last
                 : null;
-            if (newHistoryOrder != null &&
-                newHistoryOrder.status == OrderStatus.delivered &&
-                newHistoryOrder.riderName != null &&
-                _lastRatedOrderId != newHistoryOrder.id) {
-              return true;
+            if (newHistoryOrder != null) {
+              final wasActive = previous.activeOrders.any((o) => o.id == newHistoryOrder.id);
+              if (wasActive &&
+                  newHistoryOrder.status == OrderStatus.delivered &&
+                  newHistoryOrder.riderName != null &&
+                  _lastRatedOrderId != newHistoryOrder.id) {
+                return true;
+              }
             }
           }
           return false;

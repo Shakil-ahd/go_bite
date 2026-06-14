@@ -24,11 +24,6 @@ class GoBiteApp extends StatelessWidget {
     final ws =
         webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
 
-    // Only connect if initializing the default service
-    if (webSocketService == null) {
-      ws.connect();
-    }
-
     return MultiRepositoryProvider(
       providers: [RepositoryProvider<WebSocketService>.value(value: ws)],
       child: MultiBlocProvider(

@@ -56,26 +56,6 @@ void main() async {
                 final type = msgData['type'] as String?;
                 client.type = _parseType(type);
                 print('   ✅ Registered as: ${client.type.name}');
-
-                // Send pending orders to restaurant when it connects
-                if (client.type == ClientType.restaurant) {
-                  for (final order in orders.values) {
-                    final status = order['status'] as String?;
-                    if (status == 'pending') {
-                      _sendToClient(ws, 'new_order', order);
-                    }
-                  }
-                }
-
-                // Send ready-for-pickup orders to rider when it connects
-                if (client.type == ClientType.rider) {
-                  for (final order in orders.values) {
-                    final status = order['status'] as String?;
-                    if (status == 'readyForPickup') {
-                      _sendToClient(ws, 'order_ready_for_pickup', order);
-                    }
-                  }
-                }
                 break;
 
               // ─── Customer places new order ───
@@ -127,7 +107,7 @@ void main() async {
                       }
                     }
 
-                    Future.delayed(const Duration(seconds: 30), () {
+                     Future.delayed(const Duration(hours: 2), () {
                       orders.remove(orderId);
                     });
                   }
@@ -189,28 +169,71 @@ void main() async {
               case 'get_pending_orders':
                 final requestingType = msgData['clientType'] as String?;
                 if (requestingType == 'restaurant') {
-                  int sent = 0;
+                  final localOrderIds = (msgData['orderIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+                  final Set<String> processedIds = {};
+
+                  // 1. Send all currently active orders on server
                   for (final order in orders.values) {
+                    final orderId = order['id'] as String;
                     final status = order['status'] as String?;
-                    // Send all non-completed orders to restaurant
-                    if (status != null &&
-                        status != 'delivered' &&
-                        status != 'rejected') {
+                    if (status != 'delivered' && status != 'rejected') {
                       _sendToClient(ws, 'new_order', order);
-                      sent++;
+                      processedIds.add(orderId);
                     }
                   }
-                  print('   📦 Sent $sent pending orders to reconnected restaurant');
+
+                  // 2. Identify orders restaurant has active locally but are no longer active on server
+                  for (final localId in localOrderIds) {
+                    if (!processedIds.contains(localId)) {
+                      _sendToClient(ws, 'order_not_found', {'id': localId});
+                    }
+                  }
+                  print('   📦 Synchronized restaurant orders. Local: ${localOrderIds.length}, Active on server: ${processedIds.length}');
                 } else if (requestingType == 'rider') {
-                  int sent = 0;
+                  final availableOrderIds = (msgData['availableOrderIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+                  final activeDeliveryId = msgData['activeDeliveryId']?.toString();
+                  final Set<String> serverReadyIds = {};
+
+                  // 1. Check orders on server
                   for (final order in orders.values) {
+                    final orderId = order['id'] as String;
                     final status = order['status'] as String?;
+
+                    // If it is active delivery of this rider, sync its status
+                    if (activeDeliveryId != null && orderId == activeDeliveryId) {
+                      _sendToClient(ws, 'order_status_updated', order);
+                    }
+
+                    // If it is ready for pickup, send as available
                     if (status == 'readyForPickup') {
                       _sendToClient(ws, 'order_ready_for_pickup', order);
-                      sent++;
+                      serverReadyIds.add(orderId);
                     }
                   }
-                  print('   🛵 Sent $sent ready-for-pickup orders to reconnected rider');
+
+                  // 2. For active delivery, if not found on server, mark not found
+                  if (activeDeliveryId != null && !orders.containsKey(activeDeliveryId)) {
+                    _sendToClient(ws, 'order_not_found', {'id': activeDeliveryId});
+                  }
+
+                  // 3. For available orders, if no longer ready on server, mark not found so rider removes them
+                  for (final localId in availableOrderIds) {
+                    if (!serverReadyIds.contains(localId)) {
+                      _sendToClient(ws, 'order_not_found', {'id': localId});
+                    }
+                  }
+                  print('   🛵 Synchronized rider orders. Available: ${availableOrderIds.length}, Active: $activeDeliveryId');
+                } else if (requestingType == 'customer') {
+                  final orderIds = (msgData['orderIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+                  for (final id in orderIds) {
+                    final order = orders[id];
+                    if (order != null) {
+                      _sendToClient(ws, 'order_status_updated', order);
+                    } else {
+                      _sendToClient(ws, 'order_not_found', {'id': id});
+                    }
+                  }
+                  print('   👤 Synchronized customer orders. Count: ${orderIds.length}');
                 }
                 break;
 

@@ -84,6 +84,14 @@ class WebSocketRiderStatsReceived extends CustomerEvent {
   List<Object?> get props => [payload];
 }
 
+class WebSocketOrderNotFoundReceived extends CustomerEvent {
+  final Map<String, dynamic> payload;
+  const WebSocketOrderNotFoundReceived(this.payload);
+
+  @override
+  List<Object?> get props => [payload];
+}
+
 class ResetCustomerFlow extends CustomerEvent {}
 
 class SearchProducts extends CustomerEvent {
@@ -477,6 +485,15 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   StreamSubscription? _wsSubscription;
 
   CustomerBloc(this._webSocketService) : super(const CustomerState()) {
+    // Set callback: when WS connects/reconnects, request sync of active orders
+    _webSocketService.onConnected = () {
+      final activeIds = state.activeOrders.map((o) => o.id).toList();
+      _webSocketService.send('get_pending_orders', {
+        'clientType': 'customer',
+        'orderIds': activeIds,
+      });
+    };
+
     // Listen to real-time events from WebSocket
     _wsSubscription = _webSocketService.messages.listen((message) {
       final event = message['event'] as String?;
@@ -485,6 +502,8 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       if (event != null && data != null) {
         if (event == 'order_status_updated') {
           add(WebSocketOrderUpdateReceived(data));
+        } else if (event == 'order_not_found') {
+          add(WebSocketOrderNotFoundReceived(data));
         } else if (event == 'rider_location_updated') {
           add(WebSocketRiderLocationReceived(data));
         } else if (event == 'rider_stats_updated') {
@@ -629,6 +648,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     on<InitializeUser>((event, emit) async {
       emit(state.copyWith(userEmail: event.email));
       await _loadOrderHistory(event.email, emit);
+      _webSocketService.connect();
     });
 
     on<DeleteOrderHistory>((event, emit) async {
@@ -667,6 +687,26 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         }
       } catch (e) {
         // ignore parse errors
+      }
+    });
+
+    on<WebSocketOrderNotFoundReceived>((event, emit) async {
+      final orderId = event.payload['id'] as String?;
+      if (orderId == null) return;
+      final index = state.activeOrders.indexWhere((o) => o.id == orderId);
+      
+      if (index >= 0) {
+        final order = state.activeOrders[index].copyWith(status: OrderStatus.delivered);
+        final updatedHistory = List<Order>.from(state.orderHistory)..add(order);
+        final updatedActiveOrders = List<Order>.from(state.activeOrders)..removeAt(index);
+        emit(state.copyWith(
+          activeOrders: updatedActiveOrders,
+          orderHistory: updatedHistory,
+        ));
+        if (state.userEmail != null) {
+          await _saveOrderHistory(state.userEmail!, updatedHistory);
+          await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+        }
       }
     });
 

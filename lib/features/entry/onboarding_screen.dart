@@ -20,21 +20,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'description':
           'We prioritize your time. Get your essentials delivered at lightning speed with maximum security and trust.',
       'image':
-          'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=800&h=1200&fit=crop&crop=center',
     },
     {
       'title': 'Delicious Biryani & More',
       'description':
           'Craving Biryani or Pizza? Order from your favorite restaurants and enjoy hot meals delivered instantly.',
       'image':
-          'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&h=1200&fit=crop&crop=center',
     },
     {
       'title': 'Emergency Medicine',
       'description':
           'Need urgent healthcare supplies? We deliver medicines directly from certified pharmacies to your door.',
       'image':
-          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&h=1200&fit=crop&crop=center',
     },
   ];
 

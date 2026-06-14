@@ -20,10 +20,30 @@ class CustomerCategoryHome extends StatefulWidget {
 }
 
 class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
+  final _searchController = TextEditingController();
+  bool _isSearching = false;
+
   @override
   void initState() {
     super.initState();
     context.read<CustomerBloc>().add(LoadRestaurantMenu());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    context.read<CustomerBloc>().add(SearchProducts(query));
+    setState(() => _isSearching = query.isNotEmpty);
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    context.read<CustomerBloc>().add(SearchProducts(''));
+    setState(() => _isSearching = false);
   }
 
   @override
@@ -201,12 +221,8 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
 
                     const SizedBox(height: 20),
 
-                    // Search bar (visual only)
+                    // ─── Functional Search Bar ───
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
@@ -214,114 +230,164 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                           BoxShadow(color: Colors.black12, blurRadius: 10),
                         ],
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.search, color: Colors.grey.shade500),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Search for food, medicine, snacks...',
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: _onSearchChanged,
+                        style: const TextStyle(fontSize: 14, color: Colors.black87),
+                        decoration: InputDecoration(
+                          hintText: 'Search food, medicine, snacks...',
+                          hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                          suffixIcon: _isSearching
+                              ? IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.grey),
+                                  onPressed: _clearSearch,
+                                )
+                              : null,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              // ─── Promo Banner Carousel ───
-              SizedBox(
-                height: 130,
-                child: PageView(
-                  controller: PageController(viewportFraction: 0.9),
-                  children: [
-                    _buildPromoCard(
-                      title: '🔥 Free Delivery',
-                      subtitle: 'On your first 3 orders!\nOrder now & save ৳50',
-                      emoji: '🛵',
-                      colors: [
-                        Colors.deepOrange.shade400,
-                        Colors.orange.shade300,
-                      ],
-                    ),
-                    _buildPromoCard(
-                      title: '🎉 20% Discount',
-                      subtitle: 'Use code GOBITE20\nValid on all food items',
-                      emoji: '🍔',
-                      colors: [Colors.purple.shade400, Colors.pink.shade300],
-                    ),
-                    _buildPromoCard(
-                      title: '🌙 Midnight Offer',
-                      subtitle:
-                          'Craving at night?\nGet flat ৳100 off after 12 AM',
-                      emoji: '🦉',
-                      colors: [Colors.blue.shade800, Colors.indigo.shade400],
-                    ),
-                    _buildPromoCard(
-                      title: '💊 Stay Healthy',
-                      subtitle:
-                          '10% off on all medicines\nFree delivery on prescriptions',
-                      emoji: '🏥',
-                      colors: [Colors.teal.shade500, Colors.green.shade300],
-                    ),
-                    _buildPromoCard(
-                      title: '🥦 Fresh Grocery',
-                      subtitle:
-                          'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
-                      emoji: '🛒',
-                      colors: [Colors.red.shade400, Colors.deepOrange.shade300],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // ─── Categories Title ───
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'What do you need?',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'Select a category to browse products',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                ),
-              ),
-
               const SizedBox(height: 16),
 
-              // ─── Category Grid ───
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1.3,
-                  children: ProductCategory.values.map((cat) {
-                    return _buildCategoryCard(context, cat);
-                  }).toList(),
-                ),
+              // ─── Search Results OR Normal Home Content ───
+              BlocBuilder<CustomerBloc, CustomerState>(
+                builder: (context, state) {
+                  if (_isSearching) {
+                    // ── Search Results ──
+                    final results = state.menuItems;
+                    if (results.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Column(
+                          children: [
+                            Icon(Icons.search_off, size: 64, color: Colors.grey.shade300),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No results for "${_searchController.text}"',
+                              style: const TextStyle(color: Colors.grey, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12, left: 4),
+                            child: Text(
+                              '${results.length} results found',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          ...results.map((item) => _buildSearchResultItem(context, item, state)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // ── Normal Home View ──
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Promo Banner Carousel
+                      SizedBox(
+                        height: 130,
+                        child: PageView(
+                          controller: PageController(viewportFraction: 0.9),
+                          children: [
+                            _buildPromoCard(
+                              title: '🔥 Free Delivery',
+                              subtitle: 'On your first 3 orders!\nOrder now & save ৳50',
+                              emoji: '🛵',
+                              colors: [Colors.deepOrange.shade400, Colors.orange.shade300],
+                            ),
+                            _buildPromoCard(
+                              title: '🎉 20% Discount',
+                              subtitle: 'Use code GOBITE20\nValid on all food items',
+                              emoji: '🍔',
+                              colors: [Colors.purple.shade400, Colors.pink.shade300],
+                            ),
+                            _buildPromoCard(
+                              title: '🌙 Midnight Offer',
+                              subtitle: 'Craving at night?\nGet flat ৳100 off after 12 AM',
+                              emoji: '🦉',
+                              colors: [Colors.blue.shade800, Colors.indigo.shade400],
+                            ),
+                            _buildPromoCard(
+                              title: '💊 Stay Healthy',
+                              subtitle: '10% off on all medicines\nFree delivery on prescriptions',
+                              emoji: '🏥',
+                              colors: [Colors.teal.shade500, Colors.green.shade300],
+                            ),
+                            _buildPromoCard(
+                              title: '🥦 Fresh Grocery',
+                              subtitle: 'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
+                              emoji: '🛒',
+                              colors: [Colors.red.shade400, Colors.deepOrange.shade300],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // Categories Title
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          'What do you need?',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          'Select a category to browse products',
+                          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Category Grid
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 14,
+                          childAspectRatio: 1.3,
+                          children: ProductCategory.values.map((cat) {
+                            return _buildCategoryCard(context, cat);
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
 
-              const SizedBox(height: 24),
+
 
               // ─── Cart Summary Bar ───
               BlocBuilder<CustomerBloc, CustomerState>(
@@ -448,6 +514,109 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
             ),
           ),
           Text(emoji, style: const TextStyle(fontSize: 48)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResultItem(BuildContext context, FoodItem item, CustomerState state) {
+    final cartItem = state.cart.where((c) => c.foodItem.id == item.id).firstOrNull;
+    final qty = cartItem?.quantity ?? 0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
+      ),
+      child: Row(
+        children: [
+          // Product image
+          ClipRRect(
+            borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+            child: Image.network(
+              item.imageUrl,
+              width: 90,
+              height: 90,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 90,
+                height: 90,
+                color: Colors.grey.shade100,
+                child: Icon(item.category.icon, color: Colors.grey.shade400, size: 32),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(
+                  item.description,
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '৳${item.price.toStringAsFixed(0)}',
+                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: AppTheme.primary),
+                ),
+              ],
+            ),
+          ),
+          // Qty controls
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: qty == 0
+                ? GestureDetector(
+                    onTap: () => context.read<CustomerBloc>().add(AddToCart(item)),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add, color: Colors.white, size: 18),
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.read<CustomerBloc>().add(RemoveFromCart(item)),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.remove, size: 16),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.read<CustomerBloc>().add(AddToCart(item)),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white, size: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ],
       ),
     );

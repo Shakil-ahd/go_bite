@@ -98,20 +98,23 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (index) {
                         return IconButton(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(2),
                           constraints: const BoxConstraints(),
                           icon: Icon(
                             index < rating ? Icons.star : Icons.star_border,
                             color: Colors.orange,
-                            size: 32,
+                            size: 28,
                           ),
                           onPressed: () => setState(() => rating = index + 1),
                         );
                       }),
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx),

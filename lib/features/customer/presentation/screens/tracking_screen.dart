@@ -84,12 +84,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               deliveredOrder.riderName != null &&
               _lastRatedOrderId != deliveredOrder.id) {
             _lastRatedOrderId = deliveredOrder.id;
-            // Short delay so the "delivered" UI updates first
-            Future.delayed(const Duration(milliseconds: 600), () {
-              if (context.mounted) {
-                _showRatingDialog(context, deliveredOrder.riderName!);
-              }
-            });
+            // Pop the tracking screen to return to dashboard/home, where the dashboard's BlocListener will show the rating popup
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
           }
         },
         child: BlocBuilder<CustomerBloc, CustomerState>(
@@ -476,12 +474,12 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(5, (index) {
                       return IconButton(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(2),
                         constraints: const BoxConstraints(),
                         icon: Icon(
                           index < rating ? Icons.star : Icons.star_border,
                           color: Colors.orange,
-                          size: 32,
+                          size: 28,
                         ),
                         onPressed: () {
                           setState(() {

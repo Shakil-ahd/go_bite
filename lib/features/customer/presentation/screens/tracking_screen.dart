@@ -473,10 +473,12 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(5, (index) {
                       return IconButton(
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
                         icon: Icon(
                           index < rating ? Icons.star : Icons.star_border,
                           color: Colors.orange,
-                          size: 36,
+                          size: 32,
                         ),
                         onPressed: () {
                           setState(() {

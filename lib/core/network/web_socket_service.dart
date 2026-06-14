@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+enum AppClientType { customer, restaurant, rider }
+
 class WebSocketService {
   final String url;
+  final AppClientType clientType;
   WebSocketChannel? _channel;
   final StreamController<Map<String, dynamic>> _messageController =
       StreamController<Map<String, dynamic>>.broadcast();
@@ -12,22 +15,19 @@ class WebSocketService {
   bool _isConnecting = false;
   bool _isConnected = false;
   Timer? _reconnectTimer;
+  Timer? _pingTimer;
   int _retryCount = 0;
 
-  // Stream exposing incoming messages
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
-
   bool get isConnected => _isConnected;
 
-  WebSocketService({required this.url}) {
-    print('WebSocketService initialized for url: $url');
-  }
+  WebSocketService({
+    required this.url,
+    this.clientType = AppClientType.customer,
+  });
 
   static String get defaultUrl {
-    // For physical device testing on the same Wi-Fi network
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      // 10.0.2.2 is the emulator's host loopback. On a physical device, this will fail fast.
-      // If you run a local server, change this to your PC's IP address (e.g., 192.168.x.x).
       return 'ws://10.0.2.2:8080';
     }
     return 'ws://localhost:8080';
@@ -37,67 +37,87 @@ class WebSocketService {
     if (_isConnected || _isConnecting) return;
     _isConnecting = true;
 
-    print('🔌 Connecting to WebSocket server: $url ...');
+    debugPrint('🔌 Connecting to WebSocket: $url (as ${clientType.name})');
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
 
-      // Since WebSocketChannel doesn't block on connection,
-      // we monitor the stream to verify status.
       _channel!.stream.listen(
         (message) {
           if (!_isConnected) {
             _isConnected = true;
             _isConnecting = false;
             _retryCount = 0;
-            print('🟢 WebSocket connected successfully!');
+            debugPrint('🟢 WebSocket connected! Registering as ${clientType.name}...');
+            
+            // Register client type with server
+            _registerClientType();
+            
+            // Start ping timer to keep connection alive
+            _startPingTimer();
           }
           try {
             final data = jsonDecode(message as String);
             if (data is Map<String, dynamic>) {
+              final event = data['event'] as String?;
+              if (event == 'pong') return; // ignore pings
               _messageController.add(data);
             }
           } catch (e) {
-            print('⚠️ Failed to decode websocket message: $e');
+            debugPrint('⚠️ Failed to decode message: $e');
           }
         },
         onDone: () {
-          print('🔴 WebSocket connection closed.');
+          debugPrint('🔴 WebSocket disconnected.');
           _handleDisconnect();
         },
         onError: (error) {
-          print('⚠️ WebSocket error: $error');
+          debugPrint('⚠️ WebSocket error: $error');
           _handleDisconnect();
         },
       );
     } catch (e) {
-      print('⚠️ Failed to establish WebSocket connection: $e');
+      debugPrint('⚠️ Connection failed: $e');
       _handleDisconnect();
     }
+  }
+
+  void _registerClientType() {
+    send('register', {'type': clientType.name});
+  }
+
+  void _startPingTimer() {
+    _pingTimer?.cancel();
+    _pingTimer = Timer.periodic(const Duration(seconds: 25), (_) {
+      if (_isConnected && _channel != null) {
+        send('ping', {'client': clientType.name});
+      }
+    });
   }
 
   void _handleDisconnect() {
     _isConnected = false;
     _isConnecting = false;
     _channel = null;
+    _pingTimer?.cancel();
 
-    if (_retryCount >= 3) {
-      print('⏹️ Max reconnection attempts reached. Stopping WebSocket retries to prevent app freezing.');
+    if (_retryCount >= 5) {
+      debugPrint('⏹️ Max reconnection attempts reached.');
       return;
     }
     _retryCount++;
 
-    // Retry connection after 5 seconds instead of 3 to avoid rapid blocking
+    final delay = Duration(seconds: 3 * _retryCount);
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 5), () {
-      print('🔄 Attempting reconnection ($_retryCount/3)...');
+    _reconnectTimer = Timer(delay, () {
+      debugPrint('🔄 Reconnecting ($_retryCount/5)...');
       connect();
     });
   }
 
   /// Sends a structured event through the WebSocket
   void send(String eventName, Map<String, dynamic> data) {
-    if (_channel == null) {
-      print('❌ Cannot send event "$eventName": WebSocket not connected.');
+    if (_channel == null || !_isConnected) {
+      debugPrint('❌ Cannot send "$eventName": not connected.');
       return;
     }
 
@@ -109,17 +129,20 @@ class WebSocketService {
 
     try {
       _channel!.sink.add(jsonEncode(messageJson));
-      print('📤 Sent event: $eventName with data: $data');
+      if (eventName != 'ping' && eventName != 'rider_location_updated') {
+        debugPrint('📤 Sent: $eventName');
+      }
     } catch (e) {
-      print('❌ Error sending websocket message: $e');
+      debugPrint('❌ Send error: $e');
       _handleDisconnect();
     }
   }
 
   void dispose() {
     _reconnectTimer?.cancel();
+    _pingTimer?.cancel();
     _channel?.sink.close();
     _messageController.close();
-    print('🧹 WebSocketService disposed.');
+    debugPrint('🧹 WebSocketService disposed.');
   }
 }

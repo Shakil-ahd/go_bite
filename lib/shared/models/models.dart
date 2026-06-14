@@ -291,8 +291,9 @@ class Order extends Equatable {
   final String? riderName;
   final UserLocation? riderLocation;
   final String deliveryAddress;
+  final DateTime createdAt;
 
-  const Order({
+  Order({
     required this.id,
     required this.restaurantName,
     required this.customerName,
@@ -303,7 +304,8 @@ class Order extends Equatable {
     this.riderName,
     this.riderLocation,
     required this.deliveryAddress,
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   Order copyWith({
     String? id,
@@ -316,6 +318,7 @@ class Order extends Equatable {
     String? riderName,
     UserLocation? riderLocation,
     String? deliveryAddress,
+    DateTime? createdAt,
   }) {
     return Order(
       id: id ?? this.id,
@@ -328,6 +331,7 @@ class Order extends Equatable {
       riderName: riderName ?? this.riderName,
       riderLocation: riderLocation ?? this.riderLocation,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -342,6 +346,7 @@ class Order extends Equatable {
         'riderName': riderName,
         'riderLocation': riderLocation?.toJson(),
         'deliveryAddress': deliveryAddress,
+        'createdAt': createdAt.toIso8601String(),
       };
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -363,6 +368,9 @@ class Order extends Equatable {
           ? UserLocation.fromJson(json['riderLocation'] as Map<String, dynamic>)
           : null,
       deliveryAddress: json['deliveryAddress'] as String,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
@@ -378,5 +386,6 @@ class Order extends Equatable {
         riderName,
         riderLocation,
         deliveryAddress,
+        createdAt,
       ];
 }

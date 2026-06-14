@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../main.dart';
-import '../auth/signup_screen.dart';
 import '../customer/presentation/screens/customer_dashboard.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -18,18 +17,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, String>> _onboardingData = [
     {
       'title': 'Fast & Secure Delivery',
-      'description': 'We prioritize your time. Get your essentials delivered at lightning speed with maximum security and trust.',
-      'image': 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=1200&auto=format&fit=crop', 
+      'description':
+          'We prioritize your time. Get your essentials delivered at lightning speed with maximum security and trust.',
+      'image':
+          'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=1200&auto=format&fit=crop',
     },
     {
       'title': 'Delicious Biryani & More',
-      'description': 'Craving Biryani or Pizza? Order from your favorite restaurants and enjoy hot meals delivered instantly.',
-      'image': 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=1200&auto=format&fit=crop', 
+      'description':
+          'Craving Biryani or Pizza? Order from your favorite restaurants and enjoy hot meals delivered instantly.',
+      'image':
+          'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=1200&auto=format&fit=crop',
     },
     {
       'title': 'Emergency Medicine',
-      'description': 'Need urgent healthcare supplies? We deliver medicines directly from certified pharmacies to your door.',
-      'image': 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&auto=format&fit=crop', 
+      'description':
+          'Need urgent healthcare supplies? We deliver medicines directly from certified pharmacies to your door.',
+      'image':
+          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&auto=format&fit=crop',
     },
   ];
 
@@ -65,12 +70,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, progress) {
                       if (progress == null) return child;
-                      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppTheme.primary,
+                        ),
+                      );
                     },
-                    errorBuilder: (context, error, stackTrace) => 
-                        const Center(child: Icon(Icons.image_not_supported, size: 80, color: Colors.grey)),
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 80,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ),
-                  
+
                   // Smooth Dark Gradient Overlay
                   Container(
                     decoration: const BoxDecoration(
@@ -133,9 +147,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onPressed: _finishOnboarding,
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.black45,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
-                  child: const Text('Skip', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -159,13 +181,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       height: 8,
                       width: _currentPage == index ? 32 : 8,
                       decoration: BoxDecoration(
-                        color: _currentPage == index ? AppTheme.primary : Colors.white38,
+                        color: _currentPage == index
+                            ? AppTheme.primary
+                            : Colors.white38,
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ),
                 ),
-                
+
                 // Next/Start Button
                 GestureDetector(
                   onTap: () {
@@ -181,7 +205,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     padding: EdgeInsets.symmetric(
-                      horizontal: _currentPage == _onboardingData.length - 1 ? 28 : 20,
+                      horizontal: _currentPage == _onboardingData.length - 1
+                          ? 28
+                          : 20,
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
@@ -192,14 +218,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: const [
-                        BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 5)),
+                        BoxShadow(
+                          color: Colors.black45,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
                       ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (_currentPage == _onboardingData.length - 1)
-                          const Text('Get Started', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                          const Text(
+                            'Get Started',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         if (_currentPage == _onboardingData.length - 1)
                           const SizedBox(width: 8),
                         const Icon(Icons.arrow_forward, color: Colors.white),

@@ -265,6 +265,33 @@ class CustomerMenuScreen extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (food.restaurantName != null) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        if (food.restaurantImageUrl != null && food.restaurantImageUrl!.isNotEmpty)
+                          CircleAvatar(
+                            radius: 8,
+                            backgroundImage: NetworkImage(food.restaurantImageUrl!),
+                          )
+                        else
+                          Icon(Icons.storefront, size: 14, color: Colors.grey.shade600),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'by ${food.restaurantName}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 10),
                   Text(
                     '৳${food.price.toStringAsFixed(0)}',

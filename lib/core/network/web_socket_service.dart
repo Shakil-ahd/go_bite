@@ -6,7 +6,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 enum AppClientType { customer, restaurant, rider }
 
 class WebSocketService {
-  final String url;
+  String url;
   final AppClientType clientType;
   WebSocketChannel? _channel;
   final StreamController<Map<String, dynamic>> _messageController =
@@ -33,13 +33,20 @@ class WebSocketService {
   });
 
   static String get defaultUrl {
+    final baseHost = Uri.base.host;
+    if (baseHost.isNotEmpty) {
+      final isLocalHost = baseHost == 'localhost' || 
+                          baseHost == '127.0.0.1' || 
+                          baseHost.startsWith('192.168.') || 
+                          baseHost.startsWith('10.');
+      if (isLocalHost || kDebugMode) {
+        return 'ws://$baseHost:8080';
+      }
+    }
+
     if (kDebugMode) {
       if (defaultTargetPlatform == TargetPlatform.android) {
         return 'ws://10.0.2.2:8080';
-      }
-      final baseHost = Uri.base.host;
-      if (baseHost.isNotEmpty) {
-        return 'ws://$baseHost:8080';
       }
       return 'ws://127.0.0.1:8080';
     }
@@ -157,6 +164,18 @@ class WebSocketService {
       debugPrint('🔁 Force reconnecting on app resume...');
       connect();
     }
+  }
+
+  void updateUrlAndReconnect(String newUrl) {
+    if (url == newUrl) return;
+    url = newUrl;
+    _disposed = false;
+    _reconnectTimer?.cancel();
+    _pingTimer?.cancel();
+    _channel?.sink.close();
+    _isConnected = false;
+    _isConnecting = false;
+    connect();
   }
 
   void dispose() {

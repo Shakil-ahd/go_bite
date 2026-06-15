@@ -3,6 +3,8 @@ import '../../core/theme/app_theme.dart';
 import '../../main.dart';
 import '../customer/presentation/screens/customer_dashboard.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -38,11 +40,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  void _finishOnboarding() {
+  void _finishOnboarding() async {
     MainRouter.hasSeenOnboarding = true;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const CustomerDashboard()),
-    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const CustomerDashboard()),
+      );
+    }
   }
 
   @override

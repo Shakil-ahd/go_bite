@@ -9,9 +9,18 @@ import 'features/entry/onboarding_screen.dart';
 import 'features/entry/splash_screen.dart';
 import 'shared/widgets/connectivity_wrapper.dart';
 
-void main() {
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const GoBiteApp());
+  final prefs = await SharedPreferences.getInstance();
+  MainRouter.hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
+  final customUrl = prefs.getString('custom_server_url');
+  final wsUrl = customUrl ?? WebSocketService.defaultUrl;
+  final ws = WebSocketService(url: wsUrl);
+
+  runApp(GoBiteApp(webSocketService: ws));
 }
 
 class GoBiteApp extends StatelessWidget {
@@ -21,8 +30,7 @@ class GoBiteApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ws =
-        webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
+    final ws = webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
 
     return MultiRepositoryProvider(
       providers: [RepositoryProvider<WebSocketService>.value(value: ws)],

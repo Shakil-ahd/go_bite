@@ -136,6 +136,18 @@ class CancelOrder extends CustomerEvent {
 
 class RefreshMenu extends CustomerEvent {}
 
+class MarkNotificationsRead extends CustomerEvent {}
+
+class ClearNotifications extends CustomerEvent {}
+
+class DeleteNotification extends CustomerEvent {
+  final String notificationId;
+  const DeleteNotification(this.notificationId);
+
+  @override
+  List<Object?> get props => [notificationId];
+}
+
 // ─── State ───
 class RateRider extends CustomerEvent {
   final String riderName;
@@ -158,6 +170,8 @@ class CustomerState extends Equatable {
   final String? searchQuery;
   final String? userEmail;
   final Map<String, dynamic> riderStats;
+  final List<NotificationItem> notifications;
+  final bool isMenuLoaded;
 
   const CustomerState({
     this.allProducts = _bangladeshiCatalog,
@@ -171,6 +185,8 @@ class CustomerState extends Equatable {
     this.searchQuery,
     this.userEmail,
     this.riderStats = const {},
+    this.notifications = const [],
+    this.isMenuLoaded = false,
   });
 
   double get cartTotal => cart.fold(0, (total, item) => total + item.totalPrice);
@@ -188,6 +204,8 @@ class CustomerState extends Equatable {
     String? searchQuery,
     String? userEmail,
     Map<String, dynamic>? riderStats,
+    List<NotificationItem>? notifications,
+    bool? isMenuLoaded,
   }) {
     return CustomerState(
       allProducts: allProducts ?? this.allProducts,
@@ -201,11 +219,27 @@ class CustomerState extends Equatable {
       searchQuery: searchQuery ?? this.searchQuery,
       userEmail: userEmail ?? this.userEmail,
       riderStats: riderStats ?? this.riderStats,
+      notifications: notifications ?? this.notifications,
+      isMenuLoaded: isMenuLoaded ?? this.isMenuLoaded,
     );
   }
 
   @override
-  List<Object?> get props => [allProducts, menuItems, cart, activeOrders, orderHistory, isPlacingOrder, errorMessage, selectedCategory, searchQuery, userEmail, riderStats];
+  List<Object?> get props => [
+        allProducts,
+        menuItems,
+        cart,
+        activeOrders,
+        orderHistory,
+        isPlacingOrder,
+        errorMessage,
+        selectedCategory,
+        searchQuery,
+        userEmail,
+        riderStats,
+        notifications,
+        isMenuLoaded,
+      ];
 }
 
 
@@ -532,6 +566,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     });
 
     on<LoadRestaurantMenu>((event, emit) {
+      _webSocketService.connect();
       emit(state.copyWith(allProducts: _bangladeshiCatalog));
     });
 
@@ -610,9 +645,14 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
       emit(state.copyWith(isPlacingOrder: true, errorMessage: null));
 
+      final firstFood = state.cart.isNotEmpty ? state.cart.first.foodItem : null;
+      final resName = firstFood?.restaurantName ?? 'GoBite Store';
+      final resAddress = firstFood?.restaurantAddress ?? 'GoBite Store Address';
+
       final newOrder = Order(
         id: const Uuid().v4(),
-        restaurantName: 'GoBite Store',
+        restaurantName: resName,
+        restaurantAddress: resAddress,
         customerName: event.customerName,
         customerPhone: event.customerPhone,
         items: state.cart,
@@ -673,7 +713,31 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     on<InitializeUser>((event, emit) async {
       emit(state.copyWith(userEmail: event.email));
       await _loadOrderHistory(event.email, emit);
+      await _loadNotifications(event.email, emit);
       _webSocketService.connect();
+    });
+
+    on<MarkNotificationsRead>((event, emit) async {
+      final updated = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
+      emit(state.copyWith(notifications: updated));
+      if (state.userEmail != null) {
+        await _saveNotifications(state.userEmail!, updated);
+      }
+    });
+
+    on<ClearNotifications>((event, emit) async {
+      emit(state.copyWith(notifications: const []));
+      if (state.userEmail != null) {
+        await _saveNotifications(state.userEmail!, const []);
+      }
+    });
+
+    on<DeleteNotification>((event, emit) async {
+      final updated = state.notifications.where((n) => n.id != event.notificationId).toList();
+      emit(state.copyWith(notifications: updated));
+      if (state.userEmail != null) {
+        await _saveNotifications(state.userEmail!, updated);
+      }
     });
 
     on<DeleteOrderHistory>((event, emit) async {
@@ -775,7 +839,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       }
     });
 
-    on<WebSocketMenuUpdatedReceived>((event, emit) {
+    on<WebSocketMenuUpdatedReceived>((event, emit) async {
       final allProducts = event.items;
       List<FoodItem> filtered = allProducts;
       if (state.selectedCategory != null) {
@@ -784,9 +848,37 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         final q = state.searchQuery!.toLowerCase();
         filtered = allProducts.where((item) => item.name.toLowerCase().contains(q) || item.description.toLowerCase().contains(q)).toList();
       }
+
+      List<NotificationItem> updatedNotifications = List<NotificationItem>.from(state.notifications);
+      bool newlyLoaded = true;
+
+      if (state.isMenuLoaded) {
+        // Find newly added items
+        final existingIds = state.allProducts.map((p) => p.id).toSet();
+        final newItems = allProducts.where((p) => !existingIds.contains(p.id)).toList();
+
+        if (newItems.isNotEmpty) {
+          for (final item in newItems) {
+            final notification = NotificationItem(
+              id: const Uuid().v4(),
+              title: 'New Food Alert! 🍛',
+              message: '"${item.name}" is now available at ${item.restaurantName ?? 'GoBite Store'}!',
+              timestamp: DateTime.now(),
+              isRead: false,
+            );
+            updatedNotifications.insert(0, notification);
+          }
+          if (state.userEmail != null) {
+            await _saveNotifications(state.userEmail!, updatedNotifications);
+          }
+        }
+      }
+
       emit(state.copyWith(
         allProducts: allProducts,
         menuItems: filtered,
+        notifications: updatedNotifications,
+        isMenuLoaded: newlyLoaded,
       ));
     });
 
@@ -864,6 +956,33 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       }
     } catch (e) {
       print('Error saving active orders: $e');
+    }
+  }
+
+  Future<void> _loadNotifications(String email, Emitter<CustomerState> emit) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notifications_$email';
+      final jsonList = prefs.getStringList(key);
+      if (jsonList != null) {
+        final list = jsonList.map((jsonStr) {
+          return NotificationItem.fromJson(jsonDecode(jsonStr));
+        }).toList();
+        emit(state.copyWith(notifications: list));
+      }
+    } catch (e) {
+      print('Error loading notifications: $e');
+    }
+  }
+
+  Future<void> _saveNotifications(String email, List<NotificationItem> notifications) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notifications_$email';
+      final jsonList = notifications.map((n) => jsonEncode(n.toJson())).toList();
+      await prefs.setStringList(key, jsonList);
+    } catch (e) {
+      print('Error saving notifications: $e');
     }
   }
 }

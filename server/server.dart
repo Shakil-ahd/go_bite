@@ -21,6 +21,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 350.0,
     'imageUrl': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80',
     'category': 'food',
+    'restaurantId': 'puran_dhaka_kitchen@gobite.com',
+    'restaurantName': 'Puran Dhaka Kitchen',
+    'restaurantAddress': 'Lalbagh, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'food_02', 'name': 'Chicken Biryani',
@@ -28,6 +32,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 280.0,
     'imageUrl': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
     'category': 'food',
+    'restaurantId': 'star_kabab@gobite.com',
+    'restaurantName': 'Star Kabab & Restaurant',
+    'restaurantAddress': 'Dhanmondi, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'food_03', 'name': 'Morog Polao',
@@ -35,6 +43,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 300.0,
     'imageUrl': 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=400&q=80',
     'category': 'food',
+    'restaurantId': 'haji_biryani@gobite.com',
+    'restaurantName': 'Haji Biryani',
+    'restaurantAddress': 'Puran Dhaka, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'food_04', 'name': 'Beef Tehari',
@@ -42,6 +54,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 220.0,
     'imageUrl': 'https://images.unsplash.com/photo-1574653853027-5382a3d23a15?auto=format&fit=crop&w=400&q=80',
     'category': 'food',
+    'restaurantId': 'gharana_eats@gobite.com',
+    'restaurantName': 'Gharana Eats',
+    'restaurantAddress': 'Banani, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'food_05', 'name': 'Khichuri + Dim Bhaji',
@@ -49,6 +65,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 150.0,
     'imageUrl': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80',
     'category': 'food',
+    'restaurantId': 'dhaka_kitchen@gobite.com',
+    'restaurantName': 'Dhaka Kitchen',
+    'restaurantAddress': 'Mirpur, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'drink_01', 'name': 'Borhani',
@@ -56,6 +76,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 40.0,
     'imageUrl': 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?auto=format&fit=crop&w=400&q=80',
     'category': 'drinks',
+    'restaurantId': 'puran_dhaka_kitchen@gobite.com',
+    'restaurantName': 'Puran Dhaka Kitchen',
+    'restaurantAddress': 'Lalbagh, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'drink_02', 'name': 'Mango Lassi',
@@ -63,6 +87,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 60.0,
     'imageUrl': 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=400&q=80',
     'category': 'drinks',
+    'restaurantId': 'star_kabab@gobite.com',
+    'restaurantName': 'Star Kabab & Restaurant',
+    'restaurantAddress': 'Dhanmondi, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'snack_01', 'name': 'Fuchka (8 pcs)',
@@ -70,6 +98,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 40.0,
     'imageUrl': 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=400&q=80',
     'category': 'snacks',
+    'restaurantId': 'chotpoti_ghar@gobite.com',
+    'restaurantName': 'Chotpoti Ghar',
+    'restaurantAddress': 'Tejgaon, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'snack_02', 'name': 'Chotpoti',
@@ -77,6 +109,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 50.0,
     'imageUrl': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80',
     'category': 'snacks',
+    'restaurantId': 'chotpoti_ghar@gobite.com',
+    'restaurantName': 'Chotpoti Ghar',
+    'restaurantAddress': 'Tejgaon, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'med_01', 'name': 'Napa Extra',
@@ -84,6 +120,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 12.0,
     'imageUrl': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80',
     'category': 'medicine',
+    'restaurantId': 'lazz_pharma@gobite.com',
+    'restaurantName': 'Lazz Pharma',
+    'restaurantAddress': 'Kakrail, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'med_02', 'name': 'Seclo 20mg',
@@ -91,6 +131,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 8.0,
     'imageUrl': 'https://images.unsplash.com/photo-1550572017-edd951b55104?auto=format&fit=crop&w=400&q=80',
     'category': 'medicine',
+    'restaurantId': 'lazz_pharma@gobite.com',
+    'restaurantName': 'Lazz Pharma',
+    'restaurantAddress': 'Kakrail, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&auto=format&fit=crop&q=60',
   },
   {
     'id': 'other_01', 'name': 'Miniket Rice 5kg',
@@ -98,6 +142,10 @@ const List<Map<String, dynamic>> _defaultCatalog = [
     'price': 450.0,
     'imageUrl': 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=400&q=80',
     'category': 'others',
+    'restaurantId': 'shwapno@gobite.com',
+    'restaurantName': 'Shwapno Super Store',
+    'restaurantAddress': 'Gulshan, Dhaka',
+    'restaurantImageUrl': 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=200&auto=format&fit=crop&q=60',
   }
 ];
 
@@ -154,6 +202,47 @@ void main() async {
     }
 
     final requestPath = request.uri.path;
+
+    // HTTP POST /upload Endpoint for Profile/Product image uploads
+    if (request.method == 'POST' && requestPath == '/upload') {
+      try {
+        final content = await utf8.decoder.bind(request).join();
+        final body = jsonDecode(content) as Map<String, dynamic>;
+        final imageBase64 = body['image'] as String?;
+        if (imageBase64 != null && imageBase64.isNotEmpty) {
+          final bytes = base64Decode(imageBase64);
+          final uploadDir = Directory('server/uploads');
+          if (!await uploadDir.exists()) {
+            await uploadDir.create(recursive: true);
+          }
+          final fileName = 'upload_${DateTime.now().microsecondsSinceEpoch}_${(100000 + Random().nextInt(900000)).toString()}.png';
+          final file = File('server/uploads/$fileName');
+          await file.writeAsBytes(bytes);
+          
+          final host = request.headers.value('host') ?? 'localhost:8080';
+          final scheme = request.requestedUri.scheme;
+          final imageUrl = '$scheme://$host/uploads/$fileName';
+          
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonEncode({'url': imageUrl}))
+            ..close();
+          print('   🖼️ HTTP POST Uploaded image: $imageUrl');
+        } else {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Missing "image" base64 payload')
+            ..close();
+        }
+      } catch (e) {
+        request.response
+          ..statusCode = HttpStatus.internalServerError
+          ..write('Upload error: $e')
+          ..close();
+      }
+      continue;
+    }
     if (requestPath.startsWith('/uploads/')) {
       final fileName = requestPath.replaceFirst('/uploads/', '');
       if (fileName.contains('..') || fileName.contains('/') || fileName.contains('\\')) {
@@ -225,6 +314,11 @@ void main() async {
                 final price = (msgData['price'] as num?)?.toDouble() ?? 0.0;
                 final category = msgData['category'] as String? ?? 'food';
                 String imageUrl = msgData['imageUrl'] as String? ?? '';
+                
+                final restaurantId = msgData['restaurantId'] as String?;
+                final restaurantName = msgData['restaurantName'] as String?;
+                final restaurantAddress = msgData['restaurantAddress'] as String?;
+                final restaurantImageUrl = msgData['restaurantImageUrl'] as String?;
 
                 final imageBase64 = msgData['imageBase64'] as String?;
                 if (imageBase64 != null && imageBase64.isNotEmpty) {
@@ -254,6 +348,10 @@ void main() async {
                   'price': price,
                   'imageUrl': imageUrl,
                   'category': category,
+                  if (restaurantId != null) 'restaurantId': restaurantId,
+                  if (restaurantName != null) 'restaurantName': restaurantName,
+                  if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
+                  if (restaurantImageUrl != null) 'restaurantImageUrl': restaurantImageUrl,
                 };
                 menuItems.add(newItem);
                 print('   🍔 Added new food item: $name');
@@ -272,6 +370,11 @@ void main() async {
                     final price = (msgData['price'] as num?)?.toDouble() ?? menuItems[idx]['price'];
                     final category = msgData['category'] as String? ?? menuItems[idx]['category'];
                     String imageUrl = msgData['imageUrl'] as String? ?? menuItems[idx]['imageUrl'];
+                    
+                    final restaurantId = msgData['restaurantId'] as String? ?? menuItems[idx]['restaurantId'];
+                    final restaurantName = msgData['restaurantName'] as String? ?? menuItems[idx]['restaurantName'];
+                    final restaurantAddress = msgData['restaurantAddress'] as String? ?? menuItems[idx]['restaurantAddress'];
+                    final restaurantImageUrl = msgData['restaurantImageUrl'] as String? ?? menuItems[idx]['restaurantImageUrl'];
 
                     final imageBase64 = msgData['imageBase64'] as String?;
                     if (imageBase64 != null && imageBase64.isNotEmpty) {
@@ -301,6 +404,10 @@ void main() async {
                       'price': price,
                       'imageUrl': imageUrl,
                       'category': category,
+                      if (restaurantId != null) 'restaurantId': restaurantId,
+                      if (restaurantName != null) 'restaurantName': restaurantName,
+                      if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
+                      if (restaurantImageUrl != null) 'restaurantImageUrl': restaurantImageUrl,
                     };
                     print('   🍔 Updated food item: $name');
                     

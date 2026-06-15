@@ -214,6 +214,10 @@ class FoodItem extends Equatable {
   final double price;
   final String imageUrl;
   final ProductCategory category;
+  final String? restaurantId;
+  final String? restaurantName;
+  final String? restaurantAddress;
+  final String? restaurantImageUrl;
 
   const FoodItem({
     required this.id,
@@ -222,6 +226,10 @@ class FoodItem extends Equatable {
     required this.price,
     required this.imageUrl,
     required this.category,
+    this.restaurantId,
+    this.restaurantName,
+    this.restaurantAddress,
+    this.restaurantImageUrl,
   });
 
   Map<String, dynamic> toJson() => {
@@ -231,6 +239,10 @@ class FoodItem extends Equatable {
         'price': price,
         'imageUrl': imageUrl,
         'category': category.name,
+        if (restaurantId != null) 'restaurantId': restaurantId,
+        if (restaurantName != null) 'restaurantName': restaurantName,
+        if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
+        if (restaurantImageUrl != null) 'restaurantImageUrl': restaurantImageUrl,
       };
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
@@ -244,11 +256,26 @@ class FoodItem extends Equatable {
         (e) => e.name == json['category'],
         orElse: () => ProductCategory.food,
       ),
+      restaurantId: json['restaurantId'] as String?,
+      restaurantName: json['restaurantName'] as String?,
+      restaurantAddress: json['restaurantAddress'] as String?,
+      restaurantImageUrl: json['restaurantImageUrl'] as String?,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, description, price, imageUrl, category];
+  List<Object?> get props => [
+        id,
+        name,
+        description,
+        price,
+        imageUrl,
+        category,
+        restaurantId,
+        restaurantName,
+        restaurantAddress,
+        restaurantImageUrl,
+      ];
 }
 
 // ─── Cart Item ───
@@ -292,6 +319,7 @@ class Order extends Equatable {
   final UserLocation? riderLocation;
   final String deliveryAddress;
   final DateTime createdAt;
+  final String? restaurantAddress;
 
   Order({
     required this.id,
@@ -305,6 +333,7 @@ class Order extends Equatable {
     this.riderLocation,
     required this.deliveryAddress,
     DateTime? createdAt,
+    this.restaurantAddress,
   }) : createdAt = createdAt ?? DateTime.now();
 
   Order copyWith({
@@ -319,6 +348,7 @@ class Order extends Equatable {
     UserLocation? riderLocation,
     String? deliveryAddress,
     DateTime? createdAt,
+    String? restaurantAddress,
   }) {
     return Order(
       id: id ?? this.id,
@@ -332,6 +362,7 @@ class Order extends Equatable {
       riderLocation: riderLocation ?? this.riderLocation,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       createdAt: createdAt ?? this.createdAt,
+      restaurantAddress: restaurantAddress ?? this.restaurantAddress,
     );
   }
 
@@ -347,6 +378,7 @@ class Order extends Equatable {
         'riderLocation': riderLocation?.toJson(),
         'deliveryAddress': deliveryAddress,
         'createdAt': createdAt.toIso8601String(),
+        if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
       };
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -371,6 +403,7 @@ class Order extends Equatable {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
+      restaurantAddress: json['restaurantAddress'] as String?,
     );
   }
 
@@ -387,5 +420,60 @@ class Order extends Equatable {
         riderLocation,
         deliveryAddress,
         createdAt,
+        restaurantAddress,
       ];
+}
+
+// ─── Notification Item ───
+class NotificationItem extends Equatable {
+  final String id;
+  final String title;
+  final String message;
+  final DateTime timestamp;
+  final bool isRead;
+
+  const NotificationItem({
+    required this.id,
+    required this.title,
+    required this.message,
+    required this.timestamp,
+    this.isRead = false,
+  });
+
+  NotificationItem copyWith({
+    String? id,
+    String? title,
+    String? message,
+    DateTime? timestamp,
+    bool? isRead,
+  }) {
+    return NotificationItem(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'message': message,
+        'timestamp': timestamp.toIso8601String(),
+        'isRead': isRead,
+      };
+
+  factory NotificationItem.fromJson(Map<String, dynamic> json) {
+    return NotificationItem(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      message: json['message'] as String,
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
+      isRead: json['isRead'] as bool? ?? false,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, title, message, timestamp, isRead];
 }

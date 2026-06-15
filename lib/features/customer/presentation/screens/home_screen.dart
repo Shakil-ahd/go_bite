@@ -48,9 +48,15 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            context.read<CustomerBloc>().add(RefreshMenu());
+            await Future.delayed(const Duration(milliseconds: 800));
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ─── Top Header ───
               Container(
@@ -201,6 +207,58 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                         ),
                                       ),
                                     ),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 4),
+                            // Notification bell
+                            BlocBuilder<CustomerBloc, CustomerState>(
+                              builder: (context, state) {
+                                final unreadCount = state.notifications
+                                    .where((n) => !n.isRead)
+                                    .length;
+                                return Stack(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.notifications,
+                                        color: Colors.white,
+                                        size: 26,
+                                      ),
+                                      onPressed: () {
+                                        context.read<CustomerBloc>().add(
+                                              MarkNotificationsRead(),
+                                            );
+                                        _showNotificationsSheet(context);
+                                      },
+                                    ),
+                                    if (unreadCount > 0)
+                                      Positioned(
+                                        right: 4,
+                                        top: 4,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '$unreadCount',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 );
                               },
@@ -541,8 +599,9 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildPromoCard({
     required String title,
@@ -660,6 +719,33 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (item.restaurantName != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      if (item.restaurantImageUrl != null && item.restaurantImageUrl!.isNotEmpty)
+                        CircleAvatar(
+                          radius: 8,
+                          backgroundImage: NetworkImage(item.restaurantImageUrl!),
+                        )
+                      else
+                        Icon(Icons.storefront, size: 12, color: Colors.grey.shade600),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          'by ${item.restaurantName}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 6),
                 Text(
                   '৳${item.price.toStringAsFixed(0)}',
@@ -1282,5 +1368,176 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
         );
       },
     );
+  }
+
+  void _showNotificationsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return BlocProvider.value(
+          value: context.read<CustomerBloc>(),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.65,
+            minChildSize: 0.4,
+            maxChildSize: 0.9,
+            builder: (_, scrollController) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                padding: const EdgeInsets.all(24),
+                child: BlocBuilder<CustomerBloc, CustomerState>(
+                  builder: (context, state) {
+                    if (state.notifications.isEmpty) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.notifications_none_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              "You're all caught up! 🔔",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Notifications',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () =>
+                                  context.read<CustomerBloc>().add(ClearNotifications()),
+                              child: const Text(
+                                'Clear All',
+                                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.builder(
+                            controller: scrollController,
+                            itemCount: state.notifications.length,
+                            itemBuilder: (context, index) {
+                              final n = state.notifications[index];
+                              return Dismissible(
+                                key: Key(n.id),
+                                onDismissed: (direction) {
+                                  context.read<CustomerBloc>().add(DeleteNotification(n.id));
+                                },
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.only(right: 20),
+                                  color: Colors.red,
+                                  child: const Icon(Icons.delete, color: Colors.white),
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: n.isRead ? Colors.grey.shade50 : const Color(0xFFFFE5D9).withOpacity(0.4),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: n.isRead ? Colors.grey.shade200 : const Color(0xFFFF9E7D).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: n.isRead ? Colors.grey.shade200 : const Color(0xFFFF7D54).withOpacity(0.15),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.notifications_active,
+                                          color: n.isRead ? Colors.grey : const Color(0xFFFF5400),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              n.title,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                                color: n.isRead ? Colors.black87 : const Color(0xFFE76F51),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              n.message,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              _formatTime(n.timestamp),
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.grey.shade500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.close, size: 16, color: Colors.grey),
+                                        onPressed: () {
+                                          context.read<CustomerBloc>().add(DeleteNotification(n.id));
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatTime(DateTime dt) {
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 }

@@ -319,6 +319,7 @@ class Order extends Equatable {
   final UserLocation? riderLocation;
   final String deliveryAddress;
   final DateTime createdAt;
+  final String? restaurantId;
   final String? restaurantAddress;
 
   Order({
@@ -333,6 +334,7 @@ class Order extends Equatable {
     this.riderLocation,
     required this.deliveryAddress,
     DateTime? createdAt,
+    this.restaurantId,
     this.restaurantAddress,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -348,6 +350,7 @@ class Order extends Equatable {
     UserLocation? riderLocation,
     String? deliveryAddress,
     DateTime? createdAt,
+    String? restaurantId,
     String? restaurantAddress,
   }) {
     return Order(
@@ -362,6 +365,7 @@ class Order extends Equatable {
       riderLocation: riderLocation ?? this.riderLocation,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       createdAt: createdAt ?? this.createdAt,
+      restaurantId: restaurantId ?? this.restaurantId,
       restaurantAddress: restaurantAddress ?? this.restaurantAddress,
     );
   }
@@ -378,6 +382,7 @@ class Order extends Equatable {
         'riderLocation': riderLocation?.toJson(),
         'deliveryAddress': deliveryAddress,
         'createdAt': createdAt.toIso8601String(),
+        if (restaurantId != null) 'restaurantId': restaurantId,
         if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
       };
 
@@ -403,6 +408,7 @@ class Order extends Equatable {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
+      restaurantId: json['restaurantId'] as String?,
       restaurantAddress: json['restaurantAddress'] as String?,
     );
   }
@@ -420,6 +426,7 @@ class Order extends Equatable {
         riderLocation,
         deliveryAddress,
         createdAt,
+        restaurantId,
         restaurantAddress,
       ];
 }

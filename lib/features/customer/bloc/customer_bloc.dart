@@ -651,6 +651,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
       final newOrder = Order(
         id: const Uuid().v4(),
+        restaurantId: firstFood?.restaurantId,
         restaurantName: resName,
         restaurantAddress: resAddress,
         customerName: event.customerName,

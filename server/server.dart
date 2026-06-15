@@ -169,7 +169,8 @@ void main() async {
   final Map<String, Map<String, dynamic>> riderRatings = {};
 
   // Load products catalog
-  final File productsFile = File('server/products.json');
+  final String serverDir = File(Platform.script.toFilePath()).parent.path;
+  final File productsFile = File('$serverDir/products.json');
   List<Map<String, dynamic>> menuItems = [];
   try {
     if (await productsFile.exists()) {
@@ -179,7 +180,7 @@ void main() async {
       print('📦 Loaded ${menuItems.length} menu items from products.json');
     } else {
       menuItems = List<Map<String, dynamic>>.from(_defaultCatalog);
-      await Directory('server').create(recursive: true);
+      await Directory(serverDir).create(recursive: true);
       await productsFile.writeAsString(jsonEncode(menuItems));
       print('📦 Initialized products.json with ${menuItems.length} default menu items');
     }
@@ -211,12 +212,13 @@ void main() async {
         final imageBase64 = body['image'] as String?;
         if (imageBase64 != null && imageBase64.isNotEmpty) {
           final bytes = base64Decode(imageBase64);
-          final uploadDir = Directory('server/uploads');
+          final serverDir = File(Platform.script.toFilePath()).parent.path;
+          final uploadDir = Directory('$serverDir/uploads');
           if (!await uploadDir.exists()) {
             await uploadDir.create(recursive: true);
           }
           final fileName = 'upload_${DateTime.now().microsecondsSinceEpoch}_${(100000 + Random().nextInt(900000)).toString()}.png';
-          final file = File('server/uploads/$fileName');
+          final file = File('$serverDir/uploads/$fileName');
           await file.writeAsBytes(bytes);
           
           final host = request.headers.value('host') ?? 'localhost:8080';
@@ -252,7 +254,8 @@ void main() async {
           ..close();
         continue;
       }
-      final file = File('server/uploads/$fileName');
+      final serverDir = File(Platform.script.toFilePath()).parent.path;
+      final file = File('$serverDir/uploads/$fileName');
       if (await file.exists()) {
         final bytes = await file.readAsBytes();
         String contentType = 'application/octet-stream';
@@ -324,12 +327,13 @@ void main() async {
                 if (imageBase64 != null && imageBase64.isNotEmpty) {
                   try {
                     final bytes = base64Decode(imageBase64);
-                    final uploadDir = Directory('server/uploads');
+                    final serverDir = File(Platform.script.toFilePath()).parent.path;
+                    final uploadDir = Directory('$serverDir/uploads');
                     if (!await uploadDir.exists()) {
                       await uploadDir.create(recursive: true);
                     }
                     final fileName = '${DateTime.now().microsecondsSinceEpoch}_${(100000 + Random().nextInt(900000)).toString()}.png';
-                    final file = File('server/uploads/$fileName');
+                    final file = File('$serverDir/uploads/$fileName');
                     await file.writeAsBytes(bytes);
                     
                     final host = request.headers.value('host') ?? 'localhost:8080';
@@ -380,12 +384,13 @@ void main() async {
                     if (imageBase64 != null && imageBase64.isNotEmpty) {
                       try {
                         final bytes = base64Decode(imageBase64);
-                        final uploadDir = Directory('server/uploads');
+                        final serverDir = File(Platform.script.toFilePath()).parent.path;
+                        final uploadDir = Directory('$serverDir/uploads');
                         if (!await uploadDir.exists()) {
                           await uploadDir.create(recursive: true);
                         }
                         final fileName = '${DateTime.now().microsecondsSinceEpoch}_${(100000 + Random().nextInt(900000)).toString()}.png';
-                        final file = File('server/uploads/$fileName');
+                        final file = File('$serverDir/uploads/$fileName');
                         await file.writeAsBytes(bytes);
                         
                         final host = request.headers.value('host') ?? 'localhost:8080';

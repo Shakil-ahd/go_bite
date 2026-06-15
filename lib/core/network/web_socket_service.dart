@@ -19,8 +19,6 @@ class WebSocketService {
   int _retryCount = 0;
   bool _disposed = false;
 
-  /// Called every time a successful connection is established.
-  /// Use this to re-request any missed data (e.g. pending orders).
   VoidCallback? onConnected;
 
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
@@ -35,10 +33,11 @@ class WebSocketService {
   static String get defaultUrl {
     final baseHost = Uri.base.host;
     if (baseHost.isNotEmpty) {
-      final isLocalHost = baseHost == 'localhost' || 
-                          baseHost == '127.0.0.1' || 
-                          baseHost.startsWith('192.168.') || 
-                          baseHost.startsWith('10.');
+      final isLocalHost =
+          baseHost == 'localhost' ||
+          baseHost == '127.0.0.1' ||
+          baseHost.startsWith('192.168.') ||
+          baseHost.startsWith('10.');
       if (isLocalHost || kDebugMode) {
         return 'ws://$baseHost:8080';
       }
@@ -64,7 +63,9 @@ class WebSocketService {
       _isConnected = true;
       _isConnecting = false;
       _retryCount = 0;
-      debugPrint('🟢 WebSocket connected! Registering as ${clientType.name}...');
+      debugPrint(
+        '🟢 WebSocket connected! Registering as ${clientType.name}...',
+      );
       _registerClientType();
       _startPingTimer();
 
@@ -126,7 +127,9 @@ class WebSocketService {
         : 60; // cap at 60 seconds, keep retrying indefinitely
     final delay = Duration(seconds: delaySeconds);
     _reconnectTimer?.cancel();
-    debugPrint('🔄 Reconnecting in ${delay.inSeconds}s (attempt $_retryCount)...');
+    debugPrint(
+      '🔄 Reconnecting in ${delay.inSeconds}s (attempt $_retryCount)...',
+    );
     _reconnectTimer = Timer(delay, () {
       if (!_disposed) connect();
     });

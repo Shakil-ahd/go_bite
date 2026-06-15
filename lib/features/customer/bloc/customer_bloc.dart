@@ -799,6 +799,14 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       }
     });
 
+    on<WebSocketMenuUpdatedReceived>((event, emit) {
+      emit(state.copyWith(
+        allProducts: event.items,
+        menuItems: event.items,
+        isMenuLoaded: true,
+      ));
+    });
+
     on<WebSocketRiderLocationReceived>((event, emit) async {
       final locationData = event.payload;
       final orderId = locationData['orderId'] as String?;

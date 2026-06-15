@@ -64,7 +64,9 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                 ? current.orderHistory.last
                 : null;
             if (newHistoryOrder != null) {
-              final wasActive = previous.activeOrders.any((o) => o.id == newHistoryOrder.id);
+              final wasActive = previous.activeOrders.any(
+                (o) => o.id == newHistoryOrder.id,
+              );
               if (wasActive &&
                   newHistoryOrder.status == OrderStatus.delivered &&
                   newHistoryOrder.riderName != null &&
@@ -91,62 +93,67 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           }
         },
         child: BlocBuilder<CustomerBloc, CustomerState>(
-        builder: (context, state) {
-          Order? order;
-          if (widget.orderId != null) {
-            final idx = state.activeOrders.indexWhere(
-              (o) => o.id == widget.orderId,
+          builder: (context, state) {
+            Order? order;
+            if (widget.orderId != null) {
+              final idx = state.activeOrders.indexWhere(
+                (o) => o.id == widget.orderId,
+              );
+              order = idx >= 0 ? state.activeOrders[idx] : null;
+            } else {
+              order = state.activeOrders.isNotEmpty
+                  ? state.activeOrders.last
+                  : null;
+            }
+
+            // Control rider bounce animation based on order status
+            final isOutForDelivery =
+                order?.status == OrderStatus.outForDelivery;
+            if (isOutForDelivery && !_riderBounceController.isAnimating) {
+              _riderBounceController.repeat(reverse: true);
+            } else if (!isOutForDelivery &&
+                _riderBounceController.isAnimating) {
+              _riderBounceController.stop();
+              _riderBounceController.reset();
+            }
+
+            if (order == null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('No active order or Order delivered!'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (_) => const CustomerCategoryHome(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text('Back to Home'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                // ─── Map Section ───
+                Expanded(flex: 6, child: _buildMapSection(order)),
+
+                // ─── Info Panel ───
+                Expanded(
+                  flex: 5,
+                  child: _buildInfoPanel(context, order, state),
+                ),
+              ],
             );
-            order = idx >= 0 ? state.activeOrders[idx] : null;
-          } else {
-            order = state.activeOrders.isNotEmpty
-                ? state.activeOrders.last
-                : null;
-          }
-
-          // Control rider bounce animation based on order status
-          final isOutForDelivery = order?.status == OrderStatus.outForDelivery;
-          if (isOutForDelivery && !_riderBounceController.isAnimating) {
-            _riderBounceController.repeat(reverse: true);
-          } else if (!isOutForDelivery && _riderBounceController.isAnimating) {
-            _riderBounceController.stop();
-            _riderBounceController.reset();
-          }
-
-          if (order == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('No active order or Order delivered!'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (_) => const CustomerCategoryHome(),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                    child: const Text('Back to Home'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Column(
-            children: [
-              // ─── Map Section ───
-              Expanded(flex: 6, child: _buildMapSection(order)),
-
-              // ─── Info Panel ───
-              Expanded(flex: 5, child: _buildInfoPanel(context, order, state)),
-            ],
-          );
-        },
-      ),
+          },
+        ),
       ),
     );
   }

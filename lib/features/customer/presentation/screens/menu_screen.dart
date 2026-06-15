@@ -77,16 +77,29 @@ class CustomerMenuScreen extends StatelessWidget {
               ),
             ],
           ),
-          body: state.menuItems.isEmpty
-              ? const Center(child: Text('No items in this category'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.menuItems.length,
-                  itemBuilder: (context, index) {
-                    final food = state.menuItems[index];
-                    return _buildMenuItem(context, food);
-                  },
-                ),
+          body: RefreshIndicator(
+            onRefresh: () async {
+              context.read<CustomerBloc>().add(RefreshMenu());
+              await Future.delayed(const Duration(milliseconds: 800));
+            },
+            child: state.menuItems.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 200),
+                      Center(child: Text('No items in this category')),
+                    ],
+                  )
+                : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.menuItems.length,
+                    itemBuilder: (context, index) {
+                      final food = state.menuItems[index];
+                      return _buildMenuItem(context, food);
+                    },
+                  ),
+          ),
           bottomNavigationBar: BlocBuilder<CustomerBloc, CustomerState>(
             builder: (context, state) {
               if (state.cart.isEmpty) return const SizedBox.shrink();

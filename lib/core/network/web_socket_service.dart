@@ -33,6 +33,16 @@ class WebSocketService {
   });
 
   static String get defaultUrl {
+    if (kDebugMode) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        return 'ws://10.0.2.2:8080';
+      }
+      final baseHost = Uri.base.host;
+      if (baseHost.isNotEmpty) {
+        return 'ws://$baseHost:8080';
+      }
+      return 'ws://127.0.0.1:8080';
+    }
     return 'wss://go-bite.onrender.com';
   }
 

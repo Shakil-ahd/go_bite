@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
 
 // ─── Client Types ───
 enum ClientType { customer, restaurant, rider, unknown }
@@ -12,10 +13,99 @@ class ConnectedClient {
   ConnectedClient(this.ws, {this.type = ClientType.unknown, this.orderId});
 }
 
+// ─── Default Bangladeshi Food Catalog ───
+const List<Map<String, dynamic>> _defaultCatalog = [
+  {
+    'id': 'food_01', 'name': 'Kacchi Biryani',
+    'description': 'Authentic Dhaka-style Kacchi with tender goat meat, aromatic rice, potatoes & boiled eggs',
+    'price': 350.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80',
+    'category': 'food',
+  },
+  {
+    'id': 'food_02', 'name': 'Chicken Biryani',
+    'description': 'Fragrant basmati rice with juicy chicken pieces, saffron & special spices',
+    'price': 280.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
+    'category': 'food',
+  },
+  {
+    'id': 'food_03', 'name': 'Morog Polao',
+    'description': 'Classic Bengali chicken polao with ghee-flavored rice & whole spices',
+    'price': 300.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=400&q=80',
+    'category': 'food',
+  },
+  {
+    'id': 'food_04', 'name': 'Beef Tehari',
+    'description': 'Spicy beef tehari with fragrant rice, potatoes & traditional Puran Dhaka spices',
+    'price': 220.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1574653853027-5382a3d23a15?auto=format&fit=crop&w=400&q=80',
+    'category': 'food',
+  },
+  {
+    'id': 'food_05', 'name': 'Khichuri + Dim Bhaji',
+    'description': 'Comfort food: Dal khichuri served with egg omelette & mixed vegetable bhaji',
+    'price': 150.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80',
+    'category': 'food',
+  },
+  {
+    'id': 'drink_01', 'name': 'Borhani',
+    'description': 'Traditional Bangladeshi spicy yogurt drink, perfect with biryani',
+    'price': 40.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?auto=format&fit=crop&w=400&q=80',
+    'category': 'drinks',
+  },
+  {
+    'id': 'drink_02', 'name': 'Mango Lassi',
+    'description': 'Creamy mango yogurt smoothie made with fresh seasonal mangoes',
+    'price': 60.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=400&q=80',
+    'category': 'drinks',
+  },
+  {
+    'id': 'snack_01', 'name': 'Fuchka (8 pcs)',
+    'description': 'Crispy hollow shells filled with spicy tamarind water, chickpeas & potatoes',
+    'price': 40.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=400&q=80',
+    'category': 'snacks',
+  },
+  {
+    'id': 'snack_02', 'name': 'Chotpoti',
+    'description': 'Spicy chickpea curry topped with boiled egg, onion & tamarind sauce',
+    'price': 50.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80',
+    'category': 'snacks',
+  },
+  {
+    'id': 'med_01', 'name': 'Napa Extra',
+    'description': 'Paracetamol 500mg + Caffeine 65mg — for headache, fever & body pain',
+    'price': 12.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80',
+    'category': 'medicine',
+  },
+  {
+    'id': 'med_02', 'name': 'Seclo 20mg',
+    'description': 'Omeprazole capsule for acidity, heartburn & gastric problems',
+    'price': 8.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1550572017-edd951b55104?auto=format&fit=crop&w=400&q=80',
+    'category': 'medicine',
+  },
+  {
+    'id': 'other_01', 'name': 'Miniket Rice 5kg',
+    'description': 'Premium quality Miniket rice — best for daily cooking',
+    'price': 450.0,
+    'imageUrl': 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&w=400&q=80',
+    'category': 'others',
+  }
+];
+
+
 void main() async {
   final portStr = Platform.environment['PORT'] ?? '8080';
   final port = int.tryParse(portStr) ?? 8080;
-  final server = await HttpServer.bind(InternetAddress.anyIPv4, port);
+  final server = await HttpServer.bind(InternetAddress.anyIPv6, port);
   print('🚀 GoBite Smart Server running on port $port');
   print('   ├── Customer App:    ws://localhost:8080');
   print('   ├── Restaurant App:  ws://localhost:8080');
@@ -30,7 +120,72 @@ void main() async {
   // Format: { 'riderName': { 'totalRatings': 0, 'totalScore': 0.0, 'totalDeliveries': 0 } }
   final Map<String, Map<String, dynamic>> riderRatings = {};
 
+  // Load products catalog
+  final File productsFile = File('server/products.json');
+  List<Map<String, dynamic>> menuItems = [];
+  try {
+    if (await productsFile.exists()) {
+      final content = await productsFile.readAsString();
+      final decoded = jsonDecode(content) as List<dynamic>;
+      menuItems = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      print('📦 Loaded ${menuItems.length} menu items from products.json');
+    } else {
+      menuItems = List<Map<String, dynamic>>.from(_defaultCatalog);
+      await Directory('server').create(recursive: true);
+      await productsFile.writeAsString(jsonEncode(menuItems));
+      print('📦 Initialized products.json with ${menuItems.length} default menu items');
+    }
+  } catch (e) {
+    print('⚠️ Error loading products.json: $e. Using default catalog.');
+    menuItems = List<Map<String, dynamic>>.from(_defaultCatalog);
+  }
+
   await for (HttpRequest request in server) {
+    // Add CORS headers to all responses
+    request.response.headers.add('Access-Control-Allow-Origin', '*');
+    request.response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    request.response.headers.add('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept');
+
+    if (request.method == 'OPTIONS') {
+      request.response
+        ..statusCode = HttpStatus.ok
+        ..close();
+      continue;
+    }
+
+    final requestPath = request.uri.path;
+    if (requestPath.startsWith('/uploads/')) {
+      final fileName = requestPath.replaceFirst('/uploads/', '');
+      if (fileName.contains('..') || fileName.contains('/') || fileName.contains('\\')) {
+        request.response
+          ..statusCode = HttpStatus.forbidden
+          ..write('Forbidden')
+          ..close();
+        continue;
+      }
+      final file = File('server/uploads/$fileName');
+      if (await file.exists()) {
+        final bytes = await file.readAsBytes();
+        String contentType = 'application/octet-stream';
+        if (fileName.endsWith('.png')) contentType = 'image/png';
+        else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) contentType = 'image/jpeg';
+        else if (fileName.endsWith('.gif')) contentType = 'image/gif';
+        else if (fileName.endsWith('.webp')) contentType = 'image/webp';
+
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.parse(contentType)
+          ..add(bytes)
+          ..close();
+      } else {
+        request.response
+          ..statusCode = HttpStatus.notFound
+          ..write('File not found')
+          ..close();
+      }
+      continue;
+    }
+
     if (WebSocketTransformer.isUpgradeRequest(request)) {
       final ws = await WebSocketTransformer.upgrade(request);
       final client = ConnectedClient(ws);
@@ -38,7 +193,7 @@ void main() async {
       print('🟢 New connection. Total: ${clients.length}');
 
       ws.listen(
-        (data) {
+        (data) async {
           try {
             final message = jsonDecode(data as String) as Map<String, dynamic>;
             final event = message['event'] as String?;
@@ -56,6 +211,118 @@ void main() async {
                 final type = msgData['type'] as String?;
                 client.type = _parseType(type);
                 print('   ✅ Registered as: ${client.type.name}');
+                break;
+
+              // ─── Menu/Food Catalog Events ───
+              case 'get_menu':
+                _sendToClient(ws, 'menu_updated', {'items': menuItems});
+                break;
+
+              case 'add_food_item':
+                final id = 'food_${DateTime.now().microsecondsSinceEpoch}';
+                final name = msgData['name'] as String? ?? '';
+                final description = msgData['description'] as String? ?? '';
+                final price = (msgData['price'] as num?)?.toDouble() ?? 0.0;
+                final category = msgData['category'] as String? ?? 'food';
+                String imageUrl = msgData['imageUrl'] as String? ?? '';
+
+                final imageBase64 = msgData['imageBase64'] as String?;
+                if (imageBase64 != null && imageBase64.isNotEmpty) {
+                  try {
+                    final bytes = base64Decode(imageBase64);
+                    final uploadDir = Directory('server/uploads');
+                    if (!await uploadDir.exists()) {
+                      await uploadDir.create(recursive: true);
+                    }
+                    final fileName = '${DateTime.now().microsecondsSinceEpoch}_${(100000 + Random().nextInt(900000)).toString()}.png';
+                    final file = File('server/uploads/$fileName');
+                    await file.writeAsBytes(bytes);
+                    
+                    final host = request.headers.value('host') ?? 'localhost:8080';
+                    final scheme = request.requestedUri.scheme;
+                    imageUrl = '$scheme://$host/uploads/$fileName';
+                    print('   🖼️ Saved uploaded image to $imageUrl');
+                  } catch (e) {
+                    print('   ⚠️ Failed to save image: $e');
+                  }
+                }
+
+                final newItem = {
+                  'id': id,
+                  'name': name,
+                  'description': description,
+                  'price': price,
+                  'imageUrl': imageUrl,
+                  'category': category,
+                };
+                menuItems.add(newItem);
+                print('   🍔 Added new food item: $name');
+                
+                await productsFile.writeAsString(jsonEncode(menuItems));
+                _broadcastAll(clients, 'menu_updated', {'items': menuItems});
+                break;
+
+              case 'update_food_item':
+                final itemId = msgData['id'] as String?;
+                if (itemId != null) {
+                  final idx = menuItems.indexWhere((e) => e['id'] == itemId);
+                  if (idx >= 0) {
+                    final name = msgData['name'] as String? ?? menuItems[idx]['name'];
+                    final description = msgData['description'] as String? ?? menuItems[idx]['description'];
+                    final price = (msgData['price'] as num?)?.toDouble() ?? menuItems[idx]['price'];
+                    final category = msgData['category'] as String? ?? menuItems[idx]['category'];
+                    String imageUrl = msgData['imageUrl'] as String? ?? menuItems[idx]['imageUrl'];
+
+                    final imageBase64 = msgData['imageBase64'] as String?;
+                    if (imageBase64 != null && imageBase64.isNotEmpty) {
+                      try {
+                        final bytes = base64Decode(imageBase64);
+                        final uploadDir = Directory('server/uploads');
+                        if (!await uploadDir.exists()) {
+                          await uploadDir.create(recursive: true);
+                        }
+                        final fileName = '${DateTime.now().microsecondsSinceEpoch}_${(100000 + Random().nextInt(900000)).toString()}.png';
+                        final file = File('server/uploads/$fileName');
+                        await file.writeAsBytes(bytes);
+                        
+                        final host = request.headers.value('host') ?? 'localhost:8080';
+                        final scheme = request.requestedUri.scheme;
+                        imageUrl = '$scheme://$host/uploads/$fileName';
+                        print('   🖼️ Saved updated image to $imageUrl');
+                      } catch (e) {
+                        print('   ⚠️ Failed to save image: $e');
+                      }
+                    }
+
+                    menuItems[idx] = {
+                      'id': itemId,
+                      'name': name,
+                      'description': description,
+                      'price': price,
+                      'imageUrl': imageUrl,
+                      'category': category,
+                    };
+                    print('   🍔 Updated food item: $name');
+                    
+                    await productsFile.writeAsString(jsonEncode(menuItems));
+                    _broadcastAll(clients, 'menu_updated', {'items': menuItems});
+                  }
+                }
+                break;
+
+              case 'delete_food_item':
+                final itemId = msgData['id'] as String?;
+                if (itemId != null) {
+                  final idx = menuItems.indexWhere((e) => e['id'] == itemId);
+                  if (idx >= 0) {
+                    final deletedName = menuItems[idx]['name'];
+                    menuItems.removeAt(idx);
+                    print('   🗑️ Deleted food item: $deletedName');
+                    
+                    await productsFile.writeAsString(jsonEncode(menuItems));
+                    _broadcastAll(clients, 'menu_updated', {'items': menuItems});
+                  }
+                }
                 break;
 
               // ─── Customer places new order ───

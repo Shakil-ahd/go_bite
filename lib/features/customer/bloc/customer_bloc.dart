@@ -92,6 +92,14 @@ class WebSocketOrderNotFoundReceived extends CustomerEvent {
   List<Object?> get props => [payload];
 }
 
+class WebSocketMenuUpdatedReceived extends CustomerEvent {
+  final List<FoodItem> items;
+  const WebSocketMenuUpdatedReceived(this.items);
+
+  @override
+  List<Object?> get props => [items];
+}
+
 class ResetCustomerFlow extends CustomerEvent {}
 
 class SearchProducts extends CustomerEvent {
@@ -125,6 +133,8 @@ class CancelOrder extends CustomerEvent {
   @override
   List<Object?> get props => [orderId];
 }
+
+class RefreshMenu extends CustomerEvent {}
 
 // ─── State ───
 class RateRider extends CustomerEvent {
@@ -492,6 +502,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         'clientType': 'customer',
         'orderIds': activeIds,
       });
+      _webSocketService.send('get_menu', {});
     };
 
     // Listen to real-time events from WebSocket
@@ -508,12 +519,24 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           add(WebSocketRiderLocationReceived(data));
         } else if (event == 'rider_stats_updated') {
           add(WebSocketRiderStatsReceived(data));
+        } else if (event == 'menu_updated') {
+          try {
+            final itemsList = data['items'] as List<dynamic>? ?? [];
+            final items = itemsList.map((e) => FoodItem.fromJson(Map<String, dynamic>.from(e as Map))).toList();
+            add(WebSocketMenuUpdatedReceived(items));
+          } catch (e) {
+            print('❌ ERROR PARSING MENU UPDATE IN CUSTOMER: $e');
+          }
         }
       }
     });
 
     on<LoadRestaurantMenu>((event, emit) {
       emit(state.copyWith(allProducts: _bangladeshiCatalog));
+    });
+
+    on<RefreshMenu>((event, emit) {
+      _webSocketService.send('get_menu', {});
     });
 
     on<SelectCategory>((event, emit) {
@@ -750,6 +773,21 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         newStats[riderName] = stats;
         emit(state.copyWith(riderStats: newStats));
       }
+    });
+
+    on<WebSocketMenuUpdatedReceived>((event, emit) {
+      final allProducts = event.items;
+      List<FoodItem> filtered = allProducts;
+      if (state.selectedCategory != null) {
+        filtered = allProducts.where((item) => item.category == state.selectedCategory).toList();
+      } else if (state.searchQuery != null && state.searchQuery!.isNotEmpty) {
+        final q = state.searchQuery!.toLowerCase();
+        filtered = allProducts.where((item) => item.name.toLowerCase().contains(q) || item.description.toLowerCase().contains(q)).toList();
+      }
+      emit(state.copyWith(
+        allProducts: allProducts,
+        menuItems: filtered,
+      ));
     });
 
     on<ResetCustomerFlow>((event, emit) async {

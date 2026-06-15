@@ -24,8 +24,6 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
   final _searchController = TextEditingController();
   bool _isSearching = false;
 
-
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -168,8 +166,9 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                             BlocBuilder<CustomerBloc, CustomerState>(
                               builder: (context, state) {
                                 final activeCount = state.activeOrders.length;
-                                if (activeCount == 0)
+                                if (activeCount == 0) {
                                   return const SizedBox.shrink();
+                                }
                                 return Stack(
                                   children: [
                                     IconButton(
@@ -1129,10 +1128,14 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isPending ? Colors.orange.shade50 : Colors.blue.shade50,
+                          color: isPending
+                              ? Colors.orange.shade50
+                              : Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isPending ? Colors.orange.shade200 : Colors.blue.shade200,
+                            color: isPending
+                                ? Colors.orange.shade200
+                                : Colors.blue.shade200,
                           ),
                         ),
                         child: Column(
@@ -1143,18 +1146,23 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: isPending ? Colors.orange : Colors.blue,
+                                    color: isPending
+                                        ? Colors.orange
+                                        : Colors.blue,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
-                                    isPending ? Icons.hourglass_top : Icons.motorcycle,
+                                    isPending
+                                        ? Icons.hourglass_top
+                                        : Icons.motorcycle,
                                     color: Colors.white,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Order #${order.id.substring(0, 6)}',
@@ -1167,9 +1175,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                       Text(
                                         isPending
                                             ? 'Waiting for restaurant...'
-                                            : order.status == OrderStatus.outForDelivery
-                                                ? 'Out for Delivery'
-                                                : 'Preparing...',
+                                            : order.status ==
+                                                  OrderStatus.outForDelivery
+                                            ? 'Out for Delivery'
+                                            : 'Preparing...',
                                         style: TextStyle(
                                           color: isPending
                                               ? Colors.orange.shade700
@@ -1215,9 +1224,13 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                               );
                                               Navigator.pop(ctx);
                                               Navigator.pop(modalContext);
-                                              ScaffoldMessenger.of(context).showSnackBar(
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
                                                 const SnackBar(
-                                                  content: Text('Order cancelled.'),
+                                                  content: Text(
+                                                    'Order cancelled.',
+                                                  ),
                                                   backgroundColor: Colors.red,
                                                 ),
                                               );
@@ -1227,17 +1240,26 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                             ),
                                             child: const Text(
                                               'Yes, Cancel',
-                                              style: TextStyle(color: Colors.white),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     );
                                   },
-                                  icon: const Icon(Icons.cancel, color: Colors.red, size: 18),
+                                  icon: const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                    size: 18,
+                                  ),
                                   label: const Text(
                                     'Cancel Order',
-                                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   style: OutlinedButton.styleFrom(
                                     side: const BorderSide(color: Colors.red),

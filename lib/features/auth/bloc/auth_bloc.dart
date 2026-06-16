@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/models/models.dart';
 import '../../../core/network/web_socket_service.dart';
@@ -282,20 +282,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<Map<String, dynamic>?> _makeHttpPost(String path, Map<String, dynamic> body) async {
     final baseUrl = WebSocketService.defaultUrl.replaceAll('ws://', 'http://').replaceAll('wss://', 'https://');
-    final client = HttpClient();
     try {
-      final request = await client.postUrl(Uri.parse('$baseUrl$path')).timeout(const Duration(seconds: 8));
-      request.headers.contentType = ContentType.json;
-      request.write(jsonEncode(body));
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-      if (response.statusCode == HttpStatus.ok) {
-        return jsonDecode(responseBody) as Map<String, dynamic>;
+      final response = await http.post(
+        Uri.parse('$baseUrl$path'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      ).timeout(const Duration(seconds: 8));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        throw Exception(responseBody.isNotEmpty ? responseBody : 'Server error: ${response.statusCode}');
+        throw Exception(response.body.isNotEmpty ? response.body : 'Server error: ${response.statusCode}');
       }
-    } finally {
-      client.close();
+    } catch (e) {
+      rethrow;
     }
   }
 

@@ -5,7 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/models.dart';
 import '../../bloc/customer_bloc.dart';
 import '../widgets/dhaka_map_painter.dart';
-import 'home_screen.dart';
+import 'customer_dashboard.dart';
 
 class CustomerTrackingScreen extends StatefulWidget {
   final String? orderId;
@@ -127,9 +127,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
+                        context.read<CustomerBloc>().add(GoBackToCategories());
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                            builder: (_) => const CustomerCategoryHome(),
+                            builder: (_) => const CustomerDashboard(),
                           ),
                           (route) => false,
                         );
@@ -183,8 +184,9 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           left: 16,
           child: InkWell(
             onTap: () {
+              context.read<CustomerBloc>().add(GoBackToCategories());
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const CustomerCategoryHome()),
+                MaterialPageRoute(builder: (_) => const CustomerDashboard()),
                 (route) => false,
               );
             },

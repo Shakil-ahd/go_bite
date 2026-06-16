@@ -75,6 +75,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
 
   void _showRatingDialog(BuildContext context, String riderName) {
     int rating = 5;
+    final reviewController = TextEditingController();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -109,6 +110,16 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         );
                       }),
                     ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: reviewController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        hintText: 'Write a review for the rider...',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     Wrap(
                       spacing: 16,
@@ -122,7 +133,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            context.read<CustomerBloc>().add(RateRider(riderName, rating));
+                            context.read<CustomerBloc>().add(RateRider(riderName, rating, reviewController.text));
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Thank you for rating $riderName!'), backgroundColor: Colors.green),

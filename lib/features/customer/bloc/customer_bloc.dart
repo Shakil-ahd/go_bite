@@ -152,10 +152,11 @@ class DeleteNotification extends CustomerEvent {
 class RateRider extends CustomerEvent {
   final String riderName;
   final int rating;
-  const RateRider(this.riderName, this.rating);
+  final String review;
+  const RateRider(this.riderName, this.rating, this.review);
 
   @override
-  List<Object?> get props => [riderName, rating];
+  List<Object?> get props => [riderName, rating, review];
 }
 
 class CustomerState extends Equatable {
@@ -682,6 +683,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       _webSocketService.send('rate_rider', {
         'riderName': event.riderName,
         'rating': event.rating,
+        'review': event.review,
       });
     });
 

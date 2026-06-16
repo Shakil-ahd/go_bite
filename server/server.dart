@@ -723,11 +723,22 @@ void main() async {
               case 'rate_rider':
                 final riderName = msgData['riderName'] as String?;
                 final rating = msgData['rating'] as num?;
+                final review = msgData['review'] as String?;
                 if (riderName != null && rating != null) {
-                  riderRatings.putIfAbsent(riderName, () => {'totalRatings': 0, 'totalScore': 0.0, 'totalDeliveries': 0});
+                  riderRatings.putIfAbsent(riderName, () => {'totalRatings': 0, 'totalScore': 0.0, 'totalDeliveries': 0, 'reviews': []});
                   
                   riderRatings[riderName]!['totalRatings'] = (riderRatings[riderName]!['totalRatings'] as int) + 1;
                   riderRatings[riderName]!['totalScore'] = (riderRatings[riderName]!['totalScore'] as double) + rating.toDouble();
+                  
+                  if (review != null && review.isNotEmpty) {
+                    final reviewsList = (riderRatings[riderName]!['reviews'] as List<dynamic>? ?? []);
+                    reviewsList.add({
+                      'rating': rating,
+                      'review': review,
+                      'timestamp': DateTime.now().toIso8601String(),
+                    });
+                    riderRatings[riderName]!['reviews'] = reviewsList;
+                  }
                   
                   final avg = (riderRatings[riderName]!['totalScore'] as double) / (riderRatings[riderName]!['totalRatings'] as int);
                   
@@ -735,7 +746,8 @@ void main() async {
                     'riderName': riderName,
                     'averageRating': avg,
                     'totalRatings': riderRatings[riderName]!['totalRatings'],
-                    'totalDeliveries': riderRatings[riderName]!['totalDeliveries']
+                    'totalDeliveries': riderRatings[riderName]!['totalDeliveries'],
+                    'reviews': riderRatings[riderName]!['reviews'],
                   };
                   print('   ⭐ Rider $riderName rated $rating. New avg: $avg');
                   _broadcastAll(clients, 'rider_stats_updated', statsData, exclude: ws);

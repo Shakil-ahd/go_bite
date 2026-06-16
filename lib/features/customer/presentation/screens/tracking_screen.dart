@@ -463,6 +463,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
 
   void _showRatingDialog(BuildContext context, String riderName) {
     int rating = 5;
+    final reviewController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) {
@@ -497,6 +498,21 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                       );
                     }),
                   ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: reviewController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      hintText: 'Write a review...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
                 ],
               ),
               actions: [
@@ -510,7 +526,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                 ElevatedButton(
                   onPressed: () {
                     context.read<CustomerBloc>().add(
-                      RateRider(riderName, rating),
+                      RateRider(riderName, rating, reviewController.text),
                     );
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(

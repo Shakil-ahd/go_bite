@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/network/web_socket_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../auth/login_screen.dart';
 import '../auth/signup_screen.dart';
 
 class EntryScreen extends StatefulWidget {
@@ -55,171 +59,267 @@ class _EntryScreenState extends State<EntryScreen>
           ),
         ),
         child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnim,
-            child: SlideTransition(
-              position: _slideAnim,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Spacer(flex: 2),
-
-                    // Logo
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5722), Color(0xFFFF9800)],
-                          ),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF5722).withOpacity(0.3),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.delivery_dining,
-                          size: 64,
-                          color: Colors.white,
-                        ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: 16,
+                top: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Brand name
-                    const Center(
-                      child: Text(
-                        'GoBite',
-                        style: TextStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.primary,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                    ),
-
-                    // const SizedBox(height: 8),
-                    // Center(
-                    //   child: Text(
-                    //     'Food, Medicine & Everything — Delivered',
-                    //     textAlign: TextAlign.center,
-                    //     style: TextStyle(
-                    //       fontSize: 15,
-                    //       color: Colors.grey.shade600,
-                    //       fontWeight: FontWeight.w500,
-                    //     ),
-                    //   ),
-                    // ),
-                    const SizedBox(height: 16),
-
-                    // Features row
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 4,
-                      runSpacing: 8,
-                      children: [
-                        _buildFeatureChip('🍛 Food'),
-                        _buildFeatureChip('💊 Medicine'),
-                        _buildFeatureChip('🍢 Snacks'),
-                        _buildFeatureChip('📦 More'),
-                      ],
-                    ),
-
-                    const Spacer(flex: 2),
-
-                    // Get Started button
-                    SizedBox(
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const SignupScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Get Started',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Already have account
-                    Center(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const SignupScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Already have an account? Login',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const Spacer(),
-                  ],
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.settings, color: AppTheme.primary),
+                    tooltip: 'Server Settings',
+                    onPressed: () => _showServerSettingsDialog(context),
+                  ),
                 ),
               ),
-            ),
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: SlideTransition(
+                  position: _slideAnim,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Spacer(flex: 2),
+
+                        // Logo
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFF5722), Color(0xFFFF9800)],
+                              ),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFFFF5722,
+                                  ).withOpacity(0.3),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.delivery_dining,
+                              size: 64,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Brand name
+                        const Center(
+                          child: Text(
+                            'GoBite',
+                            style: TextStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.primary,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ),
+
+                        // const SizedBox(height: 8),
+                        // Center(
+                        //   child: Text(
+                        //     'Food, Medicine & Everything — Delivered',
+                        //     textAlign: TextAlign.center,
+                        //     style: TextStyle(
+                        //       fontSize: 15,
+                        //       color: Colors.grey.shade600,
+                        //       fontWeight: FontWeight.w500,
+                        //     ),
+                        //   ),
+                        // ),
+                        const SizedBox(height: 16),
+
+                        // Features row
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          runSpacing: 8,
+                          children: [
+                            _buildFeatureChip('🍛 Food'),
+                            _buildFeatureChip('💊 Medicine'),
+                            _buildFeatureChip('🍢 Snacks'),
+                            _buildFeatureChip('📦 More'),
+                          ],
+                        ),
+
+                        const Spacer(flex: 2),
+
+                        // Get Started button
+                        SizedBox(
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const SignupScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 4,
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Get Started',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Already have account
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Already have an account? Login',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildFeatureChip(String text) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.orange.shade100),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-      ),
+  void _showServerSettingsDialog(BuildContext context) {
+    final ws = context.read<WebSocketService>();
+    final controller = TextEditingController(text: ws.url);
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return AlertDialog(
+          title: const Text(
+            'Server Settings',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Enter the server WebSocket URL. For local debugging, use ws://localhost:8080.',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  labelText: 'WebSocket URL',
+                  hintText: 'ws://localhost:8080',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String inputUrl = controller.text.trim();
+                if (inputUrl.isNotEmpty) {
+                  if (!inputUrl.startsWith('ws://') &&
+                      !inputUrl.startsWith('wss://')) {
+                    if (inputUrl.startsWith('http://')) {
+                      inputUrl = inputUrl.replaceAll('http://', 'ws://');
+                    } else if (inputUrl.startsWith('https://')) {
+                      inputUrl = inputUrl.replaceAll('https://', 'wss://');
+                    } else {
+                      inputUrl = 'ws://$inputUrl';
+                    }
+                  }
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('custom_server_url', inputUrl);
+                  ws.updateUrlAndReconnect(inputUrl);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Server updated to $inputUrl')),
+                    );
+                    Navigator.pop(dialogCtx);
+                  }
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
+}
+
+Widget _buildFeatureChip(String text) {
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 4),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.orange.shade50,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: Colors.orange.shade100),
+    ),
+    child: Text(
+      text,
+      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+    ),
+  );
 }

@@ -124,7 +124,7 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.black35, Colors.transparent, Colors.black60],
+                            colors: [Colors.black38, Colors.transparent, Colors.black54],
                             stops: [0.0, 0.4, 1.0],
                           ),
                         ),

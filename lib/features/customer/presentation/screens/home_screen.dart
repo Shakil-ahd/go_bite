@@ -9,6 +9,7 @@ import '../../profile_screen.dart';
 import 'checkout_screen.dart';
 import '../../../auth/login_screen.dart';
 import 'tracking_screen.dart';
+import '../../../entry/entry_screen.dart';
 
 // ═══════════════════════════════════════════
 // ──── Category Home Screen ────
@@ -43,7 +44,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.read<AuthBloc>().state;
+    final authState = context.watch<AuthBloc>().state;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -145,26 +146,49 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                             ],
                           )
                         else
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Welcome to GoBite 🍔',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const EntryScreen(),
                                 ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Sign in to set your location',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white70,
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 22,
+                                  backgroundColor: Colors.white.withOpacity(0.2),
+                                  child: const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Welcome to GoBite 🍔',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Sign in / Sign up here',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         Row(
                           children: [

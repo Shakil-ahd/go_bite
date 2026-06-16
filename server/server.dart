@@ -189,6 +189,38 @@ void main() async {
     menuItems = List<Map<String, dynamic>>.from(_defaultCatalog);
   }
 
+  final File usersFile = File('$serverDir/users.json');
+  final File restaurantsFile = File('$serverDir/restaurants.json');
+  final File ridersFile = File('$serverDir/riders.json');
+
+  Future<Map<String, Map<String, dynamic>>> loadUserMap(File file) async {
+    try {
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final decoded = jsonDecode(content) as Map<dynamic, dynamic>;
+        return decoded.map((k, v) => MapEntry(k.toString(), Map<String, dynamic>.from(v as Map)));
+      }
+    } catch (e) {
+      print('⚠️ Error loading user file ${file.path}: $e');
+    }
+    return {};
+  }
+
+  Future<void> saveUserMap(File file, Map<String, Map<String, dynamic>> data) async {
+    try {
+      await file.writeAsString(jsonEncode(data));
+    } catch (e) {
+      print('⚠️ Error saving user file ${file.path}: $e');
+    }
+  }
+
+  Map<String, Map<String, dynamic>> customerUsers = await loadUserMap(usersFile);
+  Map<String, Map<String, dynamic>> restaurantUsers = await loadUserMap(restaurantsFile);
+  Map<String, Map<String, dynamic>> riderUsers = await loadUserMap(ridersFile);
+
+  print('👤 Loaded ${customerUsers.length} customers, ${restaurantUsers.length} restaurants, ${riderUsers.length} riders');
+
+
   await for (HttpRequest request in server) {
     // Add CORS headers to all responses
     request.response.headers.add('Access-Control-Allow-Origin', '*');
@@ -245,6 +277,177 @@ void main() async {
       }
       continue;
     }
+
+    if (request.method == 'POST' && requestPath == '/auth/signup') {
+      try {
+        final content = await utf8.decoder.bind(request).join();
+        final body = jsonDecode(content) as Map<String, dynamic>;
+        final role = body['role'] as String?;
+        final profile = body['profile'] as Map<String, dynamic>?;
+
+        if (role == null || profile == null) {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Missing role or profile')
+            ..close();
+          continue;
+        }
+
+        final email = (profile['email'] as String).toLowerCase().trim();
+        Map<String, Map<String, dynamic>> targetMap;
+        File targetFile;
+
+        if (role == 'customer') {
+          targetMap = customerUsers;
+          targetFile = usersFile;
+        } else if (role == 'restaurant') {
+          targetMap = restaurantUsers;
+          targetFile = restaurantsFile;
+        } else if (role == 'rider') {
+          targetMap = riderUsers;
+          targetFile = ridersFile;
+        } else {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Invalid role')
+            ..close();
+          continue;
+        }
+
+        if (targetMap.containsKey(email)) {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Email already registered')
+            ..close();
+          continue;
+        }
+
+        targetMap[email] = profile;
+        await saveUserMap(targetFile, targetMap);
+
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.json
+          ..write(jsonEncode(profile))
+          ..close();
+        print('👤 Registered new $role: $email');
+      } catch (e) {
+        request.response
+          ..statusCode = HttpStatus.internalServerError
+          ..write('Signup error: $e')
+          ..close();
+      }
+      continue;
+    }
+
+    if (request.method == 'POST' && requestPath == '/auth/login') {
+      try {
+        final content = await utf8.decoder.bind(request).join();
+        final body = jsonDecode(content) as Map<String, dynamic>;
+        final role = body['role'] as String?;
+        final email = (body['email'] as String?)?.toLowerCase().trim();
+        final password = body['password'] as String?;
+
+        if (role == null || email == null || password == null) {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Missing credentials')
+            ..close();
+          continue;
+        }
+
+        Map<String, Map<String, dynamic>> targetMap;
+        if (role == 'customer') {
+          targetMap = customerUsers;
+        } else if (role == 'restaurant') {
+          targetMap = restaurantUsers;
+        } else if (role == 'rider') {
+          targetMap = riderUsers;
+        } else {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Invalid role')
+            ..close();
+          continue;
+        }
+
+        final profile = targetMap[email];
+        if (profile != null && profile['password'] == password) {
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonEncode(profile))
+            ..close();
+          print('👤 Logged in $role: $email');
+        } else {
+          request.response
+            ..statusCode = HttpStatus.unauthorized
+            ..write('Invalid email or password')
+            ..close();
+        }
+      } catch (e) {
+        request.response
+          ..statusCode = HttpStatus.internalServerError
+          ..write('Login error: $e')
+          ..close();
+      }
+      continue;
+    }
+
+    if (request.method == 'POST' && requestPath == '/auth/update') {
+      try {
+        final content = await utf8.decoder.bind(request).join();
+        final body = jsonDecode(content) as Map<String, dynamic>;
+        final role = body['role'] as String?;
+        final profile = body['profile'] as Map<String, dynamic>?;
+
+        if (role == null || profile == null) {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Missing role or profile')
+            ..close();
+          continue;
+        }
+
+        final email = (profile['email'] as String).toLowerCase().trim();
+        Map<String, Map<String, dynamic>> targetMap;
+        File targetFile;
+
+        if (role == 'customer') {
+          targetMap = customerUsers;
+          targetFile = usersFile;
+        } else if (role == 'restaurant') {
+          targetMap = restaurantUsers;
+          targetFile = restaurantsFile;
+        } else if (role == 'rider') {
+          targetMap = riderUsers;
+          targetFile = ridersFile;
+        } else {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Invalid role')
+            ..close();
+          continue;
+        }
+
+        targetMap[email] = profile;
+        await saveUserMap(targetFile, targetMap);
+
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.json
+          ..write(jsonEncode(profile))
+          ..close();
+        print('👤 Updated $role profile: $email');
+      } catch (e) {
+        request.response
+          ..statusCode = HttpStatus.internalServerError
+          ..write('Update error: $e')
+          ..close();
+      }
+      continue;
+    }
+
     if (requestPath.startsWith('/uploads/')) {
       final fileName = requestPath.replaceFirst('/uploads/', '');
       if (fileName.contains('..') || fileName.contains('/') || fileName.contains('\\')) {

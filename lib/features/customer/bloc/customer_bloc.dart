@@ -716,6 +716,14 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       await _loadOrderHistory(event.email, emit);
       await _loadNotifications(event.email, emit);
       _webSocketService.connect();
+      if (_webSocketService.isConnected) {
+        final activeIds = state.activeOrders.map((o) => o.id).toList();
+        _webSocketService.send('get_pending_orders', {
+          'clientType': 'customer',
+          'orderIds': activeIds,
+        });
+        _webSocketService.send('get_menu', {});
+      }
     });
 
     on<MarkNotificationsRead>((event, emit) async {

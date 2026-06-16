@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/models/models.dart';
+import '../../../core/network/web_socket_service.dart';
 
 // ─── Auth Method ───
 enum AuthMethod { phone, email }
@@ -127,6 +129,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final key = event.profile.email.toLowerCase().trim();
 
+      try {
+        final profileMap = await _makeHttpPost('/auth/signup', {
+          'role': 'customer',
+          'profile': event.profile.copyWith(email: key).toJson(),
+        });
+        if (profileMap != null) {
+          final profile = UserProfile.fromJson(profileMap);
+          await _ensureUsersLoaded();
+          _users[key] = profile;
+          await _persistAllUsers();
+          
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_kCurrentUser, jsonEncode(profile.toJson()));
+          emit(AuthSignupSuccess(profile));
+          return;
+        }
+      } catch (e) {
+        final errorMsg = e.toString().replaceAll('Exception: ', '');
+        if (errorMsg.contains('already registered') || errorMsg.contains('registered')) {
+          emit(AuthUnauthenticated(error: 'Email already registered. Please login.'));
+          return;
+        }
+        print('HTTP Signup failed: $e. Falling back to local offline mode.');
+      }
+
       // Check if email already registered
       await _ensureUsersLoaded();
       if (_users.containsKey(key)) {
@@ -151,8 +178,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>((event, emit) async {
       emit(AuthLoading());
 
-      await _ensureUsersLoaded();
       final key = event.username.toLowerCase().trim();
+
+      try {
+        final profileMap = await _makeHttpPost('/auth/login', {
+          'role': 'customer',
+          'email': key,
+          'password': event.password,
+        });
+        if (profileMap != null) {
+          final profile = UserProfile.fromJson(profileMap);
+          await _ensureUsersLoaded();
+          _users[key] = profile;
+          await _persistAllUsers();
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_kCurrentUser, jsonEncode(profile.toJson()));
+          emit(AuthAuthenticated(profile.fullName, profile));
+          return;
+        }
+      } catch (e) {
+        final errorMsg = e.toString().replaceAll('Exception: ', '');
+        if (errorMsg.contains('Invalid') || errorMsg.contains('Unauthorized') || errorMsg.contains('password') || errorMsg.contains('credentials')) {
+          emit(AuthUnauthenticated(error: 'Wrong password or account not found.'));
+          return;
+        }
+        print('HTTP Login failed: $e. Falling back to local offline mode.');
+      }
+
+      await _ensureUsersLoaded();
       final user = _users[key];
 
       if (user != null && user.password == event.password) {
@@ -188,6 +242,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final currentState = state;
       if (currentState is AuthAuthenticated) {
         final key = event.profile.email.toLowerCase().trim();
+
+        try {
+          final profileMap = await _makeHttpPost('/auth/update', {
+            'role': 'customer',
+            'profile': event.profile.toJson(),
+          });
+          if (profileMap != null) {
+            final profile = UserProfile.fromJson(profileMap);
+            await _ensureUsersLoaded();
+            _users[key] = profile;
+            await _persistAllUsers();
+            
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(_kCurrentUser, jsonEncode(profile.toJson()));
+            emit(AuthAuthenticated(profile.fullName, profile));
+            return;
+          }
+        } catch (e) {
+          print('HTTP UpdateProfile failed: $e. Falling back to local offline mode.');
+        }
+
         _users[key] = event.profile;
 
         await _persistAllUsers();
@@ -203,6 +278,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await prefs.remove(_kCurrentUser);
       emit(const AuthUnauthenticated());
     });
+  }
+
+  Future<Map<String, dynamic>?> _makeHttpPost(String path, Map<String, dynamic> body) async {
+    final baseUrl = WebSocketService.defaultUrl.replaceAll('ws://', 'http://').replaceAll('wss://', 'https://');
+    final client = HttpClient();
+    try {
+      final request = await client.postUrl(Uri.parse('$baseUrl$path')).timeout(const Duration(seconds: 8));
+      request.headers.contentType = ContentType.json;
+      request.write(jsonEncode(body));
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
+      if (response.statusCode == HttpStatus.ok) {
+        return jsonDecode(responseBody) as Map<String, dynamic>;
+      } else {
+        throw Exception(responseBody.isNotEmpty ? responseBody : 'Server error: ${response.statusCode}');
+      }
+    } finally {
+      client.close();
+    }
   }
 
   // Load all users from SharedPreferences into memory

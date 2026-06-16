@@ -100,7 +100,6 @@ class _SignupScreenState extends State<SignupScreen> {
               key: _formKey,
               child: CustomScrollView(
                 slivers: [
-                  // App Bar / Header
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -139,14 +138,12 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  // Form Fields
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // First Name & Last Name row
                           Row(
                             children: [
                               Expanded(
@@ -174,7 +171,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Phone (Optional)
                           _buildInputField(
                             controller: _phoneController,
                             label: 'Phone Number (Optional)',
@@ -184,7 +180,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Email (Mandatory)
                           _buildInputField(
                             controller: _emailController,
                             label: 'Email Address *',
@@ -203,7 +198,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Password (Mandatory)
                           _buildInputField(
                             controller: _passwordController,
                             label: 'Password *',
@@ -231,7 +225,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 32),
 
-                          // Address Section
                           const Text(
                             'Delivery Location *',
                             style: TextStyle(
@@ -263,7 +256,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
                           const SizedBox(height: 40),
 
-                          // Submit Button
                           BlocBuilder<AuthBloc, AuthState>(
                             builder: (context, state) {
                               final isLoading = state is AuthLoading;
@@ -300,7 +292,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             },
                           ),
 
-                          // Login Redirect
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

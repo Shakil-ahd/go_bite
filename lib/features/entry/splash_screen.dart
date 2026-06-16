@@ -68,7 +68,6 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
@@ -90,7 +89,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 24),
 
-                      // App Name
                       const Text(
                         'GoBite',
                         style: TextStyle(
@@ -102,7 +100,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 12),
 
-                      // Subtitles
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -123,7 +120,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 16),
 
-                      // Fast & Secure
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -156,7 +152,6 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
 
-            // Bottom Proverb
             Positioned(
               bottom: 40,
               left: 0,

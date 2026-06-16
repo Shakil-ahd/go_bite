@@ -2,9 +2,6 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
-/// A widget that wraps any child and shows a full-screen "No Internet"
-/// overlay when the device loses connectivity, and automatically hides
-/// it when connectivity is restored.
 class ConnectivityWrapper extends StatefulWidget {
   final Widget child;
 
@@ -28,12 +25,13 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeInOut);
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeInOut,
+    );
 
-    // Check initial status
     _checkConnectivity();
 
-    // Listen for changes
     _subscription = Connectivity().onConnectivityChanged.listen((results) {
       final hasConnection = results.any((r) => r != ConnectivityResult.none);
       _updateConnectivity(!hasConnection);
@@ -70,10 +68,7 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper>
       children: [
         widget.child,
         if (_isOffline)
-          FadeTransition(
-            opacity: _fadeAnim,
-            child: const _NoInternetScreen(),
-          ),
+          FadeTransition(opacity: _fadeAnim, child: const _NoInternetScreen()),
       ],
     );
   }
@@ -112,7 +107,7 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Slate 900
+      backgroundColor: const Color(0xFF0F172A),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -120,7 +115,6 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Animated Wifi Off Icon
                 AnimatedBuilder(
                   animation: _pulseAnim,
                   builder: (context, child) {
@@ -163,7 +157,7 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
                   ),
                 ),
                 const SizedBox(height: 48),
-                // Connection Lost Title
+
                 const Text(
                   'Connection Lost',
                   style: TextStyle(
@@ -175,18 +169,18 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                // Subtitle
+
                 const Text(
                   'Your device is currently offline.\nPlease check your network connection. We will automatically reconnect you once the network is restored.',
                   style: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFF94A3B8), // Slate 400
+                    color: Color(0xFF94A3B8),
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
-                // Reconnecting message & Status dots
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -194,7 +188,7 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
                       'Waiting for connection',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF64748B), // Slate 500
+                        color: Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -205,7 +199,10 @@ class _NoInternetScreenState extends State<_NoInternetScreen>
                           animation: _pulseController,
                           builder: (context, _) {
                             final delay = i * 0.33;
-                            final val = (_pulseController.value - delay).clamp(0.0, 1.0);
+                            final val = (_pulseController.value - delay).clamp(
+                              0.0,
+                              1.0,
+                            );
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 3),
                               width: 6,

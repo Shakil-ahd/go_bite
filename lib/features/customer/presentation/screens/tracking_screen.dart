@@ -33,7 +33,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     _riderBounceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
-    ); // Don't auto-start — controlled by order status
+    );
 
     _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
@@ -50,7 +50,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     super.dispose();
   }
 
-  // Track if rating has been shown for this delivery session
   String? _lastRatedOrderId;
 
   @override
@@ -59,7 +58,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
       backgroundColor: Colors.white,
       body: BlocListener<CustomerBloc, CustomerState>(
         listenWhen: (previous, current) {
-          // Trigger when a new order moves to history as delivered
           if (current.orderHistory.length > previous.orderHistory.length) {
             final newHistoryOrder = current.orderHistory.isNotEmpty
                 ? current.orderHistory.last
@@ -87,7 +85,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               deliveredOrder.riderName != null &&
               _lastRatedOrderId != deliveredOrder.id) {
             _lastRatedOrderId = deliveredOrder.id;
-            // Pop the tracking screen to return to dashboard/home, where the dashboard's BlocListener will show the rating popup
+
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
@@ -107,7 +105,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                   : null;
             }
 
-            // Control rider bounce animation based on order status
             final isOutForDelivery =
                 order?.status == OrderStatus.outForDelivery;
             if (isOutForDelivery && !_riderBounceController.isAnimating) {
@@ -144,10 +141,8 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
 
             return Column(
               children: [
-                // ─── Map Section ───
                 Expanded(flex: 6, child: _buildMapSection(order)),
 
-                // ─── Info Panel ───
                 Expanded(
                   flex: 5,
                   child: _buildInfoPanel(context, order, state),
@@ -163,7 +158,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
   Widget _buildMapSection(Order order) {
     return Stack(
       children: [
-        // Custom drawn map
         Positioned.fill(
           child: AnimatedBuilder(
             animation: _riderBounceAnimation,
@@ -178,7 +172,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           ),
         ),
 
-        // Back to Home Button
         Positioned(
           top: 40,
           left: 16,
@@ -210,7 +203,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           ),
         ),
 
-        // Status pill
         Positioned(
           top: MediaQuery.of(context).padding.top + 16,
           left: 0,
@@ -266,7 +258,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           ),
         ),
 
-        // ETA chip (bottom right of map)
         if (order.status == OrderStatus.outForDelivery)
           Positioned(
             bottom: 16,
@@ -328,7 +319,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
             Center(
               child: Container(
                 width: 40,
@@ -341,12 +331,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
             ),
             const SizedBox(height: 24),
 
-            // Order Steps timeline
             _buildSteps(order),
 
             const Divider(height: 40),
 
-            // Rider Info (if assigned)
             if (order.riderName != null)
               Row(
                 children: [
@@ -583,9 +571,9 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     ];
 
     int currentIndex = steps.indexWhere((s) => s.status == order.status);
-    // If pending, none are completed.
+
     if (order.status == OrderStatus.pending) currentIndex = -1;
-    // If rejected, just show error
+
     if (order.status == OrderStatus.rejected) currentIndex = -1;
 
     return Column(
@@ -599,7 +587,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Timeline line & node
             Column(
               children: [
                 Container(
@@ -634,7 +621,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               ],
             ),
             const SizedBox(width: 16),
-            // Timeline content
+
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 2),
@@ -656,13 +643,13 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
 
   String _getETA(Order order) {
     if (order.riderLocation == null) return '~15 min';
-    // Calculate rough ETA based on distance remaining
+
     final destLat = 23.7461;
     final destLng = 90.3742;
     final riderLat = order.riderLocation!.latitude;
     final riderLng = order.riderLocation!.longitude;
     final distKm = _haversineDistance(riderLat, riderLng, destLat, destLng);
-    final minutes = (distKm / 0.5).round(); // ~30kmh in city traffic
+    final minutes = (distKm / 0.5).round();
     return '~$minutes min';
   }
 

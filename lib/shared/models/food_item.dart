@@ -34,20 +34,20 @@ class FoodItem extends Equatable {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'price': price,
-        'imageUrl': imageUrl,
-        'category': category.name,
-        if (restaurantId != null) 'restaurantId': restaurantId,
-        if (restaurantName != null) 'restaurantName': restaurantName,
-        if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
-        if (restaurantImageUrl != null) 'restaurantImageUrl': restaurantImageUrl,
-        'averageRating': averageRating,
-        'ratingCount': ratingCount,
-        'reviews': reviews.map((r) => r.toJson()).toList(),
-      };
+    'id': id,
+    'name': name,
+    'description': description,
+    'price': price,
+    'imageUrl': imageUrl,
+    'category': category.name,
+    if (restaurantId != null) 'restaurantId': restaurantId,
+    if (restaurantName != null) 'restaurantName': restaurantName,
+    if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
+    if (restaurantImageUrl != null) 'restaurantImageUrl': restaurantImageUrl,
+    'averageRating': averageRating,
+    'ratingCount': ratingCount,
+    'reviews': reviews.map((r) => r.toJson()).toList(),
+  };
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
     return FoodItem(
@@ -66,8 +66,11 @@ class FoodItem extends Equatable {
       restaurantImageUrl: json['restaurantImageUrl'] as String?,
       averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0.0,
       ratingCount: json['ratingCount'] as int? ?? 0,
-      reviews: (json['reviews'] as List<dynamic>?)
-              ?.map((e) => FoodReview.fromJson(Map<String, dynamic>.from(e as Map)))
+      reviews:
+          (json['reviews'] as List<dynamic>?)
+              ?.map(
+                (e) => FoodReview.fromJson(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           const [],
     );
@@ -75,18 +78,18 @@ class FoodItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        price,
-        imageUrl,
-        category,
-        restaurantId,
-        restaurantName,
-        restaurantAddress,
-        restaurantImageUrl,
-        averageRating,
-        ratingCount,
-        reviews,
-      ];
+    id,
+    name,
+    description,
+    price,
+    imageUrl,
+    category,
+    restaurantId,
+    restaurantName,
+    restaurantAddress,
+    restaurantImageUrl,
+    averageRating,
+    ratingCount,
+    reviews,
+  ];
 }

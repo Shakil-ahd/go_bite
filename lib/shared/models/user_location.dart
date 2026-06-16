@@ -12,10 +12,10 @@ class UserLocation extends Equatable {
   });
 
   Map<String, dynamic> toJson() => {
-        'latitude': latitude,
-        'longitude': longitude,
-        'timestamp': timestamp,
-      };
+    'latitude': latitude,
+    'longitude': longitude,
+    'timestamp': timestamp,
+  };
 
   factory UserLocation.fromJson(Map<String, dynamic> json) {
     return UserLocation(

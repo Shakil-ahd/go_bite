@@ -30,7 +30,8 @@ class GoBiteApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ws = webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
+    final ws =
+        webSocketService ?? WebSocketService(url: WebSocketService.defaultUrl);
 
     return MultiRepositoryProvider(
       providers: [RepositoryProvider<WebSocketService>.value(value: ws)],
@@ -53,8 +54,6 @@ class GoBiteApp extends StatelessWidget {
   }
 }
 
-/// Wraps the SplashScreen and listens for app lifecycle changes.
-/// When the app comes back to the foreground, it forces a WebSocket reconnect.
 class _LifecycleWrapper extends StatefulWidget {
   const _LifecycleWrapper();
 
@@ -79,7 +78,6 @@ class _LifecycleWrapperState extends State<_LifecycleWrapper>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // App came back to foreground — force WebSocket reconnect if needed
       final ws = context.read<WebSocketService>();
       ws.forceReconnect();
     }
@@ -106,7 +104,7 @@ class _MainRouterState extends State<MainRouter> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         if (authState is AuthAuthenticated) {
-          MainRouter.hasSeenOnboarding = true; // Auto-skip if logged in
+          MainRouter.hasSeenOnboarding = true;
           return const CustomerDashboard();
         }
 
@@ -114,7 +112,6 @@ class _MainRouterState extends State<MainRouter> {
           return const OnboardingScreen();
         }
 
-        // If they have seen onboarding but aren't logged in, they can browse as Guest
         return const CustomerDashboard();
       },
     );

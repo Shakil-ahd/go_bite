@@ -14,11 +14,11 @@ class FoodReview extends Equatable {
   });
 
   Map<String, dynamic> toJson() => {
-        'userName': userName,
-        'rating': rating,
-        'review': comment,
-        'timestamp': timestamp,
-      };
+    'userName': userName,
+    'rating': rating,
+    'review': comment,
+    'timestamp': timestamp,
+  };
 
   factory FoodReview.fromJson(Map<String, dynamic> json) {
     return FoodReview(

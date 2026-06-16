@@ -28,12 +28,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulate network delay for payment processing
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
-    // Payment success
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Payment Successful!'),
@@ -41,7 +39,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
 
-    // Place order
     context.read<CustomerBloc>().add(
       PlaceOrder(
         customerName: widget.profile.fullName,
@@ -50,7 +47,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
 
-    // Navigate to tracking
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
       (route) => route.isFirst,

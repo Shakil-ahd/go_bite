@@ -9,10 +9,6 @@ import 'checkout_screen.dart';
 import '../../../auth/login_screen.dart';
 import 'food_details_screen.dart';
 
-
-// ═══════════════════════════════════════════
-// ──── Menu Screen (Category Filtered) ────
-// ═══════════════════════════════════════════
 class CustomerMenuScreen extends StatelessWidget {
   const CustomerMenuScreen({super.key});
 
@@ -23,9 +19,7 @@ class CustomerMenuScreen extends StatelessWidget {
         final cat = state.selectedCategory;
         if (cat == null) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
         return Scaffold(
@@ -172,9 +166,7 @@ class CustomerMenuScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => FoodDetailsScreen(foodId: food.id),
-          ),
+          MaterialPageRoute(builder: (_) => FoodDetailsScreen(foodId: food.id)),
         );
       },
       child: Container(
@@ -192,39 +184,53 @@ class CustomerMenuScreen extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Image Thumbnail
-            Container(
-              width: 84,
-              height: 84,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: food.imageUrl.isNotEmpty
-                    ? Image.network(
-                        food.imageUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            color: Colors.grey.shade100,
-                            child: const Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: food.imageUrl.isNotEmpty
+                      ? Image.network(
+                          food.imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Container(
+                              color: Colors.grey.shade100,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (_, _, _) => Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: food.category.gradientColors,
+                              ),
                             ),
-                          );
-                        },
-                        errorBuilder: (_, _, _) => Container(
+                            child: Icon(
+                              food.category.icon,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        )
+                      : Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: food.category.gradientColors,
@@ -236,133 +242,127 @@ class CustomerMenuScreen extends StatelessWidget {
                             size: 30,
                           ),
                         ),
-                      )
-                    : Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: food.category.gradientColors,
-                          ),
-                        ),
-                        child: Icon(
-                          food.category.icon,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    food.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, color: Colors.orange, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        food.ratingCount > 0
-                            ? '${food.averageRating.toStringAsFixed(1)} (${food.ratingCount})'
-                            : '0.0 (0)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade600,
-                        ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      food.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    food.description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      height: 1.4,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (food.restaurantName != null) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        if (food.restaurantImageUrl != null && food.restaurantImageUrl!.isNotEmpty)
-                          CircleAvatar(
-                            radius: 8,
-                            backgroundImage: NetworkImage(food.restaurantImageUrl!),
-                          )
-                        else
-                          Icon(Icons.storefront, size: 14, color: Colors.grey.shade600),
+                        const Icon(Icons.star, color: Colors.orange, size: 14),
                         const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            'by ${food.restaurantName}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          food.ratingCount > 0
+                              ? '${food.averageRating.toStringAsFixed(1)} (${food.ratingCount})'
+                              : '0.0 (0)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                  const SizedBox(height: 10),
-                  Text(
-                    '৳${food.price.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.primary,
+                    const SizedBox(height: 6),
+                    Text(
+                      food.description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => requireLogin(
-                context,
-                () => context.read<CustomerBloc>().add(AddToCart(food)),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.primary, Colors.deepOrange],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+                    if (food.restaurantName != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          if (food.restaurantImageUrl != null &&
+                              food.restaurantImageUrl!.isNotEmpty)
+                            CircleAvatar(
+                              radius: 8,
+                              backgroundImage: NetworkImage(
+                                food.restaurantImageUrl!,
+                              ),
+                            )
+                          else
+                            Icon(
+                              Icons.storefront,
+                              size: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'by ${food.restaurantName}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    Text(
+                      '৳${food.price.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.primary,
+                      ),
                     ),
                   ],
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 24),
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => requireLogin(
+                  context,
+                  () => context.read<CustomerBloc>().add(AddToCart(food)),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppTheme.primary, Colors.deepOrange],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primary.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 24),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _showCartFromMenu(BuildContext context) {
     showModalBottomSheet(

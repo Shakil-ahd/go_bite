@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ProductCategory {
-  food,
-  drinks,
-  snacks,
-  medicine,
-  others,
-}
+enum ProductCategory { food, drinks, snacks, medicine, others }
 
 extension ProductCategoryExtension on ProductCategory {
   String get displayName {

@@ -21,7 +21,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? _customPhone;
   String? _customAddress;
 
-  void _showEditDialog(String title, String initialValue, Function(String) onSave) {
+  void _showEditDialog(
+    String title,
+    String initialValue,
+    Function(String) onSave,
+  ) {
     final controller = TextEditingController(text: initialValue);
     showDialog(
       context: context,
@@ -36,7 +40,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           autofocus: true,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () {
               onSave(controller.text);
@@ -54,18 +61,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final addressToUse = _customAddress ?? profile.deliveryAddress;
 
     if (_paymentMethod == PaymentMethod.bkash) {
-      // Navigate to bKash mock screen
-      // We also need to pass the custom phone and address if they changed it!
-      // But PaymentScreen takes profile. Let's create a temporary modified profile.
       final modifiedProfile = profile.copyWith(
         phone: phoneToUse,
         deliveryAddress: addressToUse,
       );
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => PaymentScreen(profile: modifiedProfile)),
+        MaterialPageRoute(
+          builder: (_) => PaymentScreen(profile: modifiedProfile),
+        ),
       );
     } else {
-      // Cash on Delivery - Place order immediately
       context.read<CustomerBloc>().add(
         PlaceOrder(
           customerName: profile.fullName,
@@ -74,7 +79,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       );
 
-      // Ensure we pop everything except the dashboard, then push tracking
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
         (route) => route.isFirst,
@@ -114,7 +118,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // User Details
                           const Text(
                             'Delivery Details',
                             style: TextStyle(
@@ -149,7 +152,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     _showEditDialog(
                                       'Phone Number',
                                       _customPhone ?? profile.phone ?? '',
-                                      (newVal) => setState(() => _customPhone = newVal),
+                                      (newVal) =>
+                                          setState(() => _customPhone = newVal),
                                     );
                                   },
                                 ),
@@ -162,7 +166,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     _showEditDialog(
                                       'Delivery Address',
                                       _customAddress ?? profile.deliveryAddress,
-                                      (newVal) => setState(() => _customAddress = newVal),
+                                      (newVal) => setState(
+                                        () => _customAddress = newVal,
+                                      ),
                                     );
                                   },
                                 ),
@@ -171,7 +177,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                           const SizedBox(height: 32),
 
-                          // Order Summary
                           const Text(
                             'Order Summary',
                             style: TextStyle(
@@ -239,7 +244,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                           const SizedBox(height: 32),
 
-                          // Payment Options
                           const Text(
                             'Payment Method',
                             style: TextStyle(
@@ -307,7 +311,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
 
-                  // Bottom Confirm Button
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: const BoxDecoration(
@@ -363,7 +366,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String title, String value, {VoidCallback? onEdit}) {
+  Widget _buildDetailRow(
+    IconData icon,
+    String title,
+    String value, {
+    VoidCallback? onEdit,
+  }) {
     return Row(
       children: [
         Icon(icon, color: Colors.grey.shade400, size: 24),

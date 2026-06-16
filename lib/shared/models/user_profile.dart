@@ -46,36 +46,36 @@ class UserProfile extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'lastName': lastName,
-        'phone': phone,
-        'email': email,
-        'password': password,
-        'deliveryAddress': deliveryAddress,
-        'latitude': latitude,
-        'longitude': longitude,
-      };
+    'firstName': firstName,
+    'lastName': lastName,
+    'phone': phone,
+    'email': email,
+    'password': password,
+    'deliveryAddress': deliveryAddress,
+    'latitude': latitude,
+    'longitude': longitude,
+  };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        firstName: json['firstName'] ?? '',
-        lastName: json['lastName'] ?? '',
-        phone: json['phone'],
-        email: json['email'] ?? '',
-        password: json['password'] ?? '',
-        deliveryAddress: json['deliveryAddress'] ?? '',
-        latitude: json['latitude']?.toDouble(),
-        longitude: json['longitude']?.toDouble(),
-      );
+    firstName: json['firstName'] ?? '',
+    lastName: json['lastName'] ?? '',
+    phone: json['phone'],
+    email: json['email'] ?? '',
+    password: json['password'] ?? '',
+    deliveryAddress: json['deliveryAddress'] ?? '',
+    latitude: json['latitude']?.toDouble(),
+    longitude: json['longitude']?.toDouble(),
+  );
 
   @override
   List<Object?> get props => [
-        firstName,
-        lastName,
-        phone,
-        email,
-        password,
-        deliveryAddress,
-        latitude,
-        longitude,
-      ];
+    firstName,
+    lastName,
+    phone,
+    email,
+    password,
+    deliveryAddress,
+    latitude,
+    longitude,
+  ];
 }

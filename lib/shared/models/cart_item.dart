@@ -5,17 +5,14 @@ class CartItem extends Equatable {
   final FoodItem foodItem;
   final int quantity;
 
-  const CartItem({
-    required this.foodItem,
-    required this.quantity,
-  });
+  const CartItem({required this.foodItem, required this.quantity});
 
   double get totalPrice => foodItem.price * quantity;
 
   Map<String, dynamic> toJson() => {
-        'foodItem': foodItem.toJson(),
-        'quantity': quantity,
-      };
+    'foodItem': foodItem.toJson(),
+    'quantity': quantity,
+  };
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(

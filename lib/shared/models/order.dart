@@ -67,20 +67,20 @@ class Order extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'restaurantName': restaurantName,
-        'customerName': customerName,
-        'customerPhone': customerPhone,
-        'items': items.map((i) => i.toJson()).toList(),
-        'status': status.name,
-        'totalAmount': totalAmount,
-        'riderName': riderName,
-        'riderLocation': riderLocation?.toJson(),
-        'deliveryAddress': deliveryAddress,
-        'createdAt': createdAt.toIso8601String(),
-        if (restaurantId != null) 'restaurantId': restaurantId,
-        if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
-      };
+    'id': id,
+    'restaurantName': restaurantName,
+    'customerName': customerName,
+    'customerPhone': customerPhone,
+    'items': items.map((i) => i.toJson()).toList(),
+    'status': status.name,
+    'totalAmount': totalAmount,
+    'riderName': riderName,
+    'riderLocation': riderLocation?.toJson(),
+    'deliveryAddress': deliveryAddress,
+    'createdAt': createdAt.toIso8601String(),
+    if (restaurantId != null) 'restaurantId': restaurantId,
+    if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
+  };
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
@@ -111,18 +111,18 @@ class Order extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        restaurantName,
-        customerName,
-        customerPhone,
-        items,
-        status,
-        totalAmount,
-        riderName,
-        riderLocation,
-        deliveryAddress,
-        createdAt,
-        restaurantId,
-        restaurantAddress,
-      ];
+    id,
+    restaurantName,
+    customerName,
+    customerPhone,
+    items,
+    status,
+    totalAmount,
+    riderName,
+    riderLocation,
+    deliveryAddress,
+    createdAt,
+    restaurantId,
+    restaurantAddress,
+  ];
 }

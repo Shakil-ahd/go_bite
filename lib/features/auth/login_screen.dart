@@ -52,7 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
               content: Text(state.error!),
               backgroundColor: Colors.red.shade600,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
@@ -84,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 40),
-                    // Header
+
                     Column(
                       children: [
                         Container(
@@ -120,7 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 48),
 
-                    // Email
                     _buildInputField(
                       controller: _emailController,
                       label: 'Email Address',
@@ -137,7 +138,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Password
                     _buildInputField(
                       controller: _passwordController,
                       label: 'Password',
@@ -172,7 +172,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Login Button
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         final isLoading = state is AuthLoading;
@@ -199,7 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.login, size: 22, color: Colors.white),
+                                      Icon(
+                                        Icons.login,
+                                        size: 22,
+                                        color: Colors.white,
+                                      ),
                                       SizedBox(width: 10),
                                       Text(
                                         'Login',
@@ -217,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 40),
-                    // Signup Redirect
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

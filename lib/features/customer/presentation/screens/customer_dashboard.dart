@@ -14,7 +14,6 @@ class CustomerDashboard extends StatefulWidget {
 }
 
 class _CustomerDashboardState extends State<CustomerDashboard> {
-  // Track orders that have already been rated to prevent duplicates
   final Set<String> _ratedOrderIds = {};
 
   @override
@@ -34,7 +33,9 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         BlocListener<AuthBloc, AuthState>(
           listener: (context, authState) {
             if (authState is AuthAuthenticated) {
-              context.read<CustomerBloc>().add(InitializeUser(authState.profile.email));
+              context.read<CustomerBloc>().add(
+                InitializeUser(authState.profile.email),
+              );
             }
           },
         ),
@@ -43,7 +44,9 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             if (current.orderHistory.length > previous.orderHistory.length &&
                 current.orderHistory.isNotEmpty) {
               final lastOrder = current.orderHistory.last;
-              final wasActive = previous.activeOrders.any((o) => o.id == lastOrder.id);
+              final wasActive = previous.activeOrders.any(
+                (o) => o.id == lastOrder.id,
+              );
               return wasActive &&
                   lastOrder.status == OrderStatus.delivered &&
                   lastOrder.riderName != null &&
@@ -83,17 +86,33 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green, size: 64),
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 64,
+                    ),
                     const SizedBox(height: 16),
-                    const Text('Order Delivered!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Order Delivered!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('How was your delivery by $riderName?', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
+                    Text(
+                      'How was your delivery by $riderName?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -116,8 +135,13 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                       maxLines: 2,
                       decoration: InputDecoration(
                         hintText: 'Write a review for the rider...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -129,21 +153,43 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx),
-                          child: const Text('Skip', style: TextStyle(color: Colors.grey)),
+                          child: const Text(
+                            'Skip',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            context.read<CustomerBloc>().add(RateRider(riderName, rating, reviewController.text));
+                            context.read<CustomerBloc>().add(
+                              RateRider(
+                                riderName,
+                                rating,
+                                reviewController.text,
+                              ),
+                            );
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Thank you for rating $riderName!'), backgroundColor: Colors.green),
+                              SnackBar(
+                                content: Text(
+                                  'Thank you for rating $riderName!',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFE65100),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                          child: const Text('Submit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -157,4 +203,3 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
     );
   }
 }
-

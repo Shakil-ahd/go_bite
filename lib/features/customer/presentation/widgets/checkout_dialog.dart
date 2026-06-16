@@ -5,14 +5,11 @@ import '../../../../shared/models/models.dart';
 import '../../bloc/customer_bloc.dart';
 import '../screens/tracking_screen.dart';
 
-// ═══════════════════════════════════════════
-// ──── Checkout Location Helper ────
-// ═══════════════════════════════════════════
 void processCheckout(BuildContext context, UserProfile profile) {
-  final TextEditingController addressController = TextEditingController(text: profile.deliveryAddress);
-  
-  // Use a small delay to ensure the calling context's modal (like a bottom sheet)
-  // has completely closed before we push a new dialog. This prevents navigation crashes.
+  final TextEditingController addressController = TextEditingController(
+    text: profile.deliveryAddress,
+  );
+
   Future.delayed(const Duration(milliseconds: 150), () {
     if (!context.mounted) return;
 
@@ -20,25 +17,35 @@ void processCheckout(BuildContext context, UserProfile profile) {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Row(
             children: [
               Icon(Icons.location_on, color: AppTheme.primary),
               SizedBox(width: 8),
-              Text('Delivery Location', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Delivery Location',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Where should we deliver this order?', style: TextStyle(fontSize: 14)),
+              const Text(
+                'Where should we deliver this order?',
+                style: TextStyle(fontSize: 14),
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: addressController,
                 decoration: InputDecoration(
                   labelText: 'Pickup/Delivery Point',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   prefixIcon: const Icon(Icons.home),
                 ),
               ),
@@ -53,23 +60,29 @@ void processCheckout(BuildContext context, UserProfile profile) {
               onPressed: () {
                 final newAddress = addressController.text.trim();
                 if (newAddress.isNotEmpty) {
-                  Navigator.pop(dialogContext); // Close dialog
-                  // Dispatch PlaceOrder using the root context
-                  context.read<CustomerBloc>().add(PlaceOrder(
-                    customerName: profile.fullName,
-                    customerPhone: profile.phone ?? 'N/A',
-                    deliveryAddress: newAddress,
-                  ));
-                  
-                  // Show Success Dialog
+                  Navigator.pop(dialogContext);
+
+                  context.read<CustomerBloc>().add(
+                    PlaceOrder(
+                      customerName: profile.fullName,
+                      customerPhone: profile.phone ?? 'N/A',
+                      deliveryAddress: newAddress,
+                    ),
+                  );
+
                   _showSuccessDialog(context);
                 }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: const Text('Confirm Order', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Confirm Order',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -86,20 +99,40 @@ void _showSuccessDialog(BuildContext context) {
       barrierDismissible: false,
       builder: (successContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           contentPadding: const EdgeInsets.all(32),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(color: Colors.green.shade50, shape: BoxShape.circle),
-                child: const Icon(Icons.check_circle, color: Colors.green, size: 64),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 64,
+                ),
               ),
               const SizedBox(height: 24),
-              const Text('Order Confirmed!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+              const Text(
+                'Order Confirmed!',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 8),
-              const Text('Your delicious items are being prepared.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+              const Text(
+                'Your delicious items are being prepared.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -108,20 +141,33 @@ void _showSuccessDialog(BuildContext context) {
                   onPressed: () {
                     Navigator.pop(successContext);
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const CustomerTrackingScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const CustomerTrackingScreen(),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
-                  child: const Text('Track Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Track Order',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => Navigator.pop(successContext),
-                child: const Text('Back to Home', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Back to Home',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),

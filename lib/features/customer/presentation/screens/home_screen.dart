@@ -12,10 +12,6 @@ import 'tracking_screen.dart';
 import '../../../entry/entry_screen.dart';
 import 'food_details_screen.dart';
 
-
-// ═══════════════════════════════════════════
-// ──── Category Home Screen ────
-// ═══════════════════════════════════════════
 class CustomerCategoryHome extends StatefulWidget {
   const CustomerCategoryHome({super.key});
 
@@ -60,83 +56,132 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ─── Top Header ───
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppTheme.primary, Colors.orange.shade700],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppTheme.primary, Colors.orange.shade700],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(28),
+                    ),
                   ),
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(28),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (authState is AuthAuthenticated)
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const CustomerProfileScreen(),
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 22,
-                                  backgroundColor: Colors.white,
-                                  child: Text(
-                                    authState.profile.firstName.isNotEmpty
-                                        ? authState.profile.firstName[0]
-                                              .toUpperCase()
-                                        : 'C',
-                                    style: const TextStyle(
-                                      color: AppTheme.primary,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (authState is AuthAuthenticated)
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const CustomerProfileScreen(),
                                     ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Hi, ${authState.profile.firstName} 👋',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.location_on,
-                                        size: 14,
-                                        color: Colors.white70,
+                                  child: CircleAvatar(
+                                    radius: 22,
+                                    backgroundColor: Colors.white,
+                                    child: Text(
+                                      authState.profile.firstName.isNotEmpty
+                                          ? authState.profile.firstName[0]
+                                                .toUpperCase()
+                                          : 'C',
+                                      style: const TextStyle(
+                                        color: AppTheme.primary,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        authState
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Hi, ${authState.profile.firstName} 👋',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on,
+                                          size: 14,
+                                          color: Colors.white70,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          authState
+                                                      .profile
+                                                      .deliveryAddress
+                                                      .length >
+                                                  25
+                                              ? '${authState.profile.deliveryAddress.substring(0, 25)}...'
+                                              : authState
                                                     .profile
-                                                    .deliveryAddress
-                                                    .length >
-                                                25
-                                            ? '${authState.profile.deliveryAddress.substring(0, 25)}...'
-                                            : authState.profile.deliveryAddress,
-                                        style: const TextStyle(
+                                                    .deliveryAddress,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.white70,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          else
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const EntryScreen(),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 22,
+                                    backgroundColor: Colors.white.withOpacity(
+                                      0.2,
+                                    ),
+                                    child: const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Welcome to GoBite 🍔',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Sign in / Sign up here',
+                                        style: TextStyle(
                                           fontSize: 13,
                                           color: Colors.white70,
                                         ),
@@ -145,180 +190,39 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                   ),
                                 ],
                               ),
-                            ],
-                          )
-                        else
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const EntryScreen(),
-                                ),
-                              );
-                            },
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 22,
-                                  backgroundColor: Colors.white.withOpacity(0.2),
-                                  child: const Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Welcome to GoBite 🍔',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Sign in / Sign up here',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.white70,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
                             ),
-                          ),
-                        Row(
-                          children: [
-                            // Active Orders badge
-                            BlocBuilder<CustomerBloc, CustomerState>(
-                              builder: (context, state) {
-                                final activeCount = state.activeOrders.length;
-                                if (activeCount == 0) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Stack(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delivery_dining,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
-                                      onPressed: () => _showActiveOrdersSheet(
-                                        context,
-                                        state.activeOrders,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 4,
-                                      top: 4,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.green,
-                                          shape: BoxShape.circle,
+                          Row(
+                            children: [
+                              BlocBuilder<CustomerBloc, CustomerState>(
+                                builder: (context, state) {
+                                  final activeCount = state.activeOrders.length;
+                                  if (activeCount == 0) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return Stack(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delivery_dining,
+                                          color: Colors.white,
+                                          size: 28,
                                         ),
-                                        child: Text(
-                                          '$activeCount',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        onPressed: () => _showActiveOrdersSheet(
+                                          context,
+                                          state.activeOrders,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 4),
-                            // Notification bell
-                            BlocBuilder<CustomerBloc, CustomerState>(
-                              builder: (context, state) {
-                                final unreadCount = state.notifications
-                                    .where((n) => !n.isRead)
-                                    .length;
-                                return Stack(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.notifications,
-                                        color: Colors.white,
-                                        size: 26,
-                                      ),
-                                      onPressed: () {
-                                        context.read<CustomerBloc>().add(
-                                              MarkNotificationsRead(),
-                                            );
-                                        _showNotificationsSheet(context);
-                                      },
-                                    ),
-                                    if (unreadCount > 0)
                                       Positioned(
                                         right: 4,
                                         top: 4,
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
                                           decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '$unreadCount',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 4),
-                            // Cart badge
-                            BlocBuilder<CustomerBloc, CustomerState>(
-                              builder: (context, state) {
-                                final itemCount = state.cart.fold(
-                                  0,
-                                  (sum, i) => sum + i.quantity,
-                                );
-                                return Stack(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.shopping_cart,
-                                        color: Colors.white,
-                                        size: 26,
-                                      ),
-                                      onPressed: () => _showCartSheet(context),
-                                    ),
-                                    if (itemCount > 0)
-                                      Positioned(
-                                        right: 4,
-                                        top: 4,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
+                                            color: Colors.green,
                                             shape: BoxShape.circle,
                                           ),
                                           child: Text(
-                                            '$itemCount',
+                                            '$activeCount',
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 10,
@@ -327,307 +231,397 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                           ),
                                         ),
                                       ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                                    ],
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 4),
 
-                    const SizedBox(height: 20),
+                              BlocBuilder<CustomerBloc, CustomerState>(
+                                builder: (context, state) {
+                                  final unreadCount = state.notifications
+                                      .where((n) => !n.isRead)
+                                      .length;
+                                  return Stack(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.notifications,
+                                          color: Colors.white,
+                                          size: 26,
+                                        ),
+                                        onPressed: () {
+                                          context.read<CustomerBloc>().add(
+                                            MarkNotificationsRead(),
+                                          );
+                                          _showNotificationsSheet(context);
+                                        },
+                                      ),
+                                      if (unreadCount > 0)
+                                        Positioned(
+                                          right: 4,
+                                          top: 4,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            constraints: const BoxConstraints(
+                                              minWidth: 16,
+                                              minHeight: 16,
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '$unreadCount',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 4),
 
-                    // ─── Functional Search Bar ───
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 10),
+                              BlocBuilder<CustomerBloc, CustomerState>(
+                                builder: (context, state) {
+                                  final itemCount = state.cart.fold(
+                                    0,
+                                    (sum, i) => sum + i.quantity,
+                                  );
+                                  return Stack(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.shopping_cart,
+                                          color: Colors.white,
+                                          size: 26,
+                                        ),
+                                        onPressed: () =>
+                                            _showCartSheet(context),
+                                      ),
+                                      if (itemCount > 0)
+                                        Positioned(
+                                          right: 4,
+                                          top: 4,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Text(
+                                              '$itemCount',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: _onSearchChanged,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black87,
+
+                      const SizedBox(height: 20),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black12, blurRadius: 10),
+                          ],
                         ),
-                        decoration: InputDecoration(
-                          hintText: 'Search food, medicine, snacks...',
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade500,
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _onSearchChanged,
+                          style: const TextStyle(
                             fontSize: 14,
+                            color: Colors.black87,
                           ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.grey.shade500,
-                          ),
-                          suffixIcon: _isSearching
-                              ? IconButton(
-                                  icon: const Icon(
-                                    Icons.close,
-                                    color: Colors.grey,
-                                  ),
-                                  onPressed: _clearSearch,
-                                )
-                              : null,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 14,
+                          decoration: InputDecoration(
+                            hintText: 'Search food, medicine, snacks...',
+                            hintStyle: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 14,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.grey.shade500,
+                            ),
+                            suffixIcon: _isSearching
+                                ? IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: _clearSearch,
+                                  )
+                                : null,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // ─── Search Results OR Normal Home Content ───
-              BlocBuilder<CustomerBloc, CustomerState>(
-                builder: (context, state) {
-                  if (_isSearching) {
-                    // ── Search Results ──
-                    final results = state.menuItems;
-                    if (results.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Colors.grey.shade300,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No results for "${_searchController.text}"',
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16,
+                BlocBuilder<CustomerBloc, CustomerState>(
+                  builder: (context, state) {
+                    if (_isSearching) {
+                      final results = state.menuItems;
+                      if (results.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(40),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Colors.grey.shade300,
                               ),
-                              textAlign: TextAlign.center,
+                              const SizedBox(height: 16),
+                              Text(
+                                'No results for "${_searchController.text}"',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: 12,
+                                left: 4,
+                              ),
+                              child: Text(
+                                '${results.length} results found',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            ...results.map(
+                              (item) =>
+                                  _buildSearchResultItem(context, item, state),
                             ),
                           ],
                         ),
                       );
                     }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12, left: 4),
-                            child: Text(
-                              '${results.length} results found',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 130,
+                          child: PageView(
+                            controller: PageController(viewportFraction: 0.9),
+                            children: [
+                              _buildPromoCard(
+                                title: '🔥 Free Delivery',
+                                subtitle:
+                                    'On your first 3 orders!\nOrder now & save ৳50',
+                                emoji: '🛵',
+                                colors: [
+                                  Colors.deepOrange.shade400,
+                                  Colors.orange.shade300,
+                                ],
                               ),
+                              _buildPromoCard(
+                                title: '🎉 20% Discount',
+                                subtitle:
+                                    'Use code GOBITE20\nValid on all food items',
+                                emoji: '🍔',
+                                colors: [
+                                  Colors.purple.shade400,
+                                  Colors.pink.shade300,
+                                ],
+                              ),
+                              _buildPromoCard(
+                                title: '🌙 Midnight Offer',
+                                subtitle:
+                                    'Craving at night?\nGet flat ৳100 off after 12 AM',
+                                emoji: '🦉',
+                                colors: [
+                                  Colors.blue.shade800,
+                                  Colors.indigo.shade400,
+                                ],
+                              ),
+                              _buildPromoCard(
+                                title: '💊 Stay Healthy',
+                                subtitle:
+                                    '10% off on all medicines\nFree delivery on prescriptions',
+                                emoji: '🏥',
+                                colors: [
+                                  Colors.teal.shade500,
+                                  Colors.green.shade300,
+                                ],
+                              ),
+                              _buildPromoCard(
+                                title: '🥦 Fresh Grocery',
+                                subtitle:
+                                    'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
+                                emoji: '🛒',
+                                colors: [
+                                  Colors.red.shade400,
+                                  Colors.deepOrange.shade300,
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'What do you need?',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.textPrimary,
                             ),
                           ),
-                          ...results.map(
-                            (item) =>
-                                _buildSearchResultItem(context, item, state),
+                        ),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'Select a category to browse products',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 14,
+                            crossAxisSpacing: 14,
+                            childAspectRatio: 1.3,
+                            children: ProductCategory.values.map((cat) {
+                              return _buildCategoryCard(context, cat);
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                BlocBuilder<CustomerBloc, CustomerState>(
+                  builder: (context, state) {
+                    if (state.cart.isEmpty) return const SizedBox.shrink();
+                    final itemCount = state.cart.fold(
+                      0,
+                      (sum, i) => sum + i.quantity,
+                    );
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.secondary,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 10),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '$itemCount items in cart',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                '৳${state.cartTotal.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () => requireLogin(
+                              context,
+                              () => _showCartSheet(context),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: AppTheme.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.shopping_cart, size: 18),
+                            label: const Text(
+                              'View Cart',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
                     );
-                  }
+                  },
+                ),
 
-                  // ── Normal Home View ──
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Promo Banner Carousel
-                      SizedBox(
-                        height: 130,
-                        child: PageView(
-                          controller: PageController(viewportFraction: 0.9),
-                          children: [
-                            _buildPromoCard(
-                              title: '🔥 Free Delivery',
-                              subtitle:
-                                  'On your first 3 orders!\nOrder now & save ৳50',
-                              emoji: '🛵',
-                              colors: [
-                                Colors.deepOrange.shade400,
-                                Colors.orange.shade300,
-                              ],
-                            ),
-                            _buildPromoCard(
-                              title: '🎉 20% Discount',
-                              subtitle:
-                                  'Use code GOBITE20\nValid on all food items',
-                              emoji: '🍔',
-                              colors: [
-                                Colors.purple.shade400,
-                                Colors.pink.shade300,
-                              ],
-                            ),
-                            _buildPromoCard(
-                              title: '🌙 Midnight Offer',
-                              subtitle:
-                                  'Craving at night?\nGet flat ৳100 off after 12 AM',
-                              emoji: '🦉',
-                              colors: [
-                                Colors.blue.shade800,
-                                Colors.indigo.shade400,
-                              ],
-                            ),
-                            _buildPromoCard(
-                              title: '💊 Stay Healthy',
-                              subtitle:
-                                  '10% off on all medicines\nFree delivery on prescriptions',
-                              emoji: '🏥',
-                              colors: [
-                                Colors.teal.shade500,
-                                Colors.green.shade300,
-                              ],
-                            ),
-                            _buildPromoCard(
-                              title: '🥦 Fresh Grocery',
-                              subtitle:
-                                  'Weekly Bazar Offer\nSave ৳200 on cart above ৳1000',
-                              emoji: '🛒',
-                              colors: [
-                                Colors.red.shade400,
-                                Colors.deepOrange.shade300,
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // Categories Title
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          'What do you need?',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          'Select a category to browse products',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Category Grid
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 14,
-                          crossAxisSpacing: 14,
-                          childAspectRatio: 1.3,
-                          children: ProductCategory.values.map((cat) {
-                            return _buildCategoryCard(context, cat);
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-
-              // ─── Cart Summary Bar ───
-              BlocBuilder<CustomerBloc, CustomerState>(
-                builder: (context, state) {
-                  if (state.cart.isEmpty) return const SizedBox.shrink();
-                  final itemCount = state.cart.fold(
-                    0,
-                    (sum, i) => sum + i.quantity,
-                  );
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.secondary,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(color: Colors.black12, blurRadius: 10),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '$itemCount items in cart',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              '৳${state.cartTotal.toStringAsFixed(0)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () => requireLogin(
-                            context,
-                            () => _showCartSheet(context),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: AppTheme.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: const Icon(Icons.shopping_cart, size: 18),
-                          label: const Text(
-                            'View Cart',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 32),
-            ],
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildPromoCard({
     required String title,
@@ -695,9 +689,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => FoodDetailsScreen(foodId: item.id),
-          ),
+          MaterialPageRoute(builder: (_) => FoodDetailsScreen(foodId: item.id)),
         );
       },
       child: Container(
@@ -706,12 +698,15 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 3),
+            ),
           ],
         ),
         child: Row(
           children: [
-            // Product image
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(
                 left: Radius.circular(16),
@@ -734,7 +729,7 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
               ),
             ),
             const SizedBox(width: 12),
-            // Details
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -770,115 +765,122 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                if (item.restaurantName != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      if (item.restaurantImageUrl != null && item.restaurantImageUrl!.isNotEmpty)
-                        CircleAvatar(
-                          radius: 8,
-                          backgroundImage: NetworkImage(item.restaurantImageUrl!),
-                        )
-                      else
-                        Icon(Icons.storefront, size: 12, color: Colors.grey.shade600),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          'by ${item.restaurantName}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                  if (item.restaurantName != null) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        if (item.restaurantImageUrl != null &&
+                            item.restaurantImageUrl!.isNotEmpty)
+                          CircleAvatar(
+                            radius: 8,
+                            backgroundImage: NetworkImage(
+                              item.restaurantImageUrl!,
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.storefront,
+                            size: 12,
                             color: Colors.grey.shade600,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'by ${item.restaurantName}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  Text(
+                    '৳${item.price.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 15,
+                      color: AppTheme.primary,
+                    ),
                   ),
                 ],
-                const SizedBox(height: 6),
-                Text(
-                  '৳${item.price.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
-                    color: AppTheme.primary,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          // Qty controls
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: qty == 0
-                ? GestureDetector(
-                    onTap: () =>
-                        context.read<CustomerBloc>().add(AddToCart(item)),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primary,
-                        shape: BoxShape.circle,
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: qty == 0
+                  ? GestureDetector(
+                      onTap: () =>
+                          context.read<CustomerBloc>().add(AddToCart(item)),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: AppTheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 18,
-                      ),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: () => context.read<CustomerBloc>().add(
+                            RemoveFromCart(item),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.remove, size: 16),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            '$qty',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () =>
+                              context.read<CustomerBloc>().add(AddToCart(item)),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GestureDetector(
-                        onTap: () => context.read<CustomerBloc>().add(
-                          RemoveFromCart(item),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.remove, size: 16),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          '$qty',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () =>
-                            context.read<CustomerBloc>().add(AddToCart(item)),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildCategoryCard(BuildContext context, ProductCategory cat) {
     return GestureDetector(
@@ -905,7 +907,6 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
         ),
         child: Stack(
           children: [
-            // Background emoji
             Positioned(
               right: -12,
               bottom: -12,
@@ -1064,7 +1065,6 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 ),
                                 child: Row(
                                   children: [
-                                    // Category icon
                                     Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
@@ -1480,11 +1480,15 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               ),
                             ),
                             TextButton(
-                              onPressed: () =>
-                                  context.read<CustomerBloc>().add(ClearNotifications()),
+                              onPressed: () => context.read<CustomerBloc>().add(
+                                ClearNotifications(),
+                              ),
                               child: const Text(
                                 'Clear All',
-                                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
@@ -1499,50 +1503,73 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                               return Dismissible(
                                 key: Key(n.id),
                                 onDismissed: (direction) {
-                                  context.read<CustomerBloc>().add(DeleteNotification(n.id));
+                                  context.read<CustomerBloc>().add(
+                                    DeleteNotification(n.id),
+                                  );
                                 },
                                 background: Container(
                                   alignment: Alignment.centerRight,
                                   padding: const EdgeInsets.only(right: 20),
                                   color: Colors.red,
-                                  child: const Icon(Icons.delete, color: Colors.white),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 12),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: n.isRead ? Colors.grey.shade50 : const Color(0xFFFFE5D9).withOpacity(0.4),
+                                    color: n.isRead
+                                        ? Colors.grey.shade50
+                                        : const Color(
+                                            0xFFFFE5D9,
+                                          ).withOpacity(0.4),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: n.isRead ? Colors.grey.shade200 : const Color(0xFFFF9E7D).withOpacity(0.3),
+                                      color: n.isRead
+                                          ? Colors.grey.shade200
+                                          : const Color(
+                                              0xFFFF9E7D,
+                                            ).withOpacity(0.3),
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: n.isRead ? Colors.grey.shade200 : const Color(0xFFFF7D54).withOpacity(0.15),
+                                          color: n.isRead
+                                              ? Colors.grey.shade200
+                                              : const Color(
+                                                  0xFFFF7D54,
+                                                ).withOpacity(0.15),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
                                           Icons.notifications_active,
-                                          color: n.isRead ? Colors.grey : const Color(0xFFFF5400),
+                                          color: n.isRead
+                                              ? Colors.grey
+                                              : const Color(0xFFFF5400),
                                           size: 20,
                                         ),
                                       ),
                                       const SizedBox(width: 14),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               n.title,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
-                                                color: n.isRead ? Colors.black87 : const Color(0xFFE76F51),
+                                                color: n.isRead
+                                                    ? Colors.black87
+                                                    : const Color(0xFFE76F51),
                                               ),
                                             ),
                                             const SizedBox(height: 4),
@@ -1565,9 +1592,15 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                         ),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.close, size: 16, color: Colors.grey),
+                                        icon: const Icon(
+                                          Icons.close,
+                                          size: 16,
+                                          color: Colors.grey,
+                                        ),
                                         onPressed: () {
-                                          context.read<CustomerBloc>().add(DeleteNotification(n.id));
+                                          context.read<CustomerBloc>().add(
+                                            DeleteNotification(n.id),
+                                          );
                                         },
                                       ),
                                     ],

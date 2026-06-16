@@ -32,19 +32,20 @@ class NotificationItem extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'message': message,
-        'timestamp': timestamp.toIso8601String(),
-        'isRead': isRead,
-      };
+    'id': id,
+    'title': title,
+    'message': message,
+    'timestamp': timestamp.toIso8601String(),
+    'isRead': isRead,
+  };
 
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
     return NotificationItem(
       id: json['id'] as String,
       title: json['title'] as String,
       message: json['message'] as String,
-      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
+      timestamp:
+          DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       isRead: json['isRead'] as bool? ?? false,
     );
   }

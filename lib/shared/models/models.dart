@@ -7,4 +7,3 @@ export 'cart_item.dart';
 export 'order.dart';
 export 'notification_item.dart';
 export 'food_review.dart';
-

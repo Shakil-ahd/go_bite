@@ -9,7 +9,6 @@ void requireLogin(BuildContext context, VoidCallback onSuccess) {
   if (authState is AuthAuthenticated) {
     onSuccess();
   } else {
-    // Show beautiful interceptor
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -54,7 +53,7 @@ void requireLogin(BuildContext context, VoidCallback onSuccess) {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(modalContext); // close bottom sheet
+                    Navigator.pop(modalContext);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const EntryScreen()),

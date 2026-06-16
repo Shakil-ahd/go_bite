@@ -95,7 +95,6 @@ class _EntryScreenState extends State<EntryScreen>
                       children: [
                         const Spacer(flex: 2),
 
-                        // Logo
                         Center(
                           child: Container(
                             padding: const EdgeInsets.all(24),
@@ -123,7 +122,6 @@ class _EntryScreenState extends State<EntryScreen>
                         ),
                         const SizedBox(height: 32),
 
-                        // Brand name
                         const Center(
                           child: Text(
                             'GoBite',
@@ -136,21 +134,8 @@ class _EntryScreenState extends State<EntryScreen>
                           ),
                         ),
 
-                        // const SizedBox(height: 8),
-                        // Center(
-                        //   child: Text(
-                        //     'Food, Medicine & Everything — Delivered',
-                        //     textAlign: TextAlign.center,
-                        //     style: TextStyle(
-                        //       fontSize: 15,
-                        //       color: Colors.grey.shade600,
-                        //       fontWeight: FontWeight.w500,
-                        //     ),
-                        //   ),
-                        // ),
                         const SizedBox(height: 16),
 
-                        // Features row
                         Wrap(
                           alignment: WrapAlignment.center,
                           spacing: 4,
@@ -165,7 +150,6 @@ class _EntryScreenState extends State<EntryScreen>
 
                         const Spacer(flex: 2),
 
-                        // Get Started button
                         SizedBox(
                           height: 56,
                           child: ElevatedButton(
@@ -206,7 +190,6 @@ class _EntryScreenState extends State<EntryScreen>
 
                         const SizedBox(height: 16),
 
-                        // Already have account
                         Center(
                           child: TextButton(
                             onPressed: () {

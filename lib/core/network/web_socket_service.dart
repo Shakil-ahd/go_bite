@@ -51,7 +51,6 @@ class WebSocketService {
       _registerClientType();
       _startPingTimer();
 
-      // Notify listener so blocs can re-request pending data
       onConnected?.call();
 
       _channel!.stream.listen(
@@ -102,11 +101,8 @@ class WebSocketService {
     _channel = null;
     _pingTimer?.cancel();
 
-    // Exponential backoff: 3s, 6s, 12s, 24s, 48s … max 60s, then keeps retrying
     _retryCount++;
-    final delaySeconds = (_retryCount <= 5)
-        ? (3 * _retryCount)
-        : 60; // cap at 60 seconds, keep retrying indefinitely
+    final delaySeconds = (_retryCount <= 5) ? (3 * _retryCount) : 60;
     final delay = Duration(seconds: delaySeconds);
     _reconnectTimer?.cancel();
     debugPrint(
@@ -117,7 +113,6 @@ class WebSocketService {
     });
   }
 
-  /// Sends a structured event through the WebSocket
   void send(String eventName, Map<String, dynamic> data) {
     if (_channel == null || !_isConnected) {
       debugPrint('❌ Cannot send "$eventName": not connected.');
@@ -141,7 +136,6 @@ class WebSocketService {
     }
   }
 
-  /// Call this when the app resumes from background to force a reconnect check
   void forceReconnect() {
     if (!_isConnected && !_isConnecting && !_disposed) {
       _reconnectTimer?.cancel();

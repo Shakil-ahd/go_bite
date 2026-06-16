@@ -57,7 +57,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. Full Screen PageView
           PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
@@ -70,7 +69,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  // HD Background Image
                   Image.network(
                     _onboardingData[index]['image']!,
                     fit: BoxFit.cover,
@@ -91,7 +89,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
 
-                  // Smooth Dark Gradient Overlay
                   Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -108,7 +105,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
 
-                  // Text Content
                   Positioned(
                     bottom: 160,
                     left: 32,
@@ -143,7 +139,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             },
           ),
 
-          // 2. Top Right Skip Button
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
@@ -169,7 +164,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
 
-          // 3. Bottom Controls (Dots & Next Button)
           Positioned(
             bottom: 40,
             left: 32,
@@ -177,7 +171,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Indicators
                 Row(
                   children: List.generate(
                     _onboardingData.length,
@@ -196,7 +189,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
 
-                // Next/Start Button
                 GestureDetector(
                   onTap: () {
                     if (_currentPage == _onboardingData.length - 1) {

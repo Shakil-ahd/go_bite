@@ -159,6 +159,24 @@ class RateRider extends CustomerEvent {
   List<Object?> get props => [riderName, rating, review];
 }
 
+class RateFoodItem extends CustomerEvent {
+  final String foodId;
+  final int rating;
+  final String review;
+  final String userName;
+
+  const RateFoodItem({
+    required this.foodId,
+    required this.rating,
+    required this.review,
+    required this.userName,
+  });
+
+  @override
+  List<Object?> get props => [foodId, rating, review, userName];
+}
+
+
 class CustomerState extends Equatable {
   final List<FoodItem> allProducts;
   final List<FoodItem> menuItems;
@@ -684,6 +702,15 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         'riderName': event.riderName,
         'rating': event.rating,
         'review': event.review,
+      });
+    });
+
+    on<RateFoodItem>((event, emit) {
+      _webSocketService.send('rate_food_item', {
+        'foodId': event.foodId,
+        'rating': event.rating,
+        'review': event.review,
+        'userName': event.userName,
       });
     });
 

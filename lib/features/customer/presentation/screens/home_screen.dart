@@ -10,6 +10,8 @@ import 'checkout_screen.dart';
 import '../../../auth/login_screen.dart';
 import 'tracking_screen.dart';
 import '../../../entry/entry_screen.dart';
+import 'food_details_screen.dart';
+
 
 // ═══════════════════════════════════════════
 // ──── Category Home Screen ────
@@ -690,59 +692,84 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
         .firstOrNull;
     final qty = cartItem?.quantity ?? 0;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Product image
-          ClipRRect(
-            borderRadius: const BorderRadius.horizontal(
-              left: Radius.circular(16),
-            ),
-            child: Image.network(
-              item.imageUrl,
-              width: 90,
-              height: 90,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => FoodDetailsScreen(foodId: item.id),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Product image
+            ClipRRect(
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(16),
+              ),
+              child: Image.network(
+                item.imageUrl,
                 width: 90,
                 height: 90,
-                color: Colors.grey.shade100,
-                child: Icon(
-                  item.category.icon,
-                  color: Colors.grey.shade400,
-                  size: 32,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  width: 90,
+                  height: 90,
+                  color: Colors.grey.shade100,
+                  child: Icon(
+                    item.category.icon,
+                    color: Colors.grey.shade400,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          // Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+            const SizedBox(width: 12),
+            // Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.description,
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.orange, size: 12),
+                      const SizedBox(width: 2),
+                      Text(
+                        item.ratingCount > 0
+                            ? '${item.averageRating.toStringAsFixed(1)} (${item.ratingCount})'
+                            : '0.0 (0)',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    item.description,
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 if (item.restaurantName != null) ...[
                   const SizedBox(height: 6),
                   Row(
@@ -849,8 +876,9 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCategoryCard(BuildContext context, ProductCategory cat) {
     return GestureDetector(

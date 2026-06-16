@@ -1,6 +1,39 @@
 import 'package:equatable/equatable.dart';
 import 'product_category.dart';
 
+class FoodReview extends Equatable {
+  final String userName;
+  final double rating;
+  final String comment;
+  final String timestamp;
+
+  const FoodReview({
+    required this.userName,
+    required this.rating,
+    required this.comment,
+    required this.timestamp,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'userName': userName,
+        'rating': rating,
+        'review': comment,
+        'timestamp': timestamp,
+      };
+
+  factory FoodReview.fromJson(Map<String, dynamic> json) {
+    return FoodReview(
+      userName: json['userName'] as String? ?? 'Anonymous',
+      rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
+      comment: json['review'] as String? ?? json['comment'] as String? ?? '',
+      timestamp: json['timestamp'] as String? ?? '',
+    );
+  }
+
+  @override
+  List<Object?> get props => [userName, rating, comment, timestamp];
+}
+
 class FoodItem extends Equatable {
   final String id;
   final String name;
@@ -12,6 +45,9 @@ class FoodItem extends Equatable {
   final String? restaurantName;
   final String? restaurantAddress;
   final String? restaurantImageUrl;
+  final double averageRating;
+  final int ratingCount;
+  final List<FoodReview> reviews;
 
   const FoodItem({
     required this.id,
@@ -24,6 +60,9 @@ class FoodItem extends Equatable {
     this.restaurantName,
     this.restaurantAddress,
     this.restaurantImageUrl,
+    this.averageRating = 0.0,
+    this.ratingCount = 0,
+    this.reviews = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -37,6 +76,9 @@ class FoodItem extends Equatable {
         if (restaurantName != null) 'restaurantName': restaurantName,
         if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
         if (restaurantImageUrl != null) 'restaurantImageUrl': restaurantImageUrl,
+        'averageRating': averageRating,
+        'ratingCount': ratingCount,
+        'reviews': reviews.map((r) => r.toJson()).toList(),
       };
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
@@ -54,6 +96,12 @@ class FoodItem extends Equatable {
       restaurantName: json['restaurantName'] as String?,
       restaurantAddress: json['restaurantAddress'] as String?,
       restaurantImageUrl: json['restaurantImageUrl'] as String?,
+      averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0.0,
+      ratingCount: json['ratingCount'] as int? ?? 0,
+      reviews: (json['reviews'] as List<dynamic>?)
+              ?.map((e) => FoodReview.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          const [],
     );
   }
 
@@ -69,5 +117,8 @@ class FoodItem extends Equatable {
         restaurantName,
         restaurantAddress,
         restaurantImageUrl,
+        averageRating,
+        ratingCount,
+        reviews,
       ];
 }

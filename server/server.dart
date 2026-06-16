@@ -754,6 +754,45 @@ void main() async {
                 }
                 break;
 
+              // ─── Rate Food Item ───
+              case 'rate_food_item':
+                final foodId = msgData['foodId'] as String?;
+                final rating = msgData['rating'] as num?;
+                final review = msgData['review'] as String?;
+                final userName = msgData['userName'] as String? ?? 'Anonymous';
+                
+                if (foodId != null && rating != null) {
+                  final idx = menuItems.indexWhere((e) => e['id'] == foodId);
+                  if (idx >= 0) {
+                    final item = menuItems[idx];
+                    final reviewsList = List<Map<String, dynamic>>.from(item['reviews'] as List<dynamic>? ?? []);
+                    
+                    reviewsList.add({
+                      'rating': rating.toDouble(),
+                      'review': review ?? '',
+                      'userName': userName,
+                      'timestamp': DateTime.now().toIso8601String(),
+                    });
+                    
+                    final double totalScore = reviewsList.fold(0.0, (sum, r) => sum + (r['rating'] as num).toDouble());
+                    final double avg = totalScore / reviewsList.length;
+                    
+                    menuItems[idx] = {
+                      ...item,
+                      'reviews': reviewsList,
+                      'averageRating': avg,
+                      'ratingCount': reviewsList.length,
+                    };
+                    
+                    print('   ⭐ Food item $foodId rated $rating by $userName. New avg: $avg');
+                    
+                    await productsFile.writeAsString(jsonEncode(menuItems));
+                    _broadcastAll(clients, 'menu_updated', {'items': menuItems});
+                  }
+                }
+                break;
+
+
               // ─── Ping / heartbeat ───
               case 'ping':
                 _sendToClient(ws, 'pong', {'time': DateTime.now().toIso8601String()});

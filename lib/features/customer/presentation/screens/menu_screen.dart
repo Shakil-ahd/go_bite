@@ -7,6 +7,8 @@ import '../../../auth/auth_interceptor.dart';
 import '../../bloc/customer_bloc.dart';
 import 'checkout_screen.dart';
 import '../../../auth/login_screen.dart';
+import 'food_details_screen.dart';
+
 
 // ═══════════════════════════════════════════
 // ──── Menu Screen (Category Filtered) ────
@@ -167,21 +169,29 @@ class CustomerMenuScreen extends StatelessWidget {
   }
 
   Widget _buildMenuItem(BuildContext context, FoodItem food) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => FoodDetailsScreen(foodId: food.id),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -253,6 +263,23 @@ class CustomerMenuScreen extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       color: AppTheme.textPrimary,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.orange, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        food.ratingCount > 0
+                            ? '${food.averageRating.toStringAsFixed(1)} (${food.ratingCount})'
+                            : '0.0 (0)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -333,8 +360,9 @@ class CustomerMenuScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showCartFromMenu(BuildContext context) {
     showModalBottomSheet(

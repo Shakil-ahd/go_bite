@@ -207,6 +207,7 @@ void main() async {
 
   final Map<String, Map<String, dynamic>> orders = {};
 
+  final File riderRatingsFile = File('${File(Platform.script.toFilePath()).parent.path}/rider_ratings.json');
   final Map<String, Map<String, dynamic>> riderRatings = {};
 
   final String serverDir = File(Platform.script.toFilePath()).parent.path;
@@ -271,8 +272,12 @@ void main() async {
   );
   Map<String, Map<String, dynamic>> riderUsers = await loadUserMap(ridersFile);
 
+  final File ordersFile = File('$serverDir/orders.json');
+  orders.addAll(await loadUserMap(ordersFile));
+  riderRatings.addAll(await loadUserMap(riderRatingsFile));
+
   print(
-    '👤 Loaded ${customerUsers.length} customers, ${restaurantUsers.length} restaurants, ${riderUsers.length} riders',
+    '👤 Loaded ${customerUsers.length} customers, ${restaurantUsers.length} restaurants, ${riderUsers.length} riders, ${orders.length} orders, ${riderRatings.length} rider ratings',
   );
 
   await for (HttpRequest request in server) {
@@ -743,6 +748,7 @@ void main() async {
                 if (orderId != null) {
                   orders[orderId] = msgData;
                   print('   📋 Order stored: $orderId');
+                  await saveUserMap(ordersFile, orders);
 
                   _broadcastToType(
                     clients,
@@ -760,6 +766,7 @@ void main() async {
                 if (orderId != null) {
                   orders[orderId] = msgData;
                   print('   🔄 Order $orderId → $newStatus');
+                  await saveUserMap(ordersFile, orders);
 
                   _broadcastAll(
                     clients,
@@ -794,6 +801,8 @@ void main() async {
                                 as int) +
                             1;
 
+                        await saveUserMap(riderRatingsFile, riderRatings);
+
                         final statsData = {
                           'riderName': riderName,
                           'totalDeliveries':
@@ -821,6 +830,7 @@ void main() async {
 
                     Future.delayed(const Duration(hours: 2), () {
                       orders.remove(orderId);
+                      saveUserMap(ordersFile, orders);
                     });
                   }
                 }
@@ -848,6 +858,7 @@ void main() async {
                     };
 
                     orders[orderId] = updated;
+                    await saveUserMap(ordersFile, orders);
                     _broadcastToType(
                       clients,
                       ClientType.customer,
@@ -919,6 +930,7 @@ void main() async {
                         riderRatings[riderName]!['totalDeliveries'],
                     'reviews': riderRatings[riderName]!['reviews'],
                   };
+                  await saveUserMap(riderRatingsFile, riderRatings);
                   print('   ⭐ Rider $riderName rated $rating. New avg: $avg');
                   _broadcastAll(
                     clients,

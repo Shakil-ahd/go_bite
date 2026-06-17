@@ -14,7 +14,6 @@ class CustomerDashboard extends StatefulWidget {
 }
 
 class _CustomerDashboardState extends State<CustomerDashboard> {
-  final Set<String> _ratedOrderIds = {};
 
   @override
   void initState() {
@@ -50,7 +49,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
               return wasActive &&
                   lastOrder.status == OrderStatus.delivered &&
                   lastOrder.riderName != null &&
-                  !_ratedOrderIds.contains(lastOrder.id);
+                  !current.ratedOrderIds.contains(lastOrder.id);
             }
             return false;
           },
@@ -58,8 +57,8 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             final lastOrder = state.orderHistory.last;
             if (lastOrder.status == OrderStatus.delivered &&
                 lastOrder.riderName != null &&
-                !_ratedOrderIds.contains(lastOrder.id)) {
-              _ratedOrderIds.add(lastOrder.id);
+                !state.ratedOrderIds.contains(lastOrder.id)) {
+              context.read<CustomerBloc>().add(MarkOrderRated(lastOrder.id));
               _showRatingDialog(context, lastOrder.riderName!);
             }
           },

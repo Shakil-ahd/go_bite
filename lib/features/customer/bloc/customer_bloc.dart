@@ -157,6 +157,14 @@ class RateRider extends CustomerEvent {
   List<Object?> get props => [riderName, rating, review];
 }
 
+class MarkOrderRated extends CustomerEvent {
+  final String orderId;
+  const MarkOrderRated(this.orderId);
+
+  @override
+  List<Object?> get props => [orderId];
+}
+
 class RateFoodItem extends CustomerEvent {
   final String foodId;
   final int rating;
@@ -188,6 +196,7 @@ class CustomerState extends Equatable {
   final Map<String, dynamic> riderStats;
   final List<NotificationItem> notifications;
   final bool isMenuLoaded;
+  final Set<String> ratedOrderIds;
 
   const CustomerState({
     this.allProducts = _bangladeshiCatalog,
@@ -203,6 +212,7 @@ class CustomerState extends Equatable {
     this.riderStats = const {},
     this.notifications = const [],
     this.isMenuLoaded = false,
+    this.ratedOrderIds = const {},
   });
 
   double get cartTotal =>
@@ -223,6 +233,7 @@ class CustomerState extends Equatable {
     Map<String, dynamic>? riderStats,
     List<NotificationItem>? notifications,
     bool? isMenuLoaded,
+    Set<String>? ratedOrderIds,
   }) {
     return CustomerState(
       allProducts: allProducts ?? this.allProducts,
@@ -240,6 +251,7 @@ class CustomerState extends Equatable {
       riderStats: riderStats ?? this.riderStats,
       notifications: notifications ?? this.notifications,
       isMenuLoaded: isMenuLoaded ?? this.isMenuLoaded,
+      ratedOrderIds: ratedOrderIds ?? this.ratedOrderIds,
     );
   }
 
@@ -258,6 +270,7 @@ class CustomerState extends Equatable {
     riderStats,
     notifications,
     isMenuLoaded,
+    ratedOrderIds,
   ];
 }
 
@@ -677,7 +690,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
 
     on<LoadRestaurantMenu>((event, emit) {
       _webSocketService.connect();
-      emit(state.copyWith(allProducts: _bangladeshiCatalog));
+      emit(state.copyWith(
+        allProducts: _bangladeshiCatalog,
+        isMenuLoaded: false,
+      ));
     });
 
     on<RefreshMenu>((event, emit) {
@@ -808,6 +824,19 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       });
     });
 
+    on<MarkOrderRated>((event, emit) async {
+      final updated = Set<String>.from(state.ratedOrderIds)..add(event.orderId);
+      emit(state.copyWith(ratedOrderIds: updated));
+      if (state.userEmail != null) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setStringList('ratedOrders_${state.userEmail}', updated.toList());
+        } catch (e) {
+          print('Error saving rated order IDs: $e');
+        }
+      }
+    });
+
     on<RateFoodItem>((event, emit) {
       _webSocketService.send('rate_food_item', {
         'foodId': event.foodId,
@@ -850,6 +879,17 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       emit(state.copyWith(userEmail: event.email));
       await _loadOrderHistory(event.email, emit);
       await _loadNotifications(event.email, emit);
+      
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final ratedList = prefs.getStringList('ratedOrders_${event.email}');
+        if (ratedList != null) {
+          emit(state.copyWith(ratedOrderIds: ratedList.toSet()));
+        }
+      } catch (e) {
+        print('Error loading rated order IDs: $e');
+      }
+
       _webSocketService.connect();
       if (_webSocketService.isConnected) {
         final activeIds = state.activeOrders.map((o) => o.id).toList();

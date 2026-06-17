@@ -385,22 +385,47 @@ class CustomerMenuScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 child: BlocBuilder<CustomerBloc, CustomerState>(
                   builder: (context, state) {
-                    if (state.cart.isEmpty) {
-                      return const Center(child: Text('Your cart is empty'));
-                    }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
-                          'Your Order',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            const Text(
+                              'Your Order',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (state.cart.isNotEmpty)
+                              TextButton(
+                                onPressed: () =>
+                                    context.read<CustomerBloc>().add(ClearCart()),
+                                child: const Text(
+                                  'Clear All',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(modalContext),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                          child: ListView.builder(
+                          child: state.cart.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'Your cart is empty',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
                             controller: scrollController,
                             itemCount: state.cart.length,
                             itemBuilder: (context, index) {

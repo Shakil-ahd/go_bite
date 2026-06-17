@@ -50,7 +50,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     super.dispose();
   }
 
-  String? _lastRatedOrderId;
+
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +66,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               final wasActive = previous.activeOrders.any(
                 (o) => o.id == newHistoryOrder.id,
               );
-              if (wasActive &&
+              return wasActive &&
                   newHistoryOrder.status == OrderStatus.delivered &&
                   newHistoryOrder.riderName != null &&
-                  _lastRatedOrderId != newHistoryOrder.id) {
-                return true;
-              }
+                  !current.ratedOrderIds.contains(newHistoryOrder.id);
             }
           }
           return false;
@@ -83,12 +81,15 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
           if (deliveredOrder != null &&
               deliveredOrder.status == OrderStatus.delivered &&
               deliveredOrder.riderName != null &&
-              _lastRatedOrderId != deliveredOrder.id) {
-            _lastRatedOrderId = deliveredOrder.id;
+              !state.ratedOrderIds.contains(deliveredOrder.id)) {
+            
+            context.read<CustomerBloc>().add(MarkOrderRated(deliveredOrder.id));
 
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            }
+            _showRatingDialog(context, deliveredOrder.riderName!, onDismiss: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            });
           }
         },
         child: BlocBuilder<CustomerBloc, CustomerState>(
@@ -451,11 +452,12 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
     );
   }
 
-  void _showRatingDialog(BuildContext context, String riderName) {
+  void _showRatingDialog(BuildContext context, String riderName, {VoidCallback? onDismiss}) {
     int rating = 5;
     final reviewController = TextEditingController();
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -507,7 +509,10 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(ctx),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    if (onDismiss != null) onDismiss();
+                  },
                   child: const Text(
                     'Cancel',
                     style: TextStyle(color: Colors.grey),
@@ -519,6 +524,7 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen>
                       RateRider(riderName, rating, reviewController.text),
                     );
                     Navigator.pop(ctx);
+                    if (onDismiss != null) onDismiss();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Thank you for rating $riderName!'),

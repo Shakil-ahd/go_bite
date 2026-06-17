@@ -1004,33 +1004,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                 padding: const EdgeInsets.all(24),
                 child: BlocBuilder<CustomerBloc, CustomerState>(
                   builder: (context, state) {
-                    if (state.cart.isEmpty) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.shopping_cart_outlined,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Your cart is empty',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               'Your Order',
@@ -1039,19 +1016,46 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            TextButton(
-                              onPressed: () =>
-                                  context.read<CustomerBloc>().add(ClearCart()),
-                              child: const Text(
-                                'Clear All',
-                                style: TextStyle(color: Colors.red),
+                            const Spacer(),
+                            if (state.cart.isNotEmpty)
+                              TextButton(
+                                onPressed: () =>
+                                    context.read<CustomerBloc>().add(ClearCart()),
+                                child: const Text(
+                                  'Clear All',
+                                  style: TextStyle(color: Colors.red),
+                                ),
                               ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(modalContext),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                          child: ListView.builder(
+                          child: state.cart.isEmpty
+                              ? const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_cart_outlined,
+                                        size: 64,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'Your cart is empty',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
                             controller: scrollController,
                             itemCount: state.cart.length,
                             itemBuilder: (context, index) {
@@ -1240,9 +1244,18 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Active Orders',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  const Text(
+                    'Active Orders',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(modalContext),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -1443,34 +1456,10 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                 padding: const EdgeInsets.all(24),
                 child: BlocBuilder<CustomerBloc, CustomerState>(
                   builder: (context, state) {
-                    if (state.notifications.isEmpty) {
-                      return const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.notifications_none_outlined,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              "You're all caught up! 🔔",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               'Notifications',
@@ -1479,23 +1468,51 @@ class _CustomerCategoryHomeState extends State<CustomerCategoryHome> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            TextButton(
-                              onPressed: () => context.read<CustomerBloc>().add(
-                                ClearNotifications(),
-                              ),
-                              child: const Text(
-                                'Clear All',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
+                            const Spacer(),
+                            if (state.notifications.isNotEmpty)
+                              TextButton(
+                                onPressed: () => context.read<CustomerBloc>().add(
+                                  ClearNotifications(),
+                                ),
+                                child: const Text(
+                                  'Clear All',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(modalContext),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                          child: ListView.builder(
+                          child: state.notifications.isEmpty
+                              ? const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.notifications_none_outlined,
+                                        size: 64,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 16),
+                                      Text(
+                                        "You're all caught up! 🔔",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
                             controller: scrollController,
                             itemCount: state.notifications.length,
                             itemBuilder: (context, index) {

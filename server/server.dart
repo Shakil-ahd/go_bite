@@ -210,6 +210,9 @@ void main() async {
   final File riderRatingsFile = File('${File(Platform.script.toFilePath()).parent.path}/rider_ratings.json');
   final Map<String, Map<String, dynamic>> riderRatings = {};
 
+  final File notificationsFile = File('${File(Platform.script.toFilePath()).parent.path}/notifications.json');
+  final Map<String, List<dynamic>> userNotifications = {};
+
   final String serverDir = File(Platform.script.toFilePath()).parent.path;
   final File productsFile = File('$serverDir/products.json');
   List<Map<String, dynamic>> menuItems = [];
@@ -264,6 +267,32 @@ void main() async {
     }
   }
 
+  Future<Map<String, List<dynamic>>> loadNotificationsMap(File file) async {
+    try {
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final decoded = jsonDecode(content) as Map<dynamic, dynamic>;
+        return decoded.map(
+          (k, v) => MapEntry(k.toString(), List<dynamic>.from(v as List)),
+        );
+      }
+    } catch (e) {
+      print('⚠️ Error loading notifications file ${file.path}: $e');
+    }
+    return {};
+  }
+
+  Future<void> saveNotificationsMap(
+    File file,
+    Map<String, List<dynamic>> data,
+  ) async {
+    try {
+      await file.writeAsString(jsonEncode(data));
+    } catch (e) {
+      print('⚠️ Error saving notifications file ${file.path}: $e');
+    }
+  }
+
   Map<String, Map<String, dynamic>> customerUsers = await loadUserMap(
     usersFile,
   );
@@ -275,9 +304,10 @@ void main() async {
   final File ordersFile = File('$serverDir/orders.json');
   orders.addAll(await loadUserMap(ordersFile));
   riderRatings.addAll(await loadUserMap(riderRatingsFile));
+  userNotifications.addAll(await loadNotificationsMap(notificationsFile));
 
   print(
-    '👤 Loaded ${customerUsers.length} customers, ${restaurantUsers.length} restaurants, ${riderUsers.length} riders, ${orders.length} orders, ${riderRatings.length} rider ratings',
+    '👤 Loaded ${customerUsers.length} customers, ${restaurantUsers.length} restaurants, ${riderUsers.length} riders, ${orders.length} orders, ${riderRatings.length} rider ratings, ${userNotifications.length} user notifications lists',
   );
 
   await for (HttpRequest request in server) {
@@ -827,11 +857,6 @@ void main() async {
                         );
                       }
                     }
-
-                    Future.delayed(const Duration(hours: 2), () {
-                      orders.remove(orderId);
-                      saveUserMap(ordersFile, orders);
-                    });
                   }
                 }
                 break;
@@ -855,6 +880,7 @@ void main() async {
                     final updated = {
                       ...order,
                       'riderName': msgData['riderName'],
+                      if (msgData['riderEmail'] != null) 'riderEmail': msgData['riderEmail'],
                     };
 
                     orders[orderId] = updated;
@@ -991,6 +1017,53 @@ void main() async {
                 _sendToClient(ws, 'pong', {
                   'time': DateTime.now().toIso8601String(),
                 });
+                break;
+
+              case 'get_order_history':
+                final email = msgData['email'] as String?;
+                final clientType = msgData['clientType'] as String?;
+                if (email != null && clientType != null) {
+                  final list = <Map<String, dynamic>>[];
+                  for (final order in orders.values) {
+                    if (clientType == 'customer') {
+                      if (order['customerEmail'] == email) {
+                        list.add(order);
+                      }
+                    } else if (clientType == 'restaurant') {
+                      if (order['restaurantId'] == email) {
+                        list.add(order);
+                      }
+                    } else if (clientType == 'rider') {
+                      if (order['riderEmail'] == email || order['riderName'] == email) {
+                        list.add(order);
+                      }
+                    }
+                  }
+                  _sendToClient(ws, 'order_history_response', {'orders': list});
+                  print('   📬 Sent ${list.length} orders in history to $email ($clientType)');
+                }
+                break;
+
+              case 'get_notifications':
+                final email = msgData['email'] as String?;
+                if (email != null) {
+                  final list = userNotifications[email] ?? [];
+                  _sendToClient(ws, 'notifications_response', {
+                    'email': email,
+                    'notifications': list,
+                  });
+                  print('   📬 Sent ${list.length} notifications to $email');
+                }
+                break;
+
+              case 'sync_notifications':
+                final email = msgData['email'] as String?;
+                final list = msgData['notifications'] as List<dynamic>?;
+                if (email != null && list != null) {
+                  userNotifications[email] = list;
+                  await saveNotificationsMap(notificationsFile, userNotifications);
+                  print('   📥 Synced ${list.length} notifications for $email');
+                }
                 break;
 
               case 'get_pending_orders':

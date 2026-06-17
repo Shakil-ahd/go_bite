@@ -99,6 +99,22 @@ class WebSocketMenuUpdatedReceived extends CustomerEvent {
   List<Object?> get props => [items];
 }
 
+class WebSocketOrderHistoryReceived extends CustomerEvent {
+  final List<dynamic> orders;
+  const WebSocketOrderHistoryReceived(this.orders);
+
+  @override
+  List<Object?> get props => [orders];
+}
+
+class WebSocketNotificationsReceived extends CustomerEvent {
+  final List<dynamic> notifications;
+  const WebSocketNotificationsReceived(this.notifications);
+
+  @override
+  List<Object?> get props => [notifications];
+}
+
 class ResetCustomerFlow extends CustomerEvent {}
 
 class SearchProducts extends CustomerEvent {
@@ -657,6 +673,15 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         'orderIds': activeIds,
       });
       _webSocketService.send('get_menu', {});
+      if (state.userEmail != null) {
+        _webSocketService.send('get_order_history', {
+          'email': state.userEmail,
+          'clientType': 'customer',
+        });
+        _webSocketService.send('get_notifications', {
+          'email': state.userEmail,
+        });
+      }
     };
 
     _wsSubscription = _webSocketService.messages.listen((message) {
@@ -684,6 +709,12 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           } catch (e) {
             print('❌ ERROR PARSING MENU UPDATE IN CUSTOMER: $e');
           }
+        } else if (event == 'order_history_response') {
+          final ordersList = data['orders'] as List<dynamic>? ?? [];
+          add(WebSocketOrderHistoryReceived(ordersList));
+        } else if (event == 'notifications_response') {
+          final notifsList = data['notifications'] as List<dynamic>? ?? [];
+          add(WebSocketNotificationsReceived(notifsList));
         }
       }
     });
@@ -813,7 +844,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         _saveActiveOrders(state.userEmail!, updatedActiveOrders);
       }
 
-      _webSocketService.send('new_order', newOrder.toJson());
+      final orderPayload = newOrder.toJson();
+      if (state.userEmail != null) {
+        orderPayload['customerEmail'] = state.userEmail;
+      }
+      _webSocketService.send('new_order', orderPayload);
     });
 
     on<RateRider>((event, emit) {
@@ -898,6 +933,13 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           'orderIds': activeIds,
         });
         _webSocketService.send('get_menu', {});
+        _webSocketService.send('get_order_history', {
+          'email': event.email,
+          'clientType': 'customer',
+        });
+        _webSocketService.send('get_notifications', {
+          'email': event.email,
+        });
       }
     });
 
@@ -908,6 +950,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       emit(state.copyWith(notifications: updated));
       if (state.userEmail != null) {
         await _saveNotifications(state.userEmail!, updated);
+        _webSocketService.send('sync_notifications', {
+          'email': state.userEmail,
+          'notifications': updated.map((n) => n.toJson()).toList(),
+        });
       }
     });
 
@@ -915,6 +961,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       emit(state.copyWith(notifications: const []));
       if (state.userEmail != null) {
         await _saveNotifications(state.userEmail!, const []);
+        _webSocketService.send('sync_notifications', {
+          'email': state.userEmail,
+          'notifications': [],
+        });
       }
     });
 
@@ -925,6 +975,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       emit(state.copyWith(notifications: updated));
       if (state.userEmail != null) {
         await _saveNotifications(state.userEmail!, updated);
+        _webSocketService.send('sync_notifications', {
+          'email': state.userEmail,
+          'notifications': updated.map((n) => n.toJson()).toList(),
+        });
       }
     });
 
@@ -949,10 +1003,15 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
         if (index >= 0) {
           if (updatedOrder.status == OrderStatus.delivered ||
               updatedOrder.status == OrderStatus.rejected) {
-            final updatedHistory = List<Order>.from(state.orderHistory)
-              ..add(updatedOrder);
             final updatedActiveOrders = List<Order>.from(state.activeOrders)
               ..removeAt(index);
+            final historyIndex = state.orderHistory.indexWhere((o) => o.id == updatedOrder.id);
+            List<Order> updatedHistory;
+            if (historyIndex >= 0) {
+              updatedHistory = List<Order>.from(state.orderHistory)..[historyIndex] = updatedOrder;
+            } else {
+              updatedHistory = List<Order>.from(state.orderHistory)..add(updatedOrder);
+            }
             emit(
               state.copyWith(
                 activeOrders: updatedActiveOrders,
@@ -966,6 +1025,28 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           } else {
             final updatedActiveOrders = List<Order>.from(state.activeOrders)
               ..[index] = updatedOrder;
+            emit(state.copyWith(activeOrders: updatedActiveOrders));
+            if (state.userEmail != null) {
+              await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
+            }
+          }
+        } else {
+          if (updatedOrder.status == OrderStatus.delivered ||
+              updatedOrder.status == OrderStatus.rejected) {
+            final historyIndex = state.orderHistory.indexWhere((o) => o.id == updatedOrder.id);
+            List<Order> updatedHistory;
+            if (historyIndex >= 0) {
+              updatedHistory = List<Order>.from(state.orderHistory)..[historyIndex] = updatedOrder;
+            } else {
+              updatedHistory = List<Order>.from(state.orderHistory)..add(updatedOrder);
+            }
+            emit(state.copyWith(orderHistory: updatedHistory));
+            if (state.userEmail != null) {
+              await _saveOrderHistory(state.userEmail!, updatedHistory);
+            }
+          } else {
+            final updatedActiveOrders = List<Order>.from(state.activeOrders)
+              ..add(updatedOrder);
             emit(state.copyWith(activeOrders: updatedActiveOrders));
             if (state.userEmail != null) {
               await _saveActiveOrders(state.userEmail!, updatedActiveOrders);
@@ -1084,6 +1165,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           }
           if (state.userEmail != null) {
             await _saveNotifications(state.userEmail!, updatedNotifications);
+            _webSocketService.send('sync_notifications', {
+              'email': state.userEmail,
+              'notifications': updatedNotifications.map((n) => n.toJson()).toList(),
+            });
           }
         }
       }
@@ -1102,6 +1187,87 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       emit(state.copyWith(activeOrders: const []));
       if (state.userEmail != null) {
         await _saveActiveOrders(state.userEmail!, const []);
+      }
+    });
+
+    on<WebSocketOrderHistoryReceived>((event, emit) async {
+      try {
+        final List<Order> fetchedOrders = event.orders.map((json) {
+          return Order.fromJson(Map<String, dynamic>.from(json as Map));
+        }).toList();
+
+        final activeList = <Order>[];
+        final historyList = <Order>[];
+
+        for (final order in fetchedOrders) {
+          if (order.status == OrderStatus.delivered ||
+              order.status == OrderStatus.rejected) {
+            historyList.add(order);
+          } else {
+            activeList.add(order);
+          }
+        }
+
+        final Map<String, Order> mergedActive = {};
+        for (final o in state.activeOrders) {
+          mergedActive[o.id] = o;
+        }
+        for (final o in activeList) {
+          mergedActive[o.id] = o;
+        }
+
+        final Map<String, Order> mergedHistory = {};
+        for (final o in state.orderHistory) {
+          mergedHistory[o.id] = o;
+        }
+        for (final o in historyList) {
+          mergedHistory[o.id] = o;
+        }
+
+        final finalActive = mergedActive.values.toList();
+        final finalHistory = mergedHistory.values.toList();
+
+        finalActive.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        finalHistory.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        emit(state.copyWith(
+          activeOrders: finalActive,
+          orderHistory: finalHistory,
+        ));
+
+        if (state.userEmail != null) {
+          await _saveOrderHistory(state.userEmail!, finalHistory);
+          await _saveActiveOrders(state.userEmail!, finalActive);
+        }
+      } catch (e) {
+        print('Error handling WebSocketOrderHistoryReceived: $e');
+      }
+    });
+
+    on<WebSocketNotificationsReceived>((event, emit) async {
+      try {
+        final List<NotificationItem> fetchedNotifications = event.notifications.map((json) {
+          return NotificationItem.fromJson(Map<String, dynamic>.from(json as Map));
+        }).toList();
+
+        final Map<String, NotificationItem> merged = {};
+        for (final n in state.notifications) {
+          merged[n.id] = n;
+        }
+        for (final n in fetchedNotifications) {
+          merged[n.id] = n;
+        }
+
+        final finalList = merged.values.toList();
+        finalList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+        emit(state.copyWith(notifications: finalList));
+
+        if (state.userEmail != null) {
+          await _saveNotifications(state.userEmail!, finalList);
+        }
+      } catch (e) {
+        print('Error handling WebSocketNotificationsReceived: $e');
       }
     });
   }
